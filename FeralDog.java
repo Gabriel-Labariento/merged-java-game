@@ -26,7 +26,7 @@ public class FeralDog extends Enemy {
         width = 46;
         worldX = x;
         worldY = y;
-        maxHealth = 100;
+        maxHealth = 200;
         hitPoints = maxHealth;
         damage = 2;
         rewardXP = 200;
@@ -34,6 +34,7 @@ public class FeralDog extends Enemy {
         currSprite = 0;
         currentPhase = Phase.NORMAL;
         currentState = State.IDLE;
+        isBoss = true;
     }
 
     private static void setSprites() {

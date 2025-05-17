@@ -80,7 +80,7 @@ public class PlayerUI extends GameObject{
         g2d.fill(xpBarBorder);
 
         Rectangle2D.Double xpBarBG = new Rectangle2D.Double(147.5/sf, 101.1/sf, 188.9/sf, 4.5/sf);
-        g2d.setColor(Color.decode("#808080"));
+        g2d.setColor(Color.BLACK);
         g2d.fill(xpBarBG);
 
         double xpBarWidth = Math.floor(188.9*(xpBarPercent/100));
@@ -111,7 +111,7 @@ public class PlayerUI extends GameObject{
             g2d.fill(bossBarBorder);
 
             Rectangle2D.Double bossBarBG = new Rectangle2D.Double(95.5/sf, 524.4/sf, 609/sf, 11/sf);
-            g2d.setColor(Color.decode("#808080"));
+            g2d.setColor(Color.BLACK);
             g2d.fill(bossBarBG);
 
             double bossHPBarWidth = Math.floor(609*(bossHPBarPercent/100));

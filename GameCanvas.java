@@ -75,7 +75,7 @@ public class GameCanvas extends JComponent {
             g2d.setColor(Color.BLACK);
             g2d.fillRect(0, 0, width, height);
 
-            int scaleFactor = 1;
+            int scaleFactor = 2;
             g2d.scale(scaleFactor, scaleFactor);
             
             int screenX = (800/ (2 * scaleFactor) - userPlayer.getWidth() / (2 * scaleFactor));

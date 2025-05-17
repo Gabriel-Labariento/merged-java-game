@@ -23,7 +23,7 @@ public class ConjoinedRats extends Enemy{
         width = 120;
         worldX = x;
         worldY = y;
-        maxHealth = 50;
+        maxHealth = 600;
         hitPoints = maxHealth;
         damage = 3;
         rewardXP = 50;

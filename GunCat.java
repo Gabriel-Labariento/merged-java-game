@@ -54,16 +54,7 @@ public class GunCat extends Player{
         } catch (IOException e) {
             System.out.println("Exception in Rat setSprites()" + e);
         }
-    }
-
-
-    @Override
-    public void levelUpStats(){
-        hitPoints += 1;
-        maxHealth += 1;
-        damage += 1;
-        speed += 0;
-    }
+    }s
 
     @Override
     public void matchHitBoxBounds() {

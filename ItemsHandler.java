@@ -6,29 +6,29 @@ public class ItemsHandler{
     private static double dropChanceSum;
     static {
         //Use static initializer block to make hashmap of ITEM - DROPCHANCE
-        // AVAILABLEITEMS.put("None", 60);
-        // AVAILABLEITEMS.put("Redfish", 15);
-        // AVAILABLEITEMS.put("Cat Treat", 15);
-        // AVAILABLEITEMS.put("Milk", 4);
-        // AVAILABLEITEMS.put("Premium Cat Food++", 4);
-        // AVAILABLEITEMS.put("Goldfish", 2);
-        // AVAILABLEITEMS.put("Light Scarf", 2);
-        // AVAILABLEITEMS.put("Thick Sweater", 2);
-        // AVAILABLEITEMS.put("Bag of Catnip", 2);
-        // AVAILABLEITEMS.put("Loud Bell", 2);
-        // AVAILABLEITEMS.put("Pringles Can", 2);
+        AVAILABLEITEMS.put("None", 60);
+        AVAILABLEITEMS.put("Redfish", 15);
+        AVAILABLEITEMS.put("Cat Treat", 15);
+        AVAILABLEITEMS.put("Milk", 4);
+        AVAILABLEITEMS.put("Premium Cat Food++", 4);
+        AVAILABLEITEMS.put("Goldfish", 2);
+        AVAILABLEITEMS.put("Light Scarf", 2);
+        AVAILABLEITEMS.put("Thick Sweater", 2);
+        AVAILABLEITEMS.put("Bag of Catnip", 2);
+        AVAILABLEITEMS.put("Loud Bell", 2);
+        AVAILABLEITEMS.put("Pringles Can", 2);
 
-        AVAILABLEITEMS.put("None", 0);
-        AVAILABLEITEMS.put("Redfish", 0);
-        AVAILABLEITEMS.put("Cat Treat", 0);
-        AVAILABLEITEMS.put("Milk", 0);
-        AVAILABLEITEMS.put("Premium Cat Food++", 0);
-        AVAILABLEITEMS.put("Goldfish", 0);
-        AVAILABLEITEMS.put("Light Scarf", 0);
-        AVAILABLEITEMS.put("Thick Sweater", 100);
-        AVAILABLEITEMS.put("Bag of Catnip", 0);
-        AVAILABLEITEMS.put("Loud Bell",0);
-        AVAILABLEITEMS.put("Pringles Can", 0);
+        // AVAILABLEITEMS.put("None", 0);
+        // AVAILABLEITEMS.put("Redfish", 0);
+        // AVAILABLEITEMS.put("Cat Treat", 0);
+        // AVAILABLEITEMS.put("Milk", 0);
+        // AVAILABLEITEMS.put("Premium Cat Food++", 0);
+        // AVAILABLEITEMS.put("Goldfish", 0);
+        // AVAILABLEITEMS.put("Light Scarf", 0);
+        // AVAILABLEITEMS.put("Thick Sweater", 100);
+        // AVAILABLEITEMS.put("Bag of Catnip", 0);
+        // AVAILABLEITEMS.put("Loud Bell",0);
+        // AVAILABLEITEMS.put("Pringles Can", 0);
         for (Integer dropChance: AVAILABLEITEMS.values()){
             dropChanceSum += dropChance;
         }

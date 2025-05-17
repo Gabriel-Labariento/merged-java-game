@@ -30,7 +30,7 @@ public class FishMonster extends Enemy{
         width = 150;
         worldX = x;
         worldY = y;
-        maxHealth = 50;
+        maxHealth = 700;
         hitPoints = maxHealth;
         damage = 2;
         rewardXP = 50;

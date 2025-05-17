@@ -23,7 +23,7 @@ public class HeavyCat extends Player{
         worldY = y;
         maxHealth = 6;
         hitPoints = maxHealth;
-        damage = 5;
+        damage = 8;
         isDown = false;
         attackCDDuration = 1200;
         currSprite = 0;
@@ -55,14 +55,6 @@ public class HeavyCat extends Player{
 
     public void draw(Graphics2D g2d, int xOffset, int yOffset){
         g2d.drawImage(sprites[currSprite], xOffset, yOffset, width, height, null);
-    }
-
-    @Override
-    public void levelUpStats(){
-        hitPoints += 1;
-        maxHealth += 1;
-        damage += 1;
-        speed += 0;
     }
 
     @Override

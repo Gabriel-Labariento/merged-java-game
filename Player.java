@@ -33,7 +33,7 @@ public abstract class Player extends Entity implements Effectable{
             System.out.println("New level: " + currentLvl);
 
 
-            //Increase stats (CHANGES SHOULD BE UNIQUE TO DIFFERENT PLAYERS)
+            //Increase stats and heal
             levelUpStats();
             hitPoints = maxHealth;
 
@@ -68,6 +68,10 @@ public abstract class Player extends Entity implements Effectable{
     }
     
     public void levelUpStats(){
+        hitPoints += 1;
+        maxHealth += 1;
+        damage += 1;
+        speed += 0;
     }
 
     public int getCurrentLvl(){

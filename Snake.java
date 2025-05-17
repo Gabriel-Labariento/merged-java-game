@@ -43,7 +43,7 @@ public class Snake extends Enemy {
         width = 48;
         worldX = x;
         worldY = y;
-        maxHealth = 70;
+        maxHealth = 500;
         hitPoints = maxHealth;
         damage = 2;
         rewardXP = 200;
@@ -51,6 +51,7 @@ public class Snake extends Enemy {
         currSprite = 0;
         currentPhase = Phase.BULLETS;
         currentState = State.IDLE;
+        isBoss= true;
     }
 
     private static void setSprites() {

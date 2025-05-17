@@ -24,11 +24,11 @@ public class MobSpawner {
     private static final String[][] spawnableEnemiesAtLevel = {
         {"Spider", "Cockroach"},
         {"Rat", "SmallDog"},
-        {"Bunny", "Snakelet"},
+        {"Bunny", "Frog"},
         {"Bee", "Snakelet"},
         {"CleaningBot", "SecurityBot"},
-        {"FeralRat", "Bunny", "Rat"},
-        {"MutatedAnchovy", "MutatedPufferfish", "MutatedPufferfish"}
+        {"FeralRat", "ScreamerRat", "Rat"},
+        {"MutatedAnchovy", "MutatedPufferfish", "MutatedArcherfish"}
     };
 
     private static final String[] bosses = {

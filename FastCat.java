@@ -13,16 +13,16 @@ public class FastCat extends Player{
     public FastCat(int cid, int x, int y){
         this.clientId = cid;
         identifier = NetworkProtocol.FASTCAT;
-        speed = 5;
+        speed = 3;
         height = 16;
         width = 16;
         screenX = 800/2 - width/2;
         screenY = 600/2 - height/2;
         worldX = x;
         worldY = y;
-        maxHealth = 2000;
+        maxHealth = 4;
         hitPoints = maxHealth;
-        damage = 20;
+        damage = 5;
         isDown = false;
         attackCDDuration = 600;
         attackFrameDuration = 125;
@@ -58,7 +58,7 @@ public class FastCat extends Player{
     public void matchHitBoxBounds() {
         hitBoxBounds = new int[4];
         hitBoxBounds[0]= worldY;
-        hitBoxBounds[1] = worldY + height;
+        hitBoxBounds[1] = worldY + height;d
         hitBoxBounds[2]= worldX;
         hitBoxBounds[3] = worldX + width;
     }
