@@ -66,12 +66,24 @@ public abstract class Player extends Entity implements Effectable{
     public Item getHeldItem(){
         return heldItem;
     }
+
+    @Override
+    public void setHitPoints(int hP){
+        if(hP > maxHealth && !isMaxHealthSet) hP = maxHealth; 
+        if (hitPoints < 18) hitPoints = hP;
+    }
+
+    @Override
+    public void setMaxHealth(int hP){
+        if (maxHealth < 18) maxHealth = hP;
+    }
     
     public void levelUpStats(){
-        hitPoints += 1;
-        maxHealth += 1;
+        if (hitPoints < 18 || maxHealth < 18){
+            hitPoints += 1;
+            maxHealth += 1;
+        }
         damage += 1;
-        speed += 0;
     }
 
     public int getCurrentLvl(){
