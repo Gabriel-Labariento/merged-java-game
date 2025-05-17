@@ -54,7 +54,7 @@ public class GunCat extends Player{
         } catch (IOException e) {
             System.out.println("Exception in Rat setSprites()" + e);
         }
-    }s
+    }
 
     @Override
     public void matchHitBoxBounds() {

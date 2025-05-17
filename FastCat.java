@@ -58,7 +58,7 @@ public class FastCat extends Player{
     public void matchHitBoxBounds() {
         hitBoxBounds = new int[4];
         hitBoxBounds[0]= worldY;
-        hitBoxBounds[1] = worldY + height;d
+        hitBoxBounds[1] = worldY + height;
         hitBoxBounds[2]= worldX;
         hitBoxBounds[3] = worldX + width;
     }
