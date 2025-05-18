@@ -3,11 +3,34 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The EnemyBite extends the Attack class.
+        It creates a small attack attached to its owner
+        that damages Players.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of my program.
+**/
+
 public class EnemyBite extends Attack{
     public static final int HEIGHT = 16;
     public static final int WIDTH = 16;
     private static BufferedImage sprite;
 
+    /**
+     * Set the sprite to the class and not instances
+     */
     static {
         try {
             BufferedImage img = ImageIO.read(EnemyBite.class.getResourceAsStream("resources/Sprites/SharedEnemy/enemyslash.png"));
@@ -17,6 +40,12 @@ public class EnemyBite extends Attack{
         }
     }
 
+    /**
+     * Creates an instance of EnemyBite with appropriate fields
+     * @param owner the Entity to which the attack is attached
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public EnemyBite(Entity owner, int x, int y){
         attackNum++;
         id = attackNum;
@@ -43,7 +72,6 @@ public class EnemyBite extends Attack{
 
     @Override
     public void matchHitBoxBounds(){
-        // Bounds array is formatted as such: top, bottom, left, right; SIZES SUBJECT TO CHANGE PER ENTITY
         hitBoxBounds = new int[4];
         hitBoxBounds[0]= worldY;
         hitBoxBounds[1] = worldY + height;

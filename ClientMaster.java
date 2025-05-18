@@ -190,8 +190,6 @@ public class ClientMaster {
             return new EnemySlash(null, x, y);
         else if (identifier.equals(NetworkProtocol.ENEMYSMASH))
             return new EnemySmash(null, x, y);
-        else if (identifier.equals(NetworkProtocol.ENEMYBARK))
-            return new EnemyBark(null, x, y);
         else return null;
     }
 

@@ -38,7 +38,6 @@ public class NetworkProtocol {
     public static final String SPIDERBULLET = "AC";
     public static final String LASERBULLET = "AD";
     public static final String SNAKEBULLET = "ZW";
-    public static final String ENEMYBARK = "ZY";
     public static final String ENEMYBITE = "AE";
     public static final String ENEMYSLASH = "AF";
     public static final String ENEMYSMASH = "ZX";
