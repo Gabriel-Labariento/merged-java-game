@@ -3,6 +3,25 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The FishMonster extends Enemy. It is the last Enemy and
+        boss in the game.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of my program.
+**/
+
 public class FishMonster extends Enemy{
     private static BufferedImage[] sprites;
     private enum State {PHASE1, PHASE2, PHASE3}; 
@@ -13,10 +32,18 @@ public class FishMonster extends Enemy{
     private long lastSummonTime;
     private static final int LIMP_CD_DURATION = 50;
 
+    /**
+     * Calls the static setSprites() method
+     */
     static {
         setSprites();
     }
 
+    /**
+     * Creates a FishMonster instance with appropritate fields
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public FishMonster(int x, int y) {
         isBoss = true;
         now = System.currentTimeMillis();
@@ -42,7 +69,10 @@ public class FishMonster extends Enemy{
         
     }
 
-     private static void setSprites() {
+    /**
+     * Sets the sprite images to the class and not the instance
+     */
+    private static void setSprites() {
         try {
             BufferedImage phaseA0 = ImageIO.read(FishMonster.class.getResourceAsStream("resources/Sprites/FishMonster/phaseA0.png"));
             BufferedImage phaseA1 = ImageIO.read(FishMonster.class.getResourceAsStream("resources/Sprites/FishMonster/phaseA1.png"));
@@ -84,6 +114,8 @@ public class FishMonster extends Enemy{
         double distanceSquared = getSquaredDistanceBetween(this, pursued);
         
         switch (currentForm) {
+
+            // SLOW, HIGH DAMAGE
             case PHASE1:
                 //Slow the boss beyond lowest speed
                 if (now - lastLimpTime > LIMP_CD_DURATION){
@@ -101,14 +133,11 @@ public class FishMonster extends Enemy{
                     lastSummonTime = now;
                 }
 
-                // if (now - lastAttackTime > attackCDDuration && distanceSquared <= actionDistance){
-                //     createBiteAttack(gsm, pursued, null);
-                //     lastAttackTime = now;
-                // }
-
                 //Set triger for phase 2
                 if(hitPoints <= (maxHealth*0.5)) currentForm = State.PHASE2;
                 break;
+            
+            // OVERWHELM WITH MINIONS
             case PHASE2:
                 damage = 1;
                 summonCDDuration = 12000;
@@ -120,6 +149,8 @@ public class FishMonster extends Enemy{
                     lastSummonTime = now;
                 }
                 break;
+            
+            // BULLETS
             case PHASE3:
                 attackCDDuration = 400;
                 actionDistance = (GameCanvas.TILESIZE*16) * (GameCanvas.TILESIZE*16);
@@ -131,26 +162,33 @@ public class FishMonster extends Enemy{
                     if (attackRoll > 0.3) createRandomBullet(gsm, pursued);
                     else createBulletCircle(gsm);
                 }
-                    
-                break;
-     
-            
+                break;       
             default:
                 throw new AssertionError();
         }
-
         matchHitBoxBounds();
     }
 
+    /**
+     * Changes the state of the FishMonster to Phase 3 and resets its health
+     */
     public void triggerPhase3(){
         currentForm = State.PHASE3;
         hitPoints = maxHealth;
     }
 
+    /**
+     * Checks if the FishMonster is in Phase 3
+     * @return a boolean true if the FishMonster is in Phase 3, false otherwise
+     */
     public boolean isPhase3(){
         return (currentForm == State.PHASE3);
     }
 
+    /**
+     * Updates the frame of the FishMonster to simulate movement
+     * depending on its phase
+     */
     private void updateFrame(){
         if (now - lastSpriteUpdate > SPRITE_FRAME_DURATION){
             currSprite++;
@@ -169,6 +207,11 @@ public class FishMonster extends Enemy{
         }
     }
 
+    /**
+     * Creates a random minion choosing from MutatedAnchovy, MutatedArcherFish,
+     * and MutatedPufferFish. These minions do not give XP to avoid farming.
+     * @param gsm
+     */
     private void summonMinion(ServerMaster gsm){
         int centerX = getCenterX();
         int centerY = getCenterY();
@@ -185,6 +228,10 @@ public class FishMonster extends Enemy{
         gsm.addEntity(summon);
     }
 
+    /**
+     * Sends 12 bullets around the FishMonster
+     * @param gsm the ServerMaster instance containing the entities ArrayList
+     */
     private void createBulletCircle(ServerMaster gsm){
         double radius = GameCanvas.TILESIZE;
 
@@ -209,5 +256,4 @@ public class FishMonster extends Enemy{
 
         }
     }
-    
 }
