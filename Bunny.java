@@ -3,18 +3,45 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The Bunny class extends the Enemy class. It appears in the
+        third level. Its behavior consists of pursuing the player
+        and generating a bite attack with a poison effect once the
+        player is within attack range.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of my program.
+**/
+
 public class Bunny extends Enemy{
-    private static final int SPRITE_FRAME_DURATION = 200;
     private static final int BITE_COOLDOWN = 1500;
     private static final int BITE_DISTANCE = GameCanvas.TILESIZE * 2;
-    private long lastSpriteUpdate = 0;
     private long lastBiteAttack = 0;
     private static BufferedImage[] sprites;
 
+    /**
+     * Calles the static setSprites method
+     */
     static {
         setSprites();
     }
 
+    /**
+     * Creates a Bunny instance with appropriate fields 
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public Bunny(int x, int y) {
         id = enemyCount++;
         identifier = NetworkProtocol.BUNNY;
@@ -29,9 +56,11 @@ public class Bunny extends Enemy{
         rewardXP = 50;
         currentRoom = null;
         currSprite = 0;
-        
     }
 
+    /**
+     * Sets the sprite images to the Bunny class and not the individual instances
+     */
      private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(Bunny.class.getResourceAsStream("resources/Sprites/Bunny/bunny_left0.png"));
@@ -64,10 +93,12 @@ public class Bunny extends Enemy{
     
     @Override
     public void updateEntity(ServerMaster gsm){
-        long now = System.currentTimeMillis();
+        now = System.currentTimeMillis();
 
         Player pursued = scanForPlayer(gsm);
         if (pursued == null) return;
+
+        // Create an attack if the player is within bite distance
         if (getSquaredDistanceBetween(this, pursued) < BITE_DISTANCE * BITE_DISTANCE) {
             if (now - lastBiteAttack > BITE_COOLDOWN ) {
                 createBiteAttack(gsm, pursued, new PoisonEffect());
