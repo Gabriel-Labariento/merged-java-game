@@ -4,7 +4,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 /**     
-        The AdultCat class creates a extends the Enemy class and
+        The AdultCat class extends the Enemy class and
         is one of the bosses in the game. It appears as the boss
         in the fifth level. Its behavior consists of pursuing,
         attacking, charging, jumping, and slashing at the player.
