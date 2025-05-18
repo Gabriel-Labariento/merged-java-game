@@ -3,13 +3,42 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The CleaningRobot class extends the Enemy class. It gives 
+        appears in the game's fifth level. It runs away from the player
+        when the player is far. When the player is close, it activates
+        an defensive attack.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of my program.
+**/
+
 public class CleaningRobot extends Enemy{
     private static BufferedImage[] sprites;
 
+    /**
+     * Calls the static setSprites() method
+     */
     static {
         setSprites();
     }
 
+    /**
+     * Creates a CleaningRobot instance with appropriate fields
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public CleaningRobot(int x, int y) {
         id = enemyCount++;
         lastSpriteUpdate = 0;
@@ -30,6 +59,9 @@ public class CleaningRobot extends Enemy{
         
     }
 
+    /**
+     * Sets the sprites to the class instead of the individual instances
+     */
      private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(CleaningRobot.class.getResourceAsStream("resources/Sprites/CleaningBot/left0.png"));
@@ -65,16 +97,16 @@ public class CleaningRobot extends Enemy{
         Player pursued = scanForPlayer(gsm);
         if (pursued == null) return;
         double distanceSquared = getSquaredDistanceBetween(this, pursued);
+
+        // Check if the player is within aggro distance
         if (distanceSquared <= AGGRO_DISTANCE) {
+            // If the attack has cooled down, attack.
             if (now - lastAttackTime > attackCDDuration) {
                 activateDefense(gsm);
                 lastAttackTime = now;
             }
-        } else {
-            runFromPlayer(pursued);
-        }
+        } else runFromPlayer(pursued);
         
-
         // Sprite walk update
         if (now - lastSpriteUpdate > SPRITE_FRAME_DURATION) {
             if (worldX > pursued.getWorldX()) {
@@ -88,6 +120,10 @@ public class CleaningRobot extends Enemy{
         matchHitBoxBounds();
     }
 
+    /**
+     * Creates and fires 8 LaserBullet objects around the CleaningRobot instance
+     * @param gsm the ServerMaster containing the entities ArrayList where LaserBullets are added 
+     */
     private void activateDefense(ServerMaster gsm){
         double radius = GameCanvas.TILESIZE;
 
