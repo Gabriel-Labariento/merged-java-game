@@ -3,15 +3,44 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The ConjoinedRats class extends Enemy. It is one 
+        of the bosses in the game. It appears in level six.
+        This boss summons minions to fight for it and pursues
+        the player at a slower pace when limping.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of my program.
+**/
+
 public class ConjoinedRats extends Enemy{
     private static BufferedImage[] sprites;
     private long lastLimpTime;
     private static final int LIMP_CD_DURATION = 200;
 
+    /**
+     * Calls the static setSprites() method
+     */
     static {
         setSprites();
     }
 
+    /**
+     * Creates ConjoinedRats instance with appropriate fields
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public ConjoinedRats(int x, int y) {
         isBoss = true;
         lastSpriteUpdate = 0;
@@ -33,7 +62,10 @@ public class ConjoinedRats extends Enemy{
         
     }
 
-     private static void setSprites() {
+    /**
+     * Sets the sprite images to the class and not individual images
+     */
+    private static void setSprites() {
         try {
             BufferedImage walk0 = ImageIO.read(ConjoinedRats.class.getResourceAsStream("resources/Sprites/ConjoinedRats/walk0.png"));
             BufferedImage walk1 = ImageIO.read(ConjoinedRats.class.getResourceAsStream("resources/Sprites/ConjoinedRats/walk1.png"));
@@ -77,20 +109,26 @@ public class ConjoinedRats extends Enemy{
         
         double distanceSquared = getSquaredDistanceBetween(this, pursued);
 
-        //Slow the boss beyond lowest speed
+        // Slow the boss beyond lowest speed
         if (now - lastLimpTime > LIMP_CD_DURATION){
             pursuePlayer(pursued);
             lastLimpTime = now;
         }
 
+        // Summon minions if within action distance and attack has cooled down
         if (distanceSquared <= ACTION_DISTANCE && now - lastAttackTime > attackCDDuration) {
             summonMinion(gsm);
             lastAttackTime = now;
         } 
         
+        // Update hitbox
         matchHitBoxBounds();
     }
 
+    /**
+     * Summons a random minion rat: Rat, FeralRat, or ScreamerRat
+     * @param gsm ServerMaster instance containing the entities arraylist to which the minions are added
+     */
     private void summonMinion(ServerMaster gsm){
         int centerX = getCenterX();
         int centerY = getCenterY();
@@ -107,6 +145,10 @@ public class ConjoinedRats extends Enemy{
         gsm.addEntity(summon);
     }
 
+    /**
+     * Upon death, summons 10 minions.
+     * @param gsm ServerMaster instance containing the entities arraylist to which the minions are added
+     */
     public void handleDeath(ServerMaster gsm){
         for (int i = 0; i < 10; i++) summonMinion(gsm);
     }
