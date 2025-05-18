@@ -3,14 +3,42 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The FeralRat extends Enemy. It is a simple Enemy that
+        creates a bite attack toward the player when close, and
+        chases the player if they are far.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of my program.
+**/
+
 public class FeralRat extends Enemy{
     
     private static BufferedImage[] sprites;
 
+    /**
+     * Calls the static setSprites() method
+     */
     static {
         setSprites();
     }
 
+    /**
+     * Creates a FeralRat instance with appropriate fields
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public FeralRat(int x, int y) {
         lastSpriteUpdate = 0;
         lastAttackTime = 0;
@@ -31,7 +59,10 @@ public class FeralRat extends Enemy{
         
     }
 
-     private static void setSprites() {
+    /**
+     * Set the sprite images to the class and not the instances
+     */
+    private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(FeralRat.class.getResourceAsStream("resources/Sprites/FeralRat/left0.png"));
             BufferedImage right0 = ImageIO.read(FeralRat.class.getResourceAsStream("resources/Sprites/FeralRat/right0.png"));
@@ -65,8 +96,11 @@ public class FeralRat extends Enemy{
         Player pursued = scanForPlayer(gsm);
         if (pursued == null) return;
         double distanceSquared = getSquaredDistanceBetween(this, pursued);
+
+        // If within distance
         if (distanceSquared <= ACTION_DISTANCE) {
             if (now - lastAttackTime > attackCDDuration) {
+                // Check if cool down has finished 
                 createBiteAttack(gsm, pursued, null);
                 lastAttackTime = now;
             }
