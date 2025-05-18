@@ -1,15 +1,44 @@
 import java.util.*;
 
+/**     
+        The DungeonMap is the main map of the game. It contains
+        rooms that it connects. The number of Rooms increase
+        directly with the game level. The rooms are procedurally
+        connected and checked for connections through a BFS algorithm.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of my program.
+**/
+
 public class DungeonMap {
     private final ArrayList<Room> rooms;
     private Room startRoom, endRoom;
     private int gameLevel;
 
+    /**
+     * Creates a DungeonMap instance setting the gameLevel field
+     * @param gameLevel the value to set gameLevel to
+     */
     public DungeonMap (int gameLevel) {
         rooms = new ArrayList<>();
         this.gameLevel = gameLevel;
     }
 
+    /**
+     * Creates a DungeonMap instance without setting gameLevel.
+     * Used for client side rendering
+     */
     public DungeonMap () {
         rooms = new ArrayList<>();
     }
@@ -401,18 +430,34 @@ public class DungeonMap {
         return null;
     }
 
+    /**
+     * Gets the rooms ArrayList
+     * @return the rooms ArrayList of the instance
+     */
     public ArrayList<Room> getRooms() {
         return rooms;
     }
 
+    /**
+     * Gets a reference to the instance's starting Room
+     * @return a Room reference to the startRoom
+     */
     public Room getStartRoom() {
         return startRoom;
     }
 
+    /**
+     * Gets a reference to the instance's ending Room
+     * @return a Room reference to the endRoom
+     */
     public Room getEndRoom() {
         return endRoom;
     }
 
+    /**
+     * Gets the value of the gameLevel field
+     * @return int value of gameLevel
+     */
     public int getGameLevel() {
         return gameLevel;
     }
@@ -428,6 +473,15 @@ public class DungeonMap {
         private final int id, x, y, roomAId, roomBId;
         private final String direction;
 
+        /**
+         * Creates a DoorDataHolder instance with fields set to the passed arguments
+         * @param id the door id
+         * @param x the x-coordinate
+         * @param y the y-coordinate
+         * @param direction the direction in the room where the door appears
+         * @param roomAId the id of RoomA
+         * @param roomBId the id of RoomB
+         */
         public DoorDataHolder(int id, int x, int y, String direction, int roomAId, int roomBId) {
             this.id = id;
             this.x = x;
@@ -437,6 +491,11 @@ public class DungeonMap {
             this.direction = direction;
         }
 
+        /**
+         * Using the data stored in the DoorDataHolder instance to create a Door.
+         * @param mapIdToRoom a HashMap that maps a RoomId to the Room object
+         * @return a Door created from the data stored in DoorDataHolder
+         */
         public Door createDoorFromDoorData(HashMap<Integer, Room> mapIdToRoom ) {
             Door d = new Door(x, y, direction, mapIdToRoom.get(roomAId), mapIdToRoom.get(roomBId));
             d.setId(this.id);
