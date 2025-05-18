@@ -535,6 +535,7 @@ public class ServerMaster {
                         heldItem.triggerDespawnTimer();
                         
                         //Visual drop mechanics
+                        heldItem.setCurrentRoom(player.getCurrentRoom());
                         heldItem.setWorldX(player.getWorldX());
                         heldItem.setWorldY(player.getWorldY());
                         heldItem.matchHitBoxBounds();

@@ -56,15 +56,6 @@ public class GunCat extends Player{
         }
     }
 
-
-    @Override
-    public void levelUpStats(){
-        hitPoints += 1;
-        maxHealth += 1;
-        damage += 1;
-        speed += 0;
-    }
-
     @Override
     public void matchHitBoxBounds() {
         hitBoxBounds = new int[4];

@@ -27,8 +27,8 @@ public class MobSpawner {
         {"Bunny", "Frog"},
         {"Bee", "Snakelet"},
         {"CleaningBot", "SecurityBot"},
-        {"FeralRat", "Bunny", "Rat"},
-        {"MutatedAnchovy", "MutatedPufferfish", "MutatedPufferfish"}
+        {"FeralRat", "ScreamerRat", "Rat"},
+        {"MutatedAnchovy", "MutatedPufferfish", "MutatedArcherfish"}
     };
 
     private static final String[] bosses = {

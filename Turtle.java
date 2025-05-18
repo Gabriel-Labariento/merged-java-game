@@ -38,19 +38,21 @@ public class Turtle extends Enemy {
         id = enemyCount++;
         identifier = NetworkProtocol.TURTLE;
         speed = 1;
-        height = 48;
-        width = 48;
+        height = 90;
+        width = 90;
         worldX = x;
         worldY = y;
-        maxHealth = 90;
+        maxHealth = 400;
         hitPoints = maxHealth;
         realHealth = maxHealth;
         damage = KILLER_DAMAGE;
         rewardXP = 200;
         currentRoom = null;
+        isBoss = true;
         currSprite = 0;
         currentPhase = Phase.KILLER;
         currentState = State.IDLE;
+        isBoss = true;
     }
 
     private static void setSprites() {

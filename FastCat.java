@@ -21,9 +21,9 @@ public class FastCat extends Player{
         screenY = 600/2 - height/2;
         worldX = x;
         worldY = y;
-        maxHealth = 2000;
+        maxHealth = 4;
         hitPoints = maxHealth;
-        damage = 20;
+        damage = 5;
         isDown = false;
         attackCDDuration = 600;
         attackFrameDuration = 125;

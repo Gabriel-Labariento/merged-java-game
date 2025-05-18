@@ -27,13 +27,14 @@ public class RatKing extends Enemy {
         width = 48;
         worldX = x;
         worldY = y;
-        maxHealth = 70;
+        maxHealth = 150;
         hitPoints = maxHealth;
         damage = 2;
         rewardXP = 200;
         currentRoom = null;
         currSprite = 0;
         currentPhase = Phase.MOVE_AWAY;
+        isBoss = true;
     }
 
     private static void setSprites() {
