@@ -172,7 +172,7 @@ public class ServerMaster {
             }
         }
 
-        if (currentRoom.getMobSpawner().isAllKilled()) {
+        if (!currentRoom.isEndRoom() && currentRoom.getMobSpawner().isAllKilled()) {
             currentRoom.setCleared(true);
             return true;
         } return false;
@@ -191,7 +191,6 @@ public class ServerMaster {
         currentRoom.openDoors();
 
         if (currentRoom.isEndRoom()) {
-            System.out.println("In handleRoomCleared, cleared endroom");
             handleBossDefeat();
         }
 
@@ -249,6 +248,8 @@ public class ServerMaster {
      * Sent String is in the format: LC:M:(See DungeonMap.serialize())|E:(Player Data)
      */
     public void triggerLevelTransition(){
+        // TODO: TRANSITION TO GAME FINISH SCREEN
+        
         ArrayList<Player> players = getAllPlayers();
         entities.clear();
 

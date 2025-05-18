@@ -197,6 +197,15 @@ public abstract class Player extends Entity implements Effectable{
     private int[] getNewPositionAfterRoomTransition(Door origin, Room next){
         int[] newCoordinates = new int[2];
 
+
+        // Added null safety for next room
+        if (next == null) {
+            System.out.println("Next room is null on getNewPositionAfterRoomTransition");
+            newCoordinates[0] = (Room.WIDTH_TILES / 2) * GameCanvas.TILESIZE;
+            newCoordinates[1] = (Room.HEIGHT_TILES / 2) * (GameCanvas.TILESIZE);
+            return newCoordinates;
+        }
+
         String otherDoorDirection = getOppositeDirection(origin.getDirection());
 
         Door otherDoor = null;

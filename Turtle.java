@@ -34,7 +34,8 @@ public class Turtle extends Enemy {
     }
 
     public Turtle(int x, int y) {
-        id = -1; // Only one instance, doesn't really matter the value but there has to be one
+        isBoss = true;
+        id = enemyCount++;
         identifier = NetworkProtocol.TURTLE;
         speed = 1;
         height = 48;

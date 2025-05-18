@@ -24,7 +24,7 @@ public class MobSpawner {
     private static final String[][] spawnableEnemiesAtLevel = {
         {"Spider", "Cockroach"},
         {"Rat", "SmallDog"},
-        {"Bunny", "Snakelet"},
+        {"Bunny", "Frog"},
         {"Bee", "Snakelet"},
         {"CleaningBot", "SecurityBot"},
         {"FeralRat", "Bunny", "Rat"},
@@ -55,6 +55,7 @@ public class MobSpawner {
         spawnedEnemies = new ArrayList<>();
         // spawnedCount = 0;
         isSpawning = false;
+        boss = null;
     }
 
     public void spawn() {
@@ -68,9 +69,9 @@ public class MobSpawner {
 
                     Enemy enemy = null;
                     if (inBossRoom && spawnedCount == 0) {
-                        enemy = createBoss(level);
-                        boss = enemy;
-                        spawnEnemy(enemy);
+                        boss = createBoss(level);
+                        System.out.println("Boss is " + boss.getClass());
+                        spawnEnemy(boss);
                         for (int i = 0; i < 0; i++) {
                             enemy = createNormalEnemy(level);
                             spawnEnemy(enemy);

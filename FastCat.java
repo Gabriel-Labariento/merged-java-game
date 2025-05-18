@@ -13,7 +13,8 @@ public class FastCat extends Player{
     public FastCat(int cid, int x, int y){
         this.clientId = cid;
         identifier = NetworkProtocol.FASTCAT;
-        speed = 5;
+        baseSpeed = 5;
+        speed = baseSpeed;
         height = 16;
         width = 16;
         screenX = 800/2 - width/2;
