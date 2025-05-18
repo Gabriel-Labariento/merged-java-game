@@ -3,6 +3,26 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The Bee class extends the Enemy class. It appears in the
+        fourth level. Its behavior consists of pursuing, charging,
+        and slightly moving away from players in between charges.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of my program.
+**/
+
 public class Bee extends Enemy{
     private static final int DASH_COOLDOWN = 1000;
     private static final int DASH_DISTANCE = GameCanvas.TILESIZE * 4;
@@ -11,10 +31,19 @@ public class Bee extends Enemy{
     private enum State {IDLE, PURSUE, DASH};
     private State currentState;
 
+    /**
+     * Calles the static setSprites() method
+     */
     static {
         setSprites();
     }
 
+    /**
+     * Creates an instance of a Bee with appropriate fields
+     * Sets the initial state to IDLE
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public Bee(int x, int y) {
         id = enemyCount++;
         identifier = NetworkProtocol.BEE;
@@ -32,6 +61,10 @@ public class Bee extends Enemy{
         currentState = State.IDLE;
     }
 
+    /**
+     * Sets the sprite images of the object. The method is static to make the sprites belong to the class
+     * and not the individual instances.
+     */
      private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(Bee.class.getResourceAsStream("resources/Sprites/Bee/bee_left0.png"));
@@ -79,6 +112,7 @@ public class Bee extends Enemy{
             lastSpriteUpdate = now;
         }
 
+        // State and behavior handling
         switch (currentState) {
             case IDLE:
                 speed = 1;
@@ -97,7 +131,7 @@ public class Bee extends Enemy{
 
             case DASH:
                 speed = DASH_DISTANCE;
-                currSprite = (pursued.getWorldX() > worldX) ? 5 : 2;
+                currSprite = (pursued.getWorldX() > worldX) ? 5 : 2; // Right and left dash sprites
                 pursuePlayer(pursued);
                 lastDashTime = now;
                 currentState = State.PURSUE;
