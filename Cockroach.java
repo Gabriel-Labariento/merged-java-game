@@ -3,6 +3,26 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The Cockroach class extends Enemy. It appears in the
+        game's first level. The Cockroach follows and jumps
+        towards the player to deal damage.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of my program.
+**/
+
 public class Cockroach extends Enemy{
     private static final int IDLE_DURATION = 400;
     private static final int ATTACK_DURATION = 300;
@@ -12,10 +32,18 @@ public class Cockroach extends Enemy{
     private enum State {IDLE, PURSUE, ATTACK}; 
     private State currentState;
     
+    /**
+     * Calles the static setSprites() method.
+     */
     static {
         setSprites();
     }
 
+    /**
+     * Creates a Cockroach instance with appropriate field values
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public Cockroach(int x, int y) {
         id = enemyCount++;
         identifier = NetworkProtocol.COCKROACH;
@@ -33,7 +61,10 @@ public class Cockroach extends Enemy{
         currentState = State.IDLE;
     }
 
-     private static void setSprites() {
+    /**
+     * Sets the sprite images statically in the class and not the individual instances
+     */
+    private static void setSprites() {
         try {
             BufferedImage up0 = ImageIO.read(Cockroach.class.getResourceAsStream("resources/Sprites/Cockroach/cockroach_up0.png"));
             BufferedImage up1 = ImageIO.read(Cockroach.class.getResourceAsStream("resources/Sprites/Cockroach/cockroach_up1.png"));
@@ -81,13 +112,16 @@ public class Cockroach extends Enemy{
         double distanceSquared = getSquaredDistanceBetween(this, pursued);
 
         switch (currentState) {
+
+            // Pause in between movement
             case IDLE:
                 if (now - lastStateChangeTime > IDLE_DURATION) {
                     currentState = State.PURSUE;
                     lastStateChangeTime = now;
                 }
                 break;
-
+            
+            // Chase Player
             case PURSUE:
                 pursuePlayer(pursued);
                 if (distanceSquared <= ATTACK_RANGE * ATTACK_RANGE) {
@@ -95,7 +129,8 @@ public class Cockroach extends Enemy{
                     lastStateChangeTime = now;
                 }
                 break;
-
+            
+            // Jump towards Player
             case ATTACK:
                 if (now - lastStateChangeTime > ATTACK_DURATION) { 
                     initiateJump(pursued);
@@ -108,6 +143,6 @@ public class Cockroach extends Enemy{
                 throw new AssertionError();
         }
 
-        matchHitBoxBounds();
+        matchHitBoxBounds(); // Update hitbox to current position
     }
 }
