@@ -1,4 +1,5 @@
 import java.awt.Graphics2D;
+
 /**     
         The Entity class extends GameObject and is extended directly
         by Player, Enemy, Attack, and Item classes. The methods in this 
@@ -17,7 +18,7 @@ import java.awt.Graphics2D;
         If any Java language code or documentation used in our program
         was obtained from another source, such as a textbook or website,
         that has been clearly noted with a proper citation in the comments
-        of my program.
+        of our program.
 **/
 
 public abstract class Entity extends GameObject {

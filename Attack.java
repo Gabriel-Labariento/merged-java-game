@@ -18,7 +18,7 @@ import java.util.ArrayList;
         If any Java language code or documentation used in our program
         was obtained from another source, such as a textbook or website,
         that has been clearly noted with a proper citation in the comments
-        of my program.
+        of our program.
 **/
 
 public abstract class Attack extends Entity{

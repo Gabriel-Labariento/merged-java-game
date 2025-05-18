@@ -5,7 +5,9 @@ import javax.imageio.ImageIO;
 
 /**     
         The FishMonster extends Enemy. It is the last Enemy and
-        boss in the game.
+        boss in the game. It supports three Phases with three different
+        behaviors: slow with high damage, normal with swarms, and bullet
+        mania.
 
         @author Niles Tristan Cabrera (240828)
         @author Gabriel Matthew Labariento (242425)
@@ -19,7 +21,7 @@ import javax.imageio.ImageIO;
         If any Java language code or documentation used in our program
         was obtained from another source, such as a textbook or website,
         that has been clearly noted with a proper citation in the comments
-        of my program.
+        of our program.
 **/
 
 public class FishMonster extends Enemy{
