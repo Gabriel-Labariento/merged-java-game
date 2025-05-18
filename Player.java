@@ -98,7 +98,6 @@ public abstract class Player extends Entity implements Effectable{
         isDown = b;
     }
 
-
     public boolean getIsDown(){
         return isDown;
     }

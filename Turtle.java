@@ -13,12 +13,10 @@ public class Turtle extends Enemy {
     private final int KILLER_DAMAGE = 10;
     private static final int ATTACK_RANGE = GameCanvas.TILESIZE * 3;
 
-    private long lastAttackTime = 0;
     private long lastIdleTime = 0;
     private long lastSpawnTime = 0;
     private long lastShellEnterTime = 0;
     private long lastShellExitTime = 0;
-    private long lastSpriteUpdate = 0;
 
     private static BufferedImage[] sprites;
     private enum Phase {KILLER, SHELL};

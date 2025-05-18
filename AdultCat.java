@@ -3,6 +3,27 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The AdultCat class creates a extends the Enemy class and
+        is one of the bosses in the game. It appears as the boss
+        in the fifth level. Its behavior consists of pursuing,
+        attacking, charging, jumping, and slashing at the player.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of my program.
+**/
+
 public class AdultCat extends Enemy{
     private static BufferedImage[] sprites;
     private enum State {PURSUE, ATTACK, CHARGING, SLASHING, JUMPING}; 
@@ -10,23 +31,27 @@ public class AdultCat extends Enemy{
     private static final int CHARGE_DURATION = 2500;
     private static final int CHARGE_TELEGRAPH_DURATION = 500;
     private static final int JUMP_TELEGRAPH_DURATION = 3000;
-    private boolean isSlashFramesDone;
     private boolean isAttackSet;
     private double chargeDirX;
     private double chargeDirY;
-    private int jumpX;
-    private int jumpY;
     private long chargeStartTime;
     private long jumpStartTime;
     private int initialSpeed;
     public int currentPhase;
     private static final int ATTACK_DISTANCE = (GameCanvas.TILESIZE * 3) * (GameCanvas.TILESIZE * 3);
     
-
+    /**
+     * Calls the static setSprites method.
+     */
     static {
         setSprites();
     }
 
+    /**
+     * Creates an instance of the AdultCat with appropriate field values
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public AdultCat(int x, int y) {
         isBoss = true;
         lastSpriteUpdate = 0;
@@ -51,6 +76,10 @@ public class AdultCat extends Enemy{
         currentPhase = 1;
     }
 
+    /**
+     * Sets the sprite images of the object. The method is static to make the sprites belong to the class
+     * and not the individual instances.
+     */
      private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(AdultCat.class.getResourceAsStream("resources/Sprites/AdultCat/left0.png"));
@@ -98,12 +127,14 @@ public class AdultCat extends Enemy{
         currentPhase = (hitPoints > (maxHealth * 0.5)) ? 1 : 2;
         
         switch (currentState) {
+            
             case PURSUE:
-                speed  = (currentPhase == 1) ? 2 : 4;
+                speed = (currentPhase == 1) ? 2 : 4; // Set speed depending on phase
                 pursuePlayer(pursued);
                 updatePursuitFrame(pursued);
                 if (distanceSquared <= ATTACK_DISTANCE) currentState = State.ATTACK;
                 break;
+            
             case ATTACK:
                 if (now - lastAttackTime > attackCDDuration) {
                     double attackRoll = Math.random();
@@ -127,6 +158,7 @@ public class AdultCat extends Enemy{
                     isAttacking = true;
                 } else currSprite = 6;    
                 break;
+
             case SLASHING:
                 // Handle the slashing animation and attack in the main game loop
                 updateSlashFrames();
@@ -135,10 +167,12 @@ public class AdultCat extends Enemy{
                     currentState = State.PURSUE;
                 } 
                 break;
+
             case CHARGING:
                 chargeAtPlayer(pursued);
                 if (!isAttacking) currentState = State.PURSUE;
                 break;
+
             case JUMPING:
                 jumpAtPlayer(pursued, gsm);
                 if (!isAttacking) currentState = State.PURSUE;
@@ -151,6 +185,10 @@ public class AdultCat extends Enemy{
         matchHitBoxBounds();
     }
 
+    /**
+     * When the instance is in a slashing state, this method is
+     * caled to update the object's slashing sprites.
+     */
     private void updateSlashFrames() {
         if (now - lastSpriteUpdate > attackFrameDuration) {
             //If last frame, end attack
@@ -164,6 +202,11 @@ public class AdultCat extends Enemy{
         }
     }
 
+    /**
+     * When the object is in a Pursue state, updates the sprites
+     * based on where the pursued player is in relation to the instance.
+     * @param pursued the pursued or targeted player
+     */
     private void updatePursuitFrame(Player pursued){
         if (now - lastSpriteUpdate > SPRITE_FRAME_DURATION) {
             if (worldX > pursued.getWorldX()) {
@@ -177,6 +220,11 @@ public class AdultCat extends Enemy{
         }
     }
 
+    /**
+     * Creates three new enemySlash instances around the instance
+     * at random angles
+     * @param gsm the servermaster instance that holds the entities ArrayList where the EnemySlash instances are added
+     */
     private void createJumpFlurry(ServerMaster gsm){
         int centerX =  getCenterX();
         int centerY = getCenterY();
@@ -201,6 +249,10 @@ public class AdultCat extends Enemy{
         
     }
 
+    /**
+     * Handles charging towards a player when the instance is in a charging state
+     * @param target the Player object that is the target of the attack
+     */
     private void chargeAtPlayer(Player target){
         
         if(!isAttackSet){
@@ -214,7 +266,6 @@ public class AdultCat extends Enemy{
 
             isAttackSet = true;
             chargeStartTime = now;
-
         }
 
         if (now  - chargeStartTime < CHARGE_TELEGRAPH_DURATION){
@@ -230,14 +281,23 @@ public class AdultCat extends Enemy{
             }
             
             speed = 8;
+
             int newX = (int) (worldX + chargeDirX * speed);
             int newY = (int) (worldY + chargeDirY * speed);
+
             updatePursuitFrame(target);
 
             setPosition(newX, newY);
         }
     }
 
+    /**
+     * Handles the instance's jump behavior when it is in a jump state.
+     * After a telegraph, it jumps towards the player's position and calls
+     * createJumpFlurry();
+     * @param target the Player object that is the target of the attack
+     * @param gsm the ServerMaster instance to be passed to createJumpFlurry()
+     */
     private void jumpAtPlayer(Player target, ServerMaster gsm){
         if(!isAttackSet){
             isAttackSet = true;
@@ -245,8 +305,7 @@ public class AdultCat extends Enemy{
         }
 
         if (now  - jumpStartTime < JUMP_TELEGRAPH_DURATION){
-            //telegraph attack
-            currSprite = 9;
+            currSprite = 9; // Telegraph sprite
         }
         else{
             setPosition(target.getCenterX(),  target.getCenterY());
