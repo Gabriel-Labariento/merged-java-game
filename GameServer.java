@@ -7,17 +7,45 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**     
+        The GameServer class handles the server-side networking logic.
+        It accepts connections from clients (ConnectedPlayer) and synchronized
+        game state.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class GameServer {
     private static final int TICKSPERSECOND = 60;
+    // Network
     private ServerSocket ss;
     private ArrayList<Socket> sockets;
-    private ServerMaster serverMaster;
-    private ArrayList<ConnectedPlayer> connectedPlayers;
-    private ScheduledExecutorService gameLoopScheduler;
-    private ScheduledExecutorService sendAssetsScheduler;
     private int clientNum;
     private int port;
 
+    // Game State
+    private ServerMaster serverMaster;
+    private ArrayList<ConnectedPlayer> connectedPlayers;
+    // Threads
+    private ScheduledExecutorService gameLoopScheduler;
+    private ScheduledExecutorService sendAssetsScheduler;
+    
+    /**
+     * Creates a GameServer instance, initializes server components, and 
+     * looks for an available port for connection.
+     */
     public GameServer() {
         clientNum = 1;
         serverMaster = ServerMaster.getInstance();
@@ -37,24 +65,21 @@ public class GameServer {
                 System.out.println("Routed to port " + port);
                 break;
             } 
-
             port++;
         }
-        
         System.out.println("GAMESERVER HAS BEEN CREATED.");
     }
 
-    public int getPort() {
-        return port;
-    }
-    
+    /**
+     * Starts game loop at 60 FPS. Updates game state in serverMaster
+     * and sends all entity data to all connectedPlayers.
+     */
     public void startGameLoop(){
         final Runnable gameLoop = new Runnable(){
             @Override
             public void run(){
                 try {
                     serverMaster.update();    
-                    // System.out.println("called update on gsm");
                 } catch (Exception e) {
                     System.err.println("Exception in game loop update():" + e);
                 }
@@ -77,7 +102,9 @@ public class GameServer {
         gameLoopScheduler.scheduleAtFixedRate(gameLoop, 0, Math.round(1000/TICKSPERSECOND), TimeUnit.MILLISECONDS);
     }
 
-
+    /**
+     * Closes sockets on game close
+     */
     public void closeSocketsOnShutdown(){
         Runtime.getRuntime().addShutdownHook( new Thread(() -> {
             try { 
@@ -90,6 +117,10 @@ public class GameServer {
         }));  
     }
 
+    /**
+     * Continuously accepts client connections and creates a new ConnectedPlayer instance
+     * for every client connection.
+     */
     public void waitForConnections() {
         Thread waitForConnectionsThread = new Thread(){        
             @Override
@@ -108,8 +139,7 @@ public class GameServer {
                         clientNum++;
                         cp.loadPreGameData();
                         connectedPlayers.add(cp);
-                        cp.startThreads();
-                    
+                        cp.startThreads();   
                     }        
                     } catch (IOException ex) {
                         System.out.println("IOException from waitForConnection() method.");
@@ -117,20 +147,36 @@ public class GameServer {
             }
         };
         waitForConnectionsThread.start();
-
     }
 
+    /**
+     * Gets the port number field value
+     * @return the int value of port where a connection was made
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * The ConnectedPlayer class is an inner class representing an individual
+     * player connection. It handles all input and output threads for an 
+     * individual client connection.
+     */
     public class ConnectedPlayer {
         private Socket clientSocket;
         private DataInputStream dataIn;
         private DataOutputStream dataOut;
-        //For halting operations within a thread
-        private BlockingQueue<String> sendQueue;
+        private BlockingQueue<String> sendQueue;    // For halting operations within a thread
         private int cid;
-    
-        public ConnectedPlayer(Socket sck, int n){
+        
+        /**
+         * Initializes the I/O streams of a client based on its clientId
+         * @param sck the socket where a connection is made
+         * @param cid the connecting client's Id 
+         */
+        public ConnectedPlayer(Socket sck, int cid){
             clientSocket = sck;
-            cid = n;
+            this.cid = cid;
             sendQueue = new LinkedBlockingDeque<>();
             
             try {
@@ -141,6 +187,11 @@ public class GameServer {
             }
         }
 
+        /**
+         * Reads from the input stream the type of Player the client chose and creates a new
+         * instance of the Player subclass. It sets its initial position to the center of 
+         * serverMaster's currentRoom and adds it to serverMaster's entities ArrayList
+         */
         public void loadPreGameData(){
             try {
                 int byteLength = dataIn.readInt();
@@ -150,29 +201,38 @@ public class GameServer {
 
                 Player chosenPlayer = null;
        
-                if (playerType.equals(NetworkProtocol.HEAVYCAT)){
-                    chosenPlayer = (new HeavyCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY()));
+                switch (playerType) {
+                    case NetworkProtocol.HEAVYCAT:
+                        chosenPlayer = (new HeavyCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY()));
+                        break;
+                    case NetworkProtocol.FASTCAT:
+                        chosenPlayer = (new FastCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY()));
+                        break;
+                    case NetworkProtocol.GUNCAT:
+                        chosenPlayer = (new GunCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY()));
+                        break;
+                    default:
+                        break;
                 }
-                else if (playerType.equals(NetworkProtocol.FASTCAT)){
-                    chosenPlayer = (new FastCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY()));
-                }
-                else if (playerType.equals(NetworkProtocol.GUNCAT)){
-                    chosenPlayer = (new GunCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY()));
-                }
-                
-                
+                                
                 serverMaster.addEntity(chosenPlayer);
-
 
             } catch (IOException ex){
                 System.out.println("IOEception from receiveAssetsThread");
             }
          }
 
+         /**
+          * Gets the value of Cid
+          * @return the int value of cid
+          */
         public int getCid() {
             return cid;
         }
 
+        /**
+         * Calls startAssetsThread() and startInputsThread()
+         */
         public void startThreads(){
             startAssetsThread();
             startInputsThread();
@@ -216,20 +276,12 @@ public class GameServer {
             sendAssetsThread.start();
         }
 
+        /**
+         * Takes a data String and offers it to sendQueue
+         * @param data the data String to be offered
+         */
         public void promptAssetsThread(String data){
             sendQueue.offer(data);
-        }
-
-        
-        private void sendCustomData(String message){    
-            try {
-                byte[] dataBytes = message.getBytes("UTF-8");
-                // System.out.println("Sending Custom Data:" + message);
-                dataOut.writeInt(dataBytes.length);
-                dataOut.write(dataBytes);
-            } catch (IOException ex) {
-                System.out.println("IOException from sendCustomData() method");
-            }
         }
 
         /**
@@ -247,6 +299,10 @@ public class GameServer {
             }
         }
 
+        /**
+         * Continuously receives and parses inputs and calls method from ServerMaster to process
+         * both click and key inputs.
+         */
         private void startInputsThread(){
             Thread getInputsThread = new Thread(){
                 
@@ -297,9 +353,10 @@ public class GameServer {
          getInputsThread.start();
     }
 }
-
-  
-    // When GameServer is run, the main method instantiates a new 
+    /**
+     * Main method used to instantiate and run GameServer
+     * @param args command line arguments provided
+     */
     public static void main(String[] args) {
         GameServer cs = new GameServer();
         cs.startGameLoop();
