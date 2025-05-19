@@ -126,5 +126,4 @@ public abstract class Attack extends Entity{
         return 0;
     }
 
-
 }
