@@ -3,14 +3,40 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The ScreamerRat class extends Enemy. It appears in level 6 of the game.
+        Although not a boss, it has the ability to spawn other Rat instances like
+        Rat and FeralRat.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class ScreamerRat extends Enemy{
     private static BufferedImage[] sprites;
     public static final int MAXSUMMONCOUNT = 4;
 
+    // Call the static setSprites() method
     static {
         setSprites();
     }
 
+    /**
+     * Creates a ScreamerRat instance with appropriate fields
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public ScreamerRat(int x, int y) {
         lastSpriteUpdate = 0;
         lastAttackTime = 0;
@@ -31,7 +57,10 @@ public class ScreamerRat extends Enemy{
         
     }
 
-     private static void setSprites() {
+    /**
+     * Sets the sprite images to the class and not the instances
+     */
+    private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(ScreamerRat.class.getResourceAsStream("resources/Sprites/ScreamerRat/screaming.png"));
             BufferedImage right0 = ImageIO.read(ScreamerRat.class.getResourceAsStream("resources/Sprites/ScreamerRat/hidden.png"));
@@ -78,6 +107,10 @@ public class ScreamerRat extends Enemy{
         matchHitBoxBounds();
     }
 
+    /**
+     * Creates a Rat or FeralRat enemy summon with no experience points allocation
+     * @param gsm the ServerMaster instance containing the entities ArrayList where summons will be added.
+     */
     private void screamSummon(ServerMaster gsm){
         int summonedRatCount = (int) (Math.random() * MAXSUMMONCOUNT);
         int centerX = getCenterX();

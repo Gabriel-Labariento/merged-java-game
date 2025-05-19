@@ -25,7 +25,6 @@ import javax.imageio.ImageIO;
         of our program.
 **/
 
-
 public class Room extends GameObject{
     
     public static final int WIDTH_TILES = 45;
