@@ -3,16 +3,43 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The SecurityBot class extends Enemy. It appears in level five of the game.
+        If chases Players until it gets to within attack distance. Within attack
+        distance, it fires a projectile to targeted Players. When Players get close
+        and try to chase SecurityBot, it runs away.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class SecurityBot extends Enemy{
     public static int ratCount = 0;
     private static final int SPRITE_FRAME_DURATION = 200;
     private long lastSpriteUpdate = 0;
     private static BufferedImage[] sprites;
 
+    // Call the static setSprites() method
     static {
         setSprites();
     }
 
+    /**
+     * Creates a SecurityBot instance with appropriate fields
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public SecurityBot(int x, int y) {
         identifier = NetworkProtocol.SECURITYBOT;
         speed = 1;
@@ -29,7 +56,10 @@ public class SecurityBot extends Enemy{
         attackCDDuration = 2000;
     }
 
-     private static void setSprites() {
+    /**
+     * Set the sprite images to the class and not the instances
+     */
+    private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(Rat.class.getResourceAsStream("resources/Sprites/SecurityBot/left0.png"));
             BufferedImage left1 = ImageIO.read(Rat.class.getResourceAsStream("resources/Sprites/SecurityBot/left1.png"));
@@ -95,6 +125,11 @@ public class SecurityBot extends Enemy{
         matchHitBoxBounds();
     }
 
+    /**
+     * Creates a fast travelling projectile (LaserBullet) that moves towards the target Player
+     * @param gsm the ServerMaster instance containing the entities ArrayList
+     * @param target the attack's target Player
+     */
     private void sendProjectile(ServerMaster gsm, Player target){
         int vectorX = target.getCenterX() - getCenterX();
         int vectorY = target.getCenterY() - getCenterY(); 
