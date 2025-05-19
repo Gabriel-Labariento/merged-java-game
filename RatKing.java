@@ -3,6 +3,28 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The RatKing class extends Enemy. It is the first boss in the game.
+        It is able to create minions while still alive. It first runs away 
+        from the Player, but at half health it actively pursues and attacks
+        the Player.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
+
 public class RatKing extends Enemy {
     private static final int SPAWN_COOLDOWN = 4000;
     private static final int ATTACK_COOLDOWN = 5000;
@@ -14,10 +36,16 @@ public class RatKing extends Enemy {
     private enum Phase {MOVE_AWAY, CHASE}
     private Phase currentPhase;
 
+    // Calls the static setSprites() method
     static {
         setSprites();
     }
 
+    /**
+     * Creates a RatKing instance with appropriate fields
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public RatKing(int x, int y) {
         isBoss = true;
         enemyCount++;
@@ -37,6 +65,9 @@ public class RatKing extends Enemy {
         isBoss = true;
     }
 
+    /**
+     * Sets the sprite images to the class and not the instances
+     */
     private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(RatKing.class.getResourceAsStream("resources/Sprites/RatKing/ratking_left_0.png"));
@@ -68,7 +99,7 @@ public class RatKing extends Enemy {
     
     @Override
     public void updateEntity(ServerMaster gsm){
-        long now = System.currentTimeMillis();
+        now = System.currentTimeMillis();
         Player pursued = scanForPlayer(gsm);
 
         switch (currentPhase) {
@@ -137,27 +168,5 @@ public class RatKing extends Enemy {
             } lastSpriteUpdate = now;
         }
         matchHitBoxBounds();
-    }
-
-    @Override
-    public Player scanForPlayer(ServerMaster gsm){
-        final int scanRadius = GameCanvas.TILESIZE * 10; // Larger scan radius
-        Player closestPlayer = null;
-        double minDistance = Integer.MAX_VALUE;
-
-        for (Entity e : gsm.getEntities()) {
-            if (e instanceof Player player) {
-                if (this.getCurrentRoom() != player.getCurrentRoom()) continue; 
-                // Get the center distance between the player and the entity
-                double distanceSquared = 
-                    (Math.pow(getCenterX() - e.getCenterX(), 2) + Math.pow(getCenterY() - e.getCenterY(), 2));
-                
-                if ( (distanceSquared <= scanRadius * scanRadius) && (distanceSquared < minDistance)) {
-                    closestPlayer = player;
-                    minDistance = distanceSquared;
-                }
-            }
-        }
-        return closestPlayer;
     }
 }
