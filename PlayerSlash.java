@@ -53,8 +53,6 @@ public class PlayerSlash extends Attack{
         owner = entity;
         this.isFriendly = isFriendly;
         damage = d;
-        //Temporary hitPoints allocation
-        hitPoints = 100;
         
         width = WIDTH;
         height = HEIGHT;

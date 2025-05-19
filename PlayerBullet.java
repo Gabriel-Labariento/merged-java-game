@@ -58,7 +58,6 @@ public class PlayerBullet extends Attack{
         owner = entity;
         this.isFriendly = isFriendly;
         damage = d;
-        //Temporary hitPoints allocation
         width = WIDTH;
         height = HEIGHT;
         worldX = x;
