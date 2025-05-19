@@ -72,7 +72,6 @@ public class EnemySlash extends Attack{
 
     @Override
     public void matchHitBoxBounds(){
-        // Bounds array is formatted as such: top, bottom, left, right; SIZES SUBJECT TO CHANGE PER ENTITY
         hitBoxBounds = new int[4];
         hitBoxBounds[0]= worldY;
         hitBoxBounds[1] = worldY + height;

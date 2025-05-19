@@ -8,27 +8,53 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The PlayerUI class handles the rendering of UI elements related to Player.
+        These include Player data like health, level, experience bar, and items.
+        It also displays a health bar for bosses.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class PlayerUI extends GameObject{
     
     private static BufferedImage[] sprites;
     private static Font gameFont;
 
+    // Set sprites and font on class
     static {
         setSprites();
         setFont();
     }
 
+    /**
+     * Loads font from the resources folder
+     */
     private static void setFont(){
         try {
             gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
             gameFont = gameFont.deriveFont(7f);
-        } catch (FontFormatException ex) {
-        } catch (IOException ex) {
+        } catch (FontFormatException | IOException ex) {
         }
             
         
     }
 
+    /**
+     * Set sprites on class initialization
+     */
     private static void setSprites() {
         try {
             BufferedImage asset0 = ImageIO.read(PlayerUI.class.getResourceAsStream("resources/UserInterface/fullheart.png"));
@@ -38,7 +64,7 @@ public class PlayerUI extends GameObject{
             BufferedImage asset4 = ImageIO.read(PlayerUI.class.getResourceAsStream("resources/UserInterface/pufferfish.png"));
             sprites = new BufferedImage[] {asset0, asset1, asset2, asset3, asset4};
         } catch (IOException e) {
-            System.out.println("Exception in RatKing setSprites()" + e);
+            System.out.println("Exception in PlayerUI setSprites()" + e);
         }
     }
 
@@ -121,8 +147,4 @@ public class PlayerUI extends GameObject{
         }
         
     }
-
-
-
-
 }

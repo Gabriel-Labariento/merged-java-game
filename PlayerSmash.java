@@ -22,7 +22,6 @@ import javax.imageio.ImageIO;
         of our program.
 **/
 
-
 public class PlayerSmash extends Attack{
     public static final int WIDTH = 80;
     public static final int HEIGHT = 80;
@@ -72,7 +71,6 @@ public class PlayerSmash extends Attack{
 
     @Override
     public void matchHitBoxBounds(){
-        // Bounds array is formatted as such: top, bottom, left, right; SIZES SUBJECT TO CHANGE PER ENTITY
         hitBoxBounds = new int[4];
         hitBoxBounds[0]= worldY;
         hitBoxBounds[1] = worldY + height;
