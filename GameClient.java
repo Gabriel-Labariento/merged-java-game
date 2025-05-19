@@ -4,21 +4,48 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+/**     
+        The GameClient serves as the network and input handler
+        for connections between client (Player) and server. It manages
+        connections to the server, serializes and sends player input data,
+        and receives and parses serialized entities and map data sent by
+        the server. 
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class GameClient {
     public static final int TRANSFERINTERVAL = 16;
     private ClientMaster clientMaster;
     private Socket theSocket;
     private DataInputStream dataIn;
     private DataOutputStream dataOut;
-    private Scanner console;
     private int clientId;
     private HashMap<String, Boolean> keyMap;
     private int clickedX;
     private int clickedY;
     private ScheduledExecutorService sendInputsScheduler;
-    private boolean isOnMenu;
     private GameServer gs;
 
+    /**
+     * Creates a GameClient and binds it to a clientMaster instance that handles
+     * client-side game state. It also creates a singleThreadScheduledExecutor assigned
+     * to sendInputs Scheduler for sending Player inputs to the server. It also creates
+     * a keyMap to assign keys Q, W, A, S, and D to false (not pressed)
+     * @param clientMaster
+     */
     public GameClient(ClientMaster clientMaster){
         this.clientMaster = clientMaster;
         sendInputsScheduler = Executors.newSingleThreadScheduledExecutor();
@@ -29,10 +56,11 @@ public class GameClient {
         keyMap.put("A", false);
         keyMap.put("S", false);
         keyMap.put("D", false);
-
-        console = new Scanner(System.in);
     }
 
+    /**
+     * Closes sockets when game exits
+     */
     public void closeSocketsOnShutdown(){
         Runtime.getRuntime().addShutdownHook(new Thread (()-> {
             try {
@@ -45,6 +73,13 @@ public class GameClient {
         }));
     }
 
+    /**
+     * Establishes a connection to the Server. Sends the type of Player who joined.
+     * Initiates network threads.
+     * @param ipAddress the host's IP address
+     * @param portNum the port to connect to
+     * @param playerType the type of Player chosen by the connecting client: Ranged, Tank, or Melee (Fast)
+     */
     public void connectToServer(String ipAddress, int portNum, String playerType){
         try {
             System.out.println("ATTEMPTING TO CONNECT TO SERVER...");
@@ -67,13 +102,20 @@ public class GameClient {
         }
     }
 
+    /**
+     * This method allows a client to host the game
+     */
     public void hostServer(){
         gs = new GameServer();
         gs.waitForConnections();   
         gs.startGameLoop();
         gs.closeSocketsOnShutdown();
     }
-      
+    
+    /**
+     * Gets the server's IP address when hosting a gameServer 
+     * @return a String: the host's IPv4 address
+     */
     public String getServerIP(){
         //Get the local machine's IPv4 address
         try {
@@ -101,10 +143,19 @@ public class GameClient {
         return null;  
     }
 
+    /**
+     * Gets the port number of the gameServer
+     * @return an int pertaining to the gameServer's port number
+     */
     public int getServerPort(){
         return gs.getPort();
     }
 
+    /**
+     * Sends the byte array representation of the client's chosen PlayerType through
+     * the DataOutputStream.
+     * @param playerType the String that represents the client's chosen Player
+     */
     private void sendPreGameData(String playerType){
         try {
             byte[] preGameDataBytes = playerType.getBytes("UTF-8");
@@ -116,6 +167,12 @@ public class GameClient {
         } 
     }
 
+    /**
+     * Reads through the DataInputStream through a byte buffer and parses data
+     * depending on what the data String starts with as assigned by Network Protocol.
+     * It handles parsing map data, level change and boss clearing, game over sequence,
+     * and entity (player and non-player) data. 
+     */
     private void startAssetsThread(){
         Thread receiveAssetsThread = new Thread(){
             @Override
@@ -139,7 +196,7 @@ public class GameClient {
                             String mapData = receivedMessage.substring(NetworkProtocol.LEVEL_CHANGE.length());  // Receives a string containing map and player data
                             parseMapData(mapData);
                         } else {
-                            synchronized (clientMaster.getEntities()) {                                 // Synchronize entities arraylist to remove flickering
+                            synchronized (clientMaster.getEntities()) {                                         // Synchronize entities arraylist to remove flickering
                                 clientMaster.getEntities().clear();
                                 parseEntitiesData(receivedMessage);
                             }
@@ -151,13 +208,20 @@ public class GameClient {
         receiveAssetsThread.start();
     }
     
+    /**
+     * Sets the isGameOver boolean field of the assigned clientMaster
+     * to true
+     */
     private void initiateGameOver(){
         clientMaster.setIsGameOver(true);
     }
 
     /**
-     * Parses a serialized string expected to be in the form ClientId|P:playerX,playerY|E:entity1X,entity1Y,entity2x,entity2Y...|
-     * @param message a serialized string in the form ClientId|P:playerX,playerY|E:entity1X,entity1Y,entity2x,entity2Y...|
+     * Parses a serialized string expected to be in the form:
+     * ClientId|XPBarPercent|UserLvl|heldItemIdentifier|BossHPBarPercent|
+     * P$:playerX,playerY,playerHealth,playerRoomId,playerSprite,playerZindex|
+     * E:entity1X,entity1Y,entity2x,entity2Y...|
+     * @param message a serialized string sent by ServerMaster that contains all existing entity data
      */
     private void parseEntitiesData(String message){
 
@@ -291,6 +355,11 @@ public class GameClient {
         d.setId(doorId);
         clientMaster.getRoomById(roomAID).addDoorToArrayList(d);
     }
+    
+    /**
+     * Continuously calls getInputsData and sends a byte array representation of its contents
+     * to the server every TRANSFERINTERVAL milliseconds
+     */
     public void startInputsThread(){
         final Runnable sendInputsData = new Runnable(){
             @Override
@@ -313,6 +382,11 @@ public class GameClient {
         sendInputsScheduler.scheduleAtFixedRate(sendInputsData, 0, TRANSFERINTERVAL, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Builds a string containing all of the Player's Key inputs: Q, W, A, S, and D.
+     * Then, appends to it a String containing a Player's Click input data (where in the screen they clicked)
+     * @return a String containing a Player's Key and Click input data
+     */
     public String getInputsData(){
         StringBuilder str = new StringBuilder();
 
@@ -334,6 +408,11 @@ public class GameClient {
         return str.toString();
     }
 
+    /**
+     * Updates the keyMap depending on when a key isPressed (true) or released (false)
+     * @param input the String representation of the pressed key
+     * @param isPressed true if the key is currently pressed, false otherwise
+     */
     public void keyInput(String input, Boolean isPressed){
         switch (input) {
             case "Q":
@@ -354,6 +433,11 @@ public class GameClient {
         }
     }
 
+    /**
+     * Hold the x and y coordinate of a click input
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public void clickInput(int x, int y){
         clickedX = x;
         clickedY = y;
