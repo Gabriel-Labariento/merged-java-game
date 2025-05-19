@@ -1,9 +1,30 @@
 import java.util.*;
 import java.util.concurrent.*;
 
+/**     
+        The Item class is an abstract class that extends Entity.
+        It supports item expiration handling, item to player interaction,
+        and item ownership.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class ItemsHandler{
     private static final ConcurrentHashMap<String, Integer> AVAILABLEITEMS = new ConcurrentHashMap<>();
     private static double dropChanceSum;
+
     static {
         //Use static initializer block to make hashmap of ITEM - DROPCHANCE
         AVAILABLEITEMS.put("None", 60);
@@ -34,6 +55,11 @@ public class ItemsHandler{
         }
     }
     
+    /**
+     * Generates a random item when an enemy is killed
+     * @param enemy the enemy defeated that will cause the drop
+     * @return the Item to be dropped
+     */
     public Item rollItem(Enemy enemy){
         //Get a random number between 0 to whatever drop chance is (in this case 100)
         double roll = Math.random() * dropChanceSum;
