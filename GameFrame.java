@@ -3,6 +3,26 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
+/**     
+        The GameFrame class extends JFrame. It serves as the main game window.
+        It holds a reference to GameCanvas (for rendering) and GameClient (for Player
+        connectivity). It also holds UI elements and handles input reception.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class GameFrame extends JFrame{
     private final int width, height;
     private final String title;
@@ -22,7 +42,14 @@ public class GameFrame extends JFrame{
     private final JTextField textField2;
     private int fishSlideNum;
 
-
+    /**
+     * Creates a GameFrame with a new GameCanvas and holds a reference 
+     * to the GameCanvas' gameClient. It also creates UI elements for 
+     * game initialization
+     * @param width the frame's width
+     * @param height the frame's height
+     * @param title the title at the top of the frame
+     */
     public GameFrame(int width, int height, String title){
         this.width = width;
         this.height = height;
@@ -36,6 +63,7 @@ public class GameFrame extends JFrame{
         playerType = NetworkProtocol.HEAVYCAT;
         fishSlideNum = 1;
 
+        // UI Elements
         btns = new ArrayList<>();
         btns.add(new JButton("Play"));
         btns.add(new JButton("Quit"));
@@ -55,6 +83,10 @@ public class GameFrame extends JFrame{
         lp = new JLayeredPane();
     }
 
+    /**
+     * Sets up the main frame window components.
+     * This is called after gameFrame creation to start the game
+     */
     public void setUpGUI() {     
         setTitle(title);
         setResizable(false);
@@ -71,10 +103,11 @@ public class GameFrame extends JFrame{
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setVisible(true);
-        
-
     }
 
+    /**
+     * Loads into the screen the Play and Quit buttons using absolute values
+     */
     public void loadStartUI(){
         btns.get(0).setBounds(54, 116, 158, 33);
         lp.add(btns.get(0), Integer.valueOf(1));
@@ -83,6 +116,9 @@ public class GameFrame extends JFrame{
         lp.add(btns.get(1) , Integer.valueOf(1));
     }
 
+    /**
+     * Loads the pre-game screen needed for client-server connection
+     */
     public void loadClientUI(){
 
         label1.setForeground(Color.WHITE);
@@ -111,6 +147,10 @@ public class GameFrame extends JFrame{
         lp.add(btns.get(4), Integer.valueOf(1));
     }
 
+    /**
+     * Loads the pre-game UI displaying the serverIP address, the port number,
+     * and allows the user to select a player type.
+     */
     public void loadPrePlayUI(){
         label1.setForeground(Color.WHITE);
         label1.setText("IP Address: " + serverIP);
@@ -140,6 +180,9 @@ public class GameFrame extends JFrame{
         lp.add(btns.get(7), Integer.valueOf(1));
     }
 
+    /**
+     * Updates the selected player display based on user input
+     */
     public void updateFishCarousel(){
         if (fishSlideNum > 3) fishSlideNum = 1; 
         else if (fishSlideNum < 1) fishSlideNum = 3;
@@ -161,8 +204,11 @@ public class GameFrame extends JFrame{
         refreshFrame();
     }
 
-
-
+    /**
+     * Central button handler for all button actions in the game.
+     * Handles play/quit buttons, connection input buttons, and 
+     * player selection buttons
+     */
     public void setUpButtons(){
         ActionListener btnListener = (ActionEvent ae) -> {
             Object o = ae.getSource();
@@ -217,6 +263,10 @@ public class GameFrame extends JFrame{
  
     }
 
+    /**
+     * Starts gameplay by establlishing a connection to the server
+     * and enabling player inputs.
+     */
     private void startPlay(){
         gameClient.connectToServer(serverIP, serverPort, playerType);
         clearGUI();
@@ -227,16 +277,25 @@ public class GameFrame extends JFrame{
         cp.requestFocusInWindow();
     }
 
+    /**
+     * Clears UI components from Layer 1
+     */
     public void clearGUI(){
         Component[] components = lp.getComponentsInLayer(1);
         for (Component c:components) lp.remove(c);
     }
 
+    /**
+     * Calls revalidate and repaint on the Frame
+     */
     private void refreshFrame(){
         lp.revalidate();
         lp.repaint();
     }
 
+    /**
+     * Adds a mouseListener that tracks click inputs
+     */
     public void addMouseListener(){
         addMouseListener(new MouseAdapter() {
             @Override
@@ -246,6 +305,10 @@ public class GameFrame extends JFrame{
         });
     }
 
+    /**
+     * Sets up key bindings for player input control for keys
+     * Q (interact) and W, A, S, D (movement)
+     */ 
     public void addKeyBindings(){
         ActionMap am = cp.getActionMap(); 
         InputMap im = cp.getInputMap();
@@ -343,6 +406,10 @@ public class GameFrame extends JFrame{
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "stopInputD");
     }
 
+    /**
+     * Gets the GameCanvas stored in the GameCanvas field
+     * @return the GameCanvas object in this class
+     */
     public GameCanvas getCanvas(){
         return gameCanvas;
     }
