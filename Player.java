@@ -1,5 +1,27 @@
 import java.util.ArrayList;
 import java.util.Iterator;
+
+/**     
+        The Player class is an abstract class that extends Entity and
+        implements Effectable. It is extended by FastCat, HeavyCat, and
+        GunCat. This class handles player movement, status effects,
+        level progression, room transitions, and various player states.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public abstract class Player extends Entity implements Effectable{
     public static final int INVINCIBILITY_DURATION = 1000;
     public static final int REVIVAL_DURATION = 5000;
@@ -18,6 +40,10 @@ public abstract class Player extends Entity implements Effectable{
     public Item heldItem;
     private final ArrayList<StatusEffect> statusEffects;
 
+    /**
+     * Each Player instance starts at level 1, holds no item, and has 
+     * an empty statusEffects ArrayList
+     */
     public Player(){
         currentLvl = 1;
         currentXPCap = 100;
@@ -25,6 +51,10 @@ public abstract class Player extends Entity implements Effectable{
         statusEffects = new ArrayList<>();
     }
 
+    /**
+     * Applies experience points to the player and handles leveling logic.
+     * @param xp
+     */
     public void applyXP(int xp){
         currentXP += xp;
 
@@ -51,18 +81,34 @@ public abstract class Player extends Entity implements Effectable{
         }
     }
 
+    /**
+     * Gets the value of the pastXPCap field
+     * @return the int value of pastXPCap
+     */
     public int getPastXPCap(){
         return pastXPCap;
     }
 
+    /**
+     * Gets the value of currentXPCap 
+     * @return the int value of currentXPCap
+     */
     public int getCurrentXPCap(){
         return currentXPCap;
     }
 
+    /**
+     * Sets the Player's held item to the passed Item argument
+     * @param item the item to set heldItem to
+     */
     public void setHeldItem(Item item){
         heldItem = item;
     }
 
+    /**
+     * Gets the Item stored in heldItem
+     * @return the Item in heldItem
+     */
     public Item getHeldItem(){
         return heldItem;
     }
@@ -78,6 +124,10 @@ public abstract class Player extends Entity implements Effectable{
         if (maxHealth < 18) maxHealth = hP;
     }
     
+    /**
+     * Adds 1 to hitpoints and maxHealth if it is below 18.
+     * Adds 1 to damage as well.
+     */
     public void levelUpStats(){
         if (hitPoints < 18 || maxHealth < 18){
             hitPoints += 1;
@@ -86,46 +136,90 @@ public abstract class Player extends Entity implements Effectable{
         damage += 1;
     }
 
+    /**
+     * Gets the value of the currentLvl field
+     * @return the int value of currentLvl
+     */
     public int getCurrentLvl(){
         return currentLvl;
     }
 
+    /**
+     * Calculates the percentage of progression towards the next level
+     * @return an integer from 0 to 100 representing the progress in the current level
+     */
     public int getXPBarPercent(){    
         return (int) Math.floor(100*((double)(currentXP-pastXPCap)/(currentXPCap-pastXPCap)));
     }
 
+    /**
+     * Sets the value of isDown to the passed boolean
+     * @param b the boolean value to set isDown to
+     */
     public void setIsDown(boolean b){
         isDown = b;
     }
 
+    /**
+     * Gets the value of the isDown field
+     * @return true if isDown is true, false otherwise
+     */
     public boolean getIsDown(){
         return isDown;
-    }
+    }   
 
+    /**
+     * Sets the value of coolDownEnd for Player attacks based on the time of invocation
+     * plus the value of attackCDDuration
+     */
     public void triggerCoolDown(){
         coolDownEnd = System.currentTimeMillis() + attackCDDuration;
     }
 
+    /**
+     * Check's if the Player's attack is on cool down
+     * @return true if the attack is on cooldown, false otherwise
+     */
     public boolean getIsOnCoolDown(){
         return System.currentTimeMillis() < coolDownEnd;
     }
 
+    /**
+     * Sets the value of revival time to the time of invocation plus
+     * the value of REVIVAL_DURATION
+     */
     public void triggerRevival(){
        revivalTime = System.currentTimeMillis() + REVIVAL_DURATION;  
     }
 
+    /**
+     *  Sets the value of isReviving to the passed boolean
+     * @param b the boolean value to set isReviving to
+     */
     public void setIsReviving(boolean b){
         isReviving = b;
     }
 
+    /**
+     * Gets the value of the isReviving field
+     * @return true if the player is being revived, false otherwise
+     */
     public boolean getIsReviving(){
         return isReviving;
     }
 
+    /**
+     * Checks if the Player has finished the revival process
+     * @return
+     */
     public boolean getIsRevived(){
         return System.currentTimeMillis() >= revivalTime;
     }
 
+    /**
+     * Updates the player's sprite and position based on the input
+     * @param input the character 'Q' 'W' 'A' 'S' or 'D' corresponding to an update action
+     */
     public void update(char input){
         prevWorldX = worldX;
         prevWorldY = worldY;
@@ -169,12 +263,17 @@ public abstract class Player extends Entity implements Effectable{
     }
 
     /**
-     * 
+     * Sets the value of invincibilityEnd to the current time of invocation
+     * plus the value of INVINCIBILITY_DURATION
      */
     public void triggerInvincibility(){
         invincibilityEnd = System.currentTimeMillis() + INVINCIBILITY_DURATION;
     }
 
+    /**
+     * Checks if the Player is currently invincible
+     * @return true if the player is in an invincible state, false otherwise
+     */
     public boolean getIsInvincible(){
         return System.currentTimeMillis() < invincibilityEnd;
     }
@@ -271,12 +370,6 @@ public abstract class Player extends Entity implements Effectable{
         return null;
     }
 
-    public int[] getScreenPos() {
-        int[] screenPos = {screenX, screenY};
-        return screenPos;
-    }
-    
-
     /**
      * {@inheritDoc }
      * @param isUserPlayer true if the calling player is the user player, false otherwise
@@ -317,6 +410,9 @@ public abstract class Player extends Entity implements Effectable{
         updateStatusEffects();
     }
 
+    /**
+     * Cycles through the attack sprites to simulate attack animation
+     */
     public void runAttackFrames(){
         int frameCount = 0;
         while(frameCount < 4){
@@ -354,10 +450,18 @@ public abstract class Player extends Entity implements Effectable{
         statusEffects.add(se);
     };
 
+    /**
+     * Gets the value of the baseSpeed field
+     * @return the int value of baseSpeed
+     */
     public int getBaseSpeed() {
         return baseSpeed;
     }
 
+    /**
+     * Gets the statusEffects ArrayList of the Player
+     * @return an ArrayList statusEffects, containing all the StatusEffects currently affecting the Player
+     */
     public ArrayList<StatusEffect> getStatusEffects() {
         return statusEffects;
     }
