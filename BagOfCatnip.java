@@ -5,7 +5,7 @@ import javax.imageio.ImageIO;
 
 /**     
         The BagOfCatnip class extends the Item class.
-        Its multiplies the owner's damage by 2 but increases
+        It multiplies the owner's damage by 2 but increases
         attack cooldown time by 1.5.
 
         @author Niles Tristan Cabrera (240828)

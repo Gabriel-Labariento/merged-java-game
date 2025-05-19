@@ -5,7 +5,7 @@ import javax.imageio.ImageIO;
 
 /**     
         The FastCat extends the Player class. It is one of three
-        playable Player classes. This Player supports was designed
+        playable Player classes. This Player was designed
         for a melee attack with faster movement.
 
         @author Niles Tristan Cabrera (240828)

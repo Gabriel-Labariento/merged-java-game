@@ -23,7 +23,6 @@ import javax.imageio.ImageIO;
         of our program.
 **/
 
-
 public class MutatedAnchovy extends Enemy{
     private static BufferedImage[] sprites;
 
