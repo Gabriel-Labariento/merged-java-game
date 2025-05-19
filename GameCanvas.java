@@ -7,11 +7,31 @@ import java.util.concurrent.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+/**     
+        The GameCanvas class extends Jcomponent. It serves as the main
+        object where other GameObjects and Entities are drawn. Additionally,
+        UI and Map elements are drawn here as well.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class GameCanvas extends JComponent {
     public static final int TILESIZE = 16;
     private static final int REFRESHINTERVAL = 16;
     private final int width, height;
-    private GameClient gameClient;
+    private final GameClient gameClient;
     private ClientMaster clientMaster;
     private ScheduledExecutorService renderLoopScheduler;
     private ScheduledExecutorService sendInputsScheduler;
@@ -20,11 +40,17 @@ public class GameCanvas extends JComponent {
 
     private static BufferedImage[] sprites;
 
+    /**
+     * Calls the static setScreens() method
+     */
     static {
-        setSprites();
+        setScreens();
     }
 
-    private static void setSprites() {
+    /**
+     * Sets the different game screens statically
+     */
+    private static void setScreens() {
         try {
             BufferedImage gameOverScreen = ImageIO.read(GameCanvas.class.getResourceAsStream("resources/Misc/gameOver.png"));
             sprites = new BufferedImage[] {gameOverScreen};
@@ -33,6 +59,12 @@ public class GameCanvas extends JComponent {
         }
     }
 
+    /**
+     * Creates a GameCanvas instance with width and height. Insantiates a gameClient,
+     * a clientMaster and playerUI.
+     * @param width the canvas' width
+     * @param height the canvas' height
+     */
     public GameCanvas(int width, int height){
         this.width = width;
         this.height = height;
@@ -111,38 +143,20 @@ public class GameCanvas extends JComponent {
         }
     }
 
+    /**
+     * Gets a reference to gameClient
+     * @return the GameClient object assigned to the canvas
+     */
     public GameClient getGameClient(){
         return gameClient;
     }
 
+    /**
+     * Calls repaint on this GameCanvas every REFRESHINTERVAL milliseconds
+     */
     public void startRenderLoop(){
         //Since putting Thread.sleep in a loop as necessary for this Loop is bad, use ScheduledExecutorService instead
         final Runnable renderLoop = this::repaint;
         renderLoopScheduler.scheduleAtFixedRate(renderLoop, 0, REFRESHINTERVAL, TimeUnit.MILLISECONDS);
     }
-
-    public ClientMaster getClientState() {
-        return clientMaster;
-    }
-
-    public void setClientState(ClientMaster clientMaster) {
-        this.clientMaster = clientMaster;
-    }
-
-    public ScheduledExecutorService getRenderLoopScheduler() {
-        return renderLoopScheduler;
-    }
-
-    public void setRenderLoopScheduler(ScheduledExecutorService renderLoopScheduler) {
-        this.renderLoopScheduler = renderLoopScheduler;
-    }
-
-    public ScheduledExecutorService getSendInputsScheduler() {
-        return sendInputsScheduler;
-    }
-
-    public void setSendInputsScheduler(ScheduledExecutorService sendInputsScheduler) {
-        this.sendInputsScheduler = sendInputsScheduler;
-    }
-
 }
