@@ -4,19 +4,41 @@ import java.io.*;
 import java.util.*;
 import javax.imageio.ImageIO;
 
+/**     
+        The Room class extends GameObject. It serves as a container for
+        Player, Enemy, and Item interactions. It contains doors that connects
+        it to other Room instances. Rooms are created and connected by the
+        ServerMaster class through the DungeonMap class.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
+
 public class Room extends GameObject{
     
     public static final int WIDTH_TILES = 45;
     public static final int HEIGHT_TILES = 33;
-    private int roomId;
-    private int gameLevel;
+    private final int roomId;
+    private final int gameLevel;
     private int difficulty; // 0 => 3, easiest to hardest
     private boolean isStartRoom, isEndRoom, isClearedHandled, isCleared;
     private MobSpawner mobSpawner;
   
-    private ArrayList<Room> connections;
-    private HashMap<String, Room> doors;
-    private ArrayList<Door> doorsArrayList;
+    private final ArrayList<Room> connections;
+    private final HashMap<String, Room> doors;
+    private final ArrayList<Door> doorsArrayList;
 
     private BufferedImage backgroundImage;
     private boolean backgroundLoaded;
@@ -67,6 +89,12 @@ public class Room extends GameObject{
         return sb.toString();
     }
 
+    /**
+     * Draws the Room on the GameCanvas
+     * @param g2d the graphics object used for drawing
+     * @param cameraX the x-coordinate of the top-left corner of the viewport
+     * @param cameraY the y-coordinate of the top-left corner of the viewport
+     */
     public void draw(Graphics2D g2d, int cameraX, int cameraY){
         // Border
         g2d.drawRect(worldX - cameraX, worldY - cameraY, width, height);
@@ -76,6 +104,10 @@ public class Room extends GameObject{
         
     }
 
+    /**
+     * Loads the appropriate room background image based on the level
+     * assigned to the room upon creation.
+     */
     public void loadBackgroundImage(){
         if (backgroundLoaded) return;
         String path;
@@ -146,7 +178,12 @@ public class Room extends GameObject{
         }
     }
 
-
+    /**
+     * Assigns a room's difficulty (that affects enemy spawnRate and spawnCount)
+     * based on how far (in connections) away it is from the startRoom of the current map
+     * @param gameLevel the gameLevel assigned to the room upon creation
+     * @param distanceFromStart represents how many rooms are away a the room is from the startroom
+     */
     public void assignDifficulty(int gameLevel, int distanceFromStart){
         if (isStartRoom) { difficulty = 0; return; }
         if (isEndRoom) { difficulty = 3; return; }
@@ -158,8 +195,6 @@ public class Room extends GameObject{
         // Difficulty can be increased for normal rooms based on gameLevel, but capped at 2.
         difficulty = Math.min(2, difficulty + (gameLevel / 3));
     }
-
-
 
     //<----------------- METHODS BELOW USED FOR PROCEDURAL GENERATION LOGIC --------------------------------->>
 
@@ -314,6 +349,11 @@ public class Room extends GameObject{
         }
     }
 
+    /**
+     * Creates a Door at the Room in the specified direction
+     * @param direction the direction to create the Door at
+     * @return the created Door instance
+     */
     public Door createDoorFromDirection(String direction) {
         int centerX = getCenterX();
         int centerY = getCenterY();
@@ -323,6 +363,7 @@ public class Room extends GameObject{
         int doorWidth = Door.WIDTH_TILES * GameCanvas.TILESIZE;
         Door d;
 
+        // Calculate the position of the door based on its spawn direction
         switch (direction) {
             case "T":
                 d = new Door(centerX - doorWidth, worldY, direction, this, null);
@@ -395,47 +436,82 @@ public class Room extends GameObject{
         return isEndRoom;
     }
     
+    /**
+     * Sets the value of isStartRoom to the provided boolean
+     * @param isStartRoom the boolean value to set isStartRoom to
+     */
     public void setIsStartRoom(boolean isStartRoom) {
         this.isStartRoom = isStartRoom;
     }
 
-
+    /**
+     * Sets the value of isEndRoom to the provided boolean
+     * @param isEndRoom the boolean value to set isEndRoom to
+     */
     public void setIsEndRoom(boolean isEndRoom) {
         this.isEndRoom = isEndRoom;
     }
 
+    /**
+     * Gets the Room's mobSpawner
+     * @return the MobSpawner assigned to te room
+     */
     public MobSpawner getMobSpawner() {
         return mobSpawner;
     }
 
+    /**
+     * Assigns a mobSpawner to the Room
+     * @param mobSpawner the mobSpawner to assign to the Room
+     */
     public void setMobSpawner(MobSpawner mobSpawner) {
         this.mobSpawner = mobSpawner;
     }
 
+    /**
+     * Gets the value of the Room's difficulty field
+     * @return the int value of the Room's difficulty
+     */
     public int getDifficulty() {
         return difficulty;
     }
 
-    public void setDifficulty(int difficulty) {
-        this.difficulty = difficulty;
-    }
-
+    /**
+     * Gets the value of isClearedHandled
+     * @return a boolean value representing whether the processes for room clearing have been finished
+     */
     public boolean isClearedHandled() {
         return isClearedHandled;
     }
-
+    
+    /**
+     * Sets the value of isClearedHandled to the provided boolean
+     * @param isClearedHandled the boolean value to set isClearedHandled to
+     */
     public void setIsClearedHandled(boolean isClearedHandled) {
         this.isClearedHandled = isClearedHandled;
     }
     
+    /**
+     * Gets the value of isCleared
+     * @return the boolean value of isCleared
+     */
     public boolean isCleared() {
         return isCleared;
     }
 
+    /**
+     * Sets the value of isCleared to the provided boolean
+     * @param isCleared the boolean value to set isCleared to
+     */
     public void setCleared(boolean isCleared) {
         this.isCleared = isCleared;
     }
 
+    /**
+     * Gets the field value of gameLevel
+     * @return the int value of gameLevel
+     */
     public int getGameLevel() {
         return gameLevel;
     }
