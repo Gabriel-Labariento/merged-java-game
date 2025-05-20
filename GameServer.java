@@ -40,7 +40,6 @@ public class GameServer {
     private ArrayList<ConnectedPlayer> connectedPlayers;
     // Threads
     private ScheduledExecutorService gameLoopScheduler;
-    private ScheduledExecutorService sendAssetsScheduler;
     
     /**
      * Creates a GameServer instance, initializes server components, and 
@@ -52,7 +51,6 @@ public class GameServer {
         sockets = new ArrayList<>();
         connectedPlayers = new ArrayList<>();
         gameLoopScheduler = Executors.newSingleThreadScheduledExecutor();
-        sendAssetsScheduler = Executors.newSingleThreadScheduledExecutor();
         serverMaster.setConnectedPlayers(connectedPlayers);
         
         port = 5000;
