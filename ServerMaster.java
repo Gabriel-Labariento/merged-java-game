@@ -93,7 +93,6 @@ public class ServerMaster {
      */
     public void update(){
         // Do not update the game at start of the gameserver (no entities yet)
-        //  System.out.println("Entities array size: " + entities.size());
         if (entities.isEmpty()) return;
 
         // Update objects accordingly to the inputs
@@ -296,7 +295,6 @@ public class ServerMaster {
             direction = currentRoom.chooseRandomDirection();
             if (!currentRoom.getDoors().containsKey(direction)) break;
         }
-        System.out.println("Direction: " + direction);
 
         Door d = currentRoom.createDoorFromDirection(direction);
         d.setIsExitToNewDungeon(true);

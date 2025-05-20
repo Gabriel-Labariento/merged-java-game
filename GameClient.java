@@ -95,7 +95,6 @@ public class GameClient {
             sendPreGameData(playerType);
             startAssetsThread();
             startInputsThread();
-            // startRenderLoop();
 
         } catch (IOException ex) {
             System.out.println("IOException from connectToServer() method");

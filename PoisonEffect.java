@@ -55,7 +55,6 @@ public class PoisonEffect extends StatusEffect{
 
     @Override
     public void removeStatusEffect(Player player) {
-        System.out.println("Removed poison effect");
     }
 
     @Override

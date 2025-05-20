@@ -91,8 +91,6 @@ public class DungeonMap {
                         randomRoom = chooseRandomRoom();
                         if (room.isConnectable(direction, randomRoom) && (randomRoom.canAddMoreDoors())) {
                             room.connectRooms(direction, randomRoom);
-                            System.out.println("Successfully connected Room " + room.getRoomId() + " to Room "
-                                    + randomRoom.getRoomId());
                             break;
                         } 
                     }
@@ -231,9 +229,6 @@ public class DungeonMap {
 
         startRoom.setIsStartRoom(true);
         endRoom.setIsEndRoom(true);
-
-        System.out.println("Start Room is Room " + startRoom.getRoomId());
-        System.out.println("End Room is Room " + endRoom.getRoomId());
     }
 
     /**

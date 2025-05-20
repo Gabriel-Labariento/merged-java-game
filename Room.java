@@ -299,7 +299,6 @@ public class Room extends GameObject{
         String oppositeDirection = getOppositeDirection(direction);
         if ( (other.getDoors().containsKey(oppositeDirection)) && (other.getDoors().get(oppositeDirection) != null)) return false;
 
-        System.out.printf("Room %d and Room %d  can be connected.\n", roomId, other.getRoomId());
         return true;
     }
 

@@ -77,37 +77,26 @@ public class ItemsHandler{
                 System.out.print("SELECTED FROM SERVER: ");
                 switch(entry.getKey()){
                     case "None":
-                        System.out.println("0");
                         return null;
                     case "Redfish":
-                        System.out.println("1");
                         return new RedFish(enemy.getWorldX(), enemy.getWorldY());
                     case "Cat Treat":
-                        System.out.println("2");
                         return new CatTreat(enemy.getWorldX(), enemy.getWorldY());
                     case "Milk":
-                        System.out.println("3");
                         return new Milk(enemy.getWorldX(), enemy.getWorldY());
-                    case "Premium Cat Food++":
-                        System.out.println("4");    
+                    case "Premium Cat Food++":  
                         return new PremiumCatFood(enemy.getWorldX(), enemy.getWorldY());
                     case "Goldfish":
-                        System.out.println("5");
                         return new Goldfish(enemy.getWorldX(), enemy.getWorldY());
                     case "Light Scarf":
-                        System.out.println("6");
                         return new LightScarf(enemy.getWorldX(), enemy.getWorldY());
                     case "Thick Sweater":
-                        System.out.println("7");
                         return new ThickSweater(enemy.getWorldX(), enemy.getWorldY());
                     case "Bag of Catnip":
-                        System.out.println("8");
                         return new BagOfCatnip(enemy.getWorldX(), enemy.getWorldY());
                     case "Loud Bell":
-                        System.out.println("9");
                         return new LoudBell(enemy.getWorldX(), enemy.getWorldY());
                     case "Pringles Can":
-                        System.out.println("10");
                         return new PringlesCan(enemy.getWorldX(), enemy.getWorldY());
                 }
             }
