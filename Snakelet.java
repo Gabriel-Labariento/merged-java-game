@@ -3,16 +3,42 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The Snakelet class extends Enemy. It appears in level four of the game.
+        It follows the player at a certain distance and sends three projectiles
+        at varied angles towards it.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class Snakelet extends Enemy{
     private static final int BULLET_COOLDOWN = 5000;
     private static final int ATTACK_DISTANCE = GameCanvas.TILESIZE * 4;
     private long lastBulletSend = 0;
     private static BufferedImage[] sprites;
 
+    // Calls the static setSprites() method
     static {
         setSprites();
     }
 
+    /**
+     * Creates a Snakelet instance with appropriate fields
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public Snakelet(int x, int y) {
         id = enemyCount++;
         identifier = NetworkProtocol.SNAKELET;
@@ -30,6 +56,9 @@ public class Snakelet extends Enemy{
         
     }
 
+    /**
+     * Sets the sprite images to the class and not the instances
+     */
     private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(Snakelet.class.getResourceAsStream("resources/Sprites/Snakelet/snakelet_left0.png"));
@@ -88,6 +117,11 @@ public class Snakelet extends Enemy{
         matchHitBoxBounds();
     }
 
+    /**
+     * Sends three projectiles at varied angles towards the target Player
+     * @param gsm the ServerMaster instance containing the entities ArrayList
+     * @param target the Player to send the projectiles towards
+     */
     private void sendProjectile(ServerMaster gsm, Player target){
         int vectorX = target.getCenterX() - getCenterX();
         int vectorY = target.getCenterY() - getCenterY(); 
