@@ -28,15 +28,15 @@ import java.util.concurrent.*;
 
 public class GameClient {
     public static final int TRANSFERINTERVAL = 16;
-    private ClientMaster clientMaster;
+    private final ClientMaster clientMaster;
     private Socket theSocket;
     private DataInputStream dataIn;
     private DataOutputStream dataOut;
     private int clientId;
-    private HashMap<String, Boolean> keyMap;
+    private final HashMap<String, Boolean> keyMap;
     private int clickedX;
     private int clickedY;
-    private ScheduledExecutorService sendInputsScheduler;
+    private final ScheduledExecutorService sendInputsScheduler;
     private GameServer gs;
 
     /**

@@ -37,10 +37,10 @@ public class ServerMaster {
     private static int gameLevel;
     private static final int MAX_LEVEL = 7;
 
-    private ConcurrentHashMap<Character, Integer> keyInputQueue;
-    private ConcurrentHashMap<Integer, Integer> availableRevives;
+    private final ConcurrentHashMap<Character, Integer> keyInputQueue;
+    private final ConcurrentHashMap<Integer, Integer> availableRevives;
     private ArrayList<GameServer.ConnectedPlayer> connectedPlayers;
-    private ArrayList<ClickInput> clickInputQueue;
+    private final ArrayList<ClickInput> clickInputQueue;
     
     private int playerNum;
     private int downedPlayersNum;

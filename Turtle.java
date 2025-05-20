@@ -26,7 +26,7 @@ import javax.imageio.ImageIO;
 **/
 
 public class Turtle extends Enemy {
-    private static final int SPRITE_FRAME_DURATION = 300; // INTENTIONALLY SLOWER SPRITE FRAME DURATION
+    private static final int SLOWER_SPRITE_FRAME_DURATION = 300; // INTENTIONALLY SLOWER SPRITE FRAME DURATION
     private static final int SPAWN_COOLDOWN = 4000;
     private static final int IDLE_DURATION = 2000;
     private static final int ATTACK_COOLDOWN = 6000;
@@ -191,7 +191,7 @@ public class Turtle extends Enemy {
         }
 
         // Sprite walk update
-        if (now - lastSpriteUpdate > SPRITE_FRAME_DURATION) {
+        if (now - lastSpriteUpdate > SLOWER_SPRITE_FRAME_DURATION) {
             if (worldY < pursued.getWorldY()) {
                 currSprite = (currSprite == 0 || currSprite == 1) ? (currSprite == 0 ? 1 : 0) : 0; // Ensure shuffling between sprites 0 and 1
             } else {

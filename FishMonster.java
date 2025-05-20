@@ -28,7 +28,7 @@ public class FishMonster extends Enemy{
     private static BufferedImage[] sprites;
     private enum State {PHASE1, PHASE2, PHASE3}; 
     private int summonCDDuration;
-    public State currentForm;
+    private State currentForm;
     private double actionDistance;
     private long lastLimpTime;
     private long lastSummonTime;

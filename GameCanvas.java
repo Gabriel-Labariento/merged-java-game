@@ -32,9 +32,8 @@ public class GameCanvas extends JComponent {
     private static final int REFRESHINTERVAL = 16;
     private final int width, height;
     private final GameClient gameClient;
-    private ClientMaster clientMaster;
-    private ScheduledExecutorService renderLoopScheduler;
-    private ScheduledExecutorService sendInputsScheduler;
+    private final ClientMaster clientMaster;
+    private final ScheduledExecutorService renderLoopScheduler;
     public PlayerUI playerUI;
     private float screenOpacity;
 
@@ -69,7 +68,6 @@ public class GameCanvas extends JComponent {
         this.width = width;
         this.height = height;
         renderLoopScheduler = Executors.newSingleThreadScheduledExecutor();
-        sendInputsScheduler = Executors.newSingleThreadScheduledExecutor();
         clientMaster = new ClientMaster();
         gameClient = new GameClient(clientMaster);
         setPreferredSize(new Dimension(width, height));

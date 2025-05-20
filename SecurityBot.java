@@ -26,8 +26,6 @@ import javax.imageio.ImageIO;
 
 public class SecurityBot extends Enemy{
     public static int ratCount = 0;
-    private static final int SPRITE_FRAME_DURATION = 200;
-    private long lastSpriteUpdate = 0;
     private static BufferedImage[] sprites;
 
     // Call the static setSprites() method
