@@ -324,9 +324,7 @@ public class ServerMaster {
      * Gets the data of the players and sends it to the clients as well.
      * Sent String is in the format: LC:M:(See DungeonMap.serialize())|E:(Player Data)
      */
-    public void triggerLevelTransition(){
-        // TODO: TRANSITION TO GAME FINISH SCREEN
-        
+    public void triggerLevelTransition(){     
         ArrayList<Player> players = getAllPlayers();
         entities.clear();
 
