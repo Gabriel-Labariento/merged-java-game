@@ -34,8 +34,10 @@ public class GameCanvas extends JComponent {
     private final GameClient gameClient;
     private final ClientMaster clientMaster;
     private final ScheduledExecutorService renderLoopScheduler;
+    public SceneHandler sceneHandler;
     public PlayerUI playerUI;
     private float screenOpacity;
+    private int currentStage;
 
     private static BufferedImage[] sprites;
 
@@ -60,7 +62,7 @@ public class GameCanvas extends JComponent {
 
     /**
      * Creates a GameCanvas instance with width and height. Insantiates a gameClient,
-     * a clientMaster and playerUI.
+     * a clientMaster, playerUI, scenehandler.
      * @param width the canvas' width
      * @param height the canvas' height
      */
@@ -72,7 +74,9 @@ public class GameCanvas extends JComponent {
         gameClient = new GameClient(clientMaster);
         setPreferredSize(new Dimension(width, height));
         playerUI = new PlayerUI();
-    }
+        sceneHandler = new SceneHandler();
+        currentStage = -1;
+    }   
 
     @Override
     protected void paintComponent(Graphics g){
@@ -83,9 +87,11 @@ public class GameCanvas extends JComponent {
             RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(rh);
 
-        //Load game menu ui
         Player userPlayer = clientMaster.getUserPlayer();
-        if (clientMaster.getIsGameOver()){
+        if (sceneHandler.getIsScenePlaying()){
+            sceneHandler.drawScene(g2d, width, height, currentStage);
+        }
+        else if (clientMaster.getIsGameOver()){
             if (screenOpacity < 1f){
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, screenOpacity));
                 screenOpacity += 0.005f;
@@ -137,7 +143,13 @@ public class GameCanvas extends JComponent {
             userPlayer.draw(g2d, screenX, screenY); //CHANGE 50 BY ACTUAL ASSET SIZE
 
             //Draw UI elements
-            playerUI.drawPlayerUI(g2d, userPlayer, clientMaster, scaleFactor);
+            playerUI.drawPlayerUI(g2d, clientMaster, scaleFactor);
+
+            //Draw scenes
+            if(currentStage < clientMaster.getCurrentStage()){
+                currentStage++;
+                sceneHandler.setIsScenePlaying(true);
+            }
         }
     }
 
@@ -148,6 +160,15 @@ public class GameCanvas extends JComponent {
     public GameClient getGameClient(){
         return gameClient;
     }
+
+     /**
+     * Gets a reference to gameClient
+     * @return the GameClient object assigned to the canvas
+     */
+    public SceneHandler getSceneHandler(){
+        return sceneHandler;
+    }
+
 
     /**
      * Calls repaint on this GameCanvas every REFRESHINTERVAL milliseconds

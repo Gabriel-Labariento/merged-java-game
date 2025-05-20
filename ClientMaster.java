@@ -1,3 +1,4 @@
+import java.time.InstantSource;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -32,6 +33,7 @@ public class ClientMaster {
     private String heldItemIdentifier;
     private boolean isGameOver;
     private int bossHPPercent;
+    private int currentStage;
     
     /**
      * Creates a ClientMaster instance with the following fields as null:
@@ -204,6 +206,8 @@ public class ClientMaster {
      * @param zIndex a number that corresponds to which layer should the entity be rendered relative to other entities and gameObjects
      */
     public void loadEntity(String identifier, int id, int x, int y, int roomId, int sprite, int zIndex){
+        // System.out.println("Loading entity " + identifier + " " + name + "at " + x + ", " + y);
+        // if (name == null) System.out.println("Warning: unknown identity identifier " + identifier);
         Entity e = getEntity(identifier, id, x, y);
         if (e != null) {
             e.setId(id);
@@ -294,5 +298,17 @@ public class ClientMaster {
      */
     public boolean getIsGameOver(){
         return isGameOver;
+    }
+
+    public int getCurrentStage(){
+        return currentStage;
+    }
+
+    /**
+     * Sets the value of the currentLevel boolean to the passed argument
+     * @param i the integer value to set currentLevel to
+     */
+    public void setCurrentStage(int i){
+        currentStage = i;
     }
 }

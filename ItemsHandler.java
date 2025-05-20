@@ -2,9 +2,8 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**     
-        The Item class is an abstract class that extends Entity.
-        It supports item expiration handling, item to player interaction,
-        and item ownership.
+        The Itemhandler class is an a class that allows for randomly choosing between 
+        certain items whenever its rollItem() method is called
 
         @author Niles Tristan Cabrera (240828)
         @author Gabriel Matthew Labariento (242425)
@@ -74,28 +73,40 @@ public class ItemsHandler{
             //Check to see if random number from 0-100 is within the selection interval for a specific item
             if (roll < cumulativeChance) {
                 //Create a new item from the middle of the enemy
+                // System.out.print("SELECTED FROM SERVER: ");
                 switch(entry.getKey()){
                     case "None":
+                        // System.out.println("0");
                         return null;
                     case "Redfish":
+                        // System.out.println("1");
                         return new RedFish(enemy.getWorldX(), enemy.getWorldY());
                     case "Cat Treat":
+                        // System.out.println("2");
                         return new CatTreat(enemy.getWorldX(), enemy.getWorldY());
                     case "Milk":
+                        // System.out.println("3");
                         return new Milk(enemy.getWorldX(), enemy.getWorldY());
-                    case "Premium Cat Food++":  
+                    case "Premium Cat Food++":
+                        // System.out.println("4");    
                         return new PremiumCatFood(enemy.getWorldX(), enemy.getWorldY());
                     case "Goldfish":
+                        // System.out.println("5");
                         return new Goldfish(enemy.getWorldX(), enemy.getWorldY());
                     case "Light Scarf":
+                        // System.out.println("6");
                         return new LightScarf(enemy.getWorldX(), enemy.getWorldY());
                     case "Thick Sweater":
+                        // System.out.println("7");
                         return new ThickSweater(enemy.getWorldX(), enemy.getWorldY());
                     case "Bag of Catnip":
+                        // System.out.println("8");
                         return new BagOfCatnip(enemy.getWorldX(), enemy.getWorldY());
                     case "Loud Bell":
+                        // System.out.println("9");
                         return new LoudBell(enemy.getWorldX(), enemy.getWorldY());
                     case "Pringles Can":
+                        // System.out.println("10");
                         return new PringlesCan(enemy.getWorldX(), enemy.getWorldY());
                 }
             }

@@ -332,7 +332,6 @@ public abstract class Enemy extends Entity {
     public void spawnMinions(){
         if (currentRoom != null && currentRoom.getMobSpawner() != null) {
         Enemy newSpawn = currentRoom.getMobSpawner().createNormalEnemy(currentRoom.getGameLevel());
-        newSpawn.setRewardXP(0);
         currentRoom.getMobSpawner().spawnEnemy(newSpawn);
         }
     }
