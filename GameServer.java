@@ -253,7 +253,6 @@ public class GameServer {
                             if (!mapDataSent){
                                 sendMapData();
                                 mapDataSent = true;
-                                System.out.println("Map Data Sent");
                             }
 
                             byte[] assetsDataBytes = assetsDataString.getBytes("UTF-8");
@@ -287,7 +286,6 @@ public class GameServer {
             try {
                 String mapDataString = serverMaster.getMapData();
                 byte[] mapDataBytes = mapDataString.getBytes("UTF-8");
-                System.out.println("Sending Map Data...");
                 dataOut.writeInt(mapDataString.length());
                 dataOut.write(mapDataBytes);
             } catch (IOException ex) {
