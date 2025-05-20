@@ -32,7 +32,7 @@ public class CatTreat extends Item {
         try {
             sprite = ImageIO.read(CatTreat.class.getResourceAsStream("resources/Sprites/Items/cattreat.png"));
         } catch (IOException e) {
-            System.out.println("Exception in setSprites()" + e);
+            System.out.println("Exception in CatTreat setSprites()" + e);
         }
     }
 

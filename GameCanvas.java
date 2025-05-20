@@ -55,7 +55,7 @@ public class GameCanvas extends JComponent {
             BufferedImage gameOverScreen = ImageIO.read(GameCanvas.class.getResourceAsStream("resources/Misc/gameOver.png"));
             sprites = new BufferedImage[] {gameOverScreen};
         } catch (IOException e) {
-            System.out.println("Exception in setSprites()" + e);
+            System.out.println("Exception in setScreens()" + e);
         }
     }
 

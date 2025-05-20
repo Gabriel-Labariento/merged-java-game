@@ -33,7 +33,7 @@ public class Cockroach extends Enemy{
     private State currentState;
     
     /**
-     * Calles the static setSprites() method.
+     * Calls the static setSprites() method.
      */
     static {
         setSprites();

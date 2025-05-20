@@ -88,7 +88,7 @@ public class FishMonster extends Enemy{
             sprites = new BufferedImage[] {phaseA0, phaseA1, phaseA2, phaseB0, phaseB1, phaseB2, phaseC0, phaseC1, phaseC2};
 
         } catch (IOException e) {
-            System.out.println("Exception in Rat setSprites()" + e);
+            System.out.println("Exception in FishMonster setSprites()" + e);
         }
     }
 

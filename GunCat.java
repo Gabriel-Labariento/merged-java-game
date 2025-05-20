@@ -83,7 +83,7 @@ public class GunCat extends Player{
             sprites = new BufferedImage[] {left0, left1, left2, right0, right1, right2, attack0, attack1, attack2, death};
 
         } catch (IOException e) {
-            System.out.println("Exception in Rat setSprites()" + e);
+            System.out.println("Exception in GunCat setSprites()" + e);
         }
     }
 

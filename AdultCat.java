@@ -97,7 +97,7 @@ public class AdultCat extends Enemy{
             sprites = new BufferedImage[] {left0, left1, left2, right0, right1, right2, bite0, bite1, bite2, slash0, slash1, slash2};
 
         } catch (IOException e) {
-            System.out.println("Exception in Rat setSprites()" + e);
+            System.out.println("Exception in AdultCat setSprites()" + e);
         }
     }
 

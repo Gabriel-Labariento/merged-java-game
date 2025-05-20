@@ -79,7 +79,7 @@ public class HeavyCat extends Player{
             sprites = new BufferedImage[] {left0, left1, left2, right0, right1, right2, attack0, attack1, attack2, death};
 
         } catch (IOException e) {
-            System.out.println("Exception in setSprites()" + e);
+            System.out.println("Exception in HeavyCat setSprites()" + e);
         }
     }
 

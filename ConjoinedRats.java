@@ -73,7 +73,7 @@ public class ConjoinedRats extends Enemy{
             sprites = new BufferedImage[] {walk0, walk1, walk2};
 
         } catch (IOException e) {
-            System.out.println("Exception in Rat setSprites()" + e);
+            System.out.println("Exception in ConjoinedRat setSprites()" + e);
         }
     }
 

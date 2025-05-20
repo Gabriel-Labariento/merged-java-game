@@ -67,7 +67,7 @@ public class ScreamerRat extends Enemy{
             sprites = new BufferedImage[] {left0, right0};
 
         } catch (IOException e) {
-            System.out.println("Exception in setSprites()" + e);
+            System.out.println("Exception in ScreamerRat setSprites()" + e);
         }
     }
 

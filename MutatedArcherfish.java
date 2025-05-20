@@ -68,7 +68,7 @@ public class MutatedArcherfish extends Enemy{
             sprites = new BufferedImage[] {left0, right0};
 
         } catch (IOException e) {
-            System.out.println("Exception in Rat setSprites()" + e);
+            System.out.println("Exception in MutatedArcherfish setSprites()" + e);
         }
     }
 
