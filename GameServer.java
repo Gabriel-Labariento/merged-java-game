@@ -51,7 +51,6 @@ public class GameServer {
         serverMaster = ServerMaster.getInstance();
         sockets = new ArrayList<>();
         connectedPlayers = new ArrayList<>();
-        serverMaster.setConnectedPlayers(connectedPlayers);
         gameLoopScheduler = Executors.newSingleThreadScheduledExecutor();
         sendAssetsScheduler = Executors.newSingleThreadScheduledExecutor();
         serverMaster.setConnectedPlayers(connectedPlayers);

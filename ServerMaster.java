@@ -1,46 +1,96 @@
 import java.util.*;
 import java.util.concurrent.*;
 
+/**     
+        The ServerMaster class serves as the central game state manager and logic
+        handler for the game. It manages all game entities, all collisions, player
+        inputs, and facilitates communication between server and client/s over the
+        network.
+
+        Only one instance of this class can exist through a Singleton pattern.
+        See: https://www.geeksforgeeks.org/singleton-design-pattern/
+        It controls the game update loop, tracks the states of players, allows
+        room transitions, and facilitates level progress.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class ServerMaster {
     private CopyOnWriteArrayList<Entity> entities;
     private DungeonMap dungeonMap;
     private ItemsHandler itemsHandler;
     private int userPlayerIndex;
     private Room currentRoom;
+
     private static int gameLevel;
     private static final int MAX_LEVEL = 7;
+
     private ConcurrentHashMap<Character, Integer> keyInputQueue;
     private ConcurrentHashMap<Integer, Integer> availableRevives;
     private ArrayList<GameServer.ConnectedPlayer> connectedPlayers;
     private ArrayList<ClickInput> clickInputQueue;
+    
     private int playerNum;
     private int downedPlayersNum;
-    private static ServerMaster singleInstance = null;
     private int bossHPPercent;
 
+    private static ServerMaster singleInstance = null;
+    
+    /**
+     * Private constructor used in the Singleton pattern. This 
+     * initializes all required game systems including entity tracking,
+     * map initialization, input control, and item handling.
+     */
     private ServerMaster(){
+        // PLAYERS AND ENTITIES
         playerNum = 0;
         downedPlayersNum = 0;
         gameLevel = 0;
         entities = new CopyOnWriteArrayList<>();
+        availableRevives = new ConcurrentHashMap<>();
         userPlayerIndex = -1;
+
+        // MAP
         dungeonMap = new DungeonMap(gameLevel);
         dungeonMap.generateRooms();
         currentRoom = dungeonMap.getStartRoom();
-        //-----------------------------//
+        
+        // INPUTS
         keyInputQueue = new ConcurrentHashMap<>();
-        availableRevives = new ConcurrentHashMap<>();
         clickInputQueue = new ArrayList<>();
-        //-----------------------------//
+        
+        // ITEMS
         itemsHandler = new ItemsHandler();
 
     }
 
+    /**
+     * Gets the singular instance of ServerMaster and creates one if no instance
+     * yet exists.
+     * @return the singleton instance of ServerMaster
+     */
     public static synchronized ServerMaster getInstance() {
         if (singleInstance == null) singleInstance = new ServerMaster();
         return singleInstance;
     }
 
+    /**
+     * Main game update method called on each frame that handles all game logic.
+     * It processes inputs, checks for collisions between entities, and updates
+     * entities. It does not do anything when there are no entities yet.
+     */
     public void update(){
         // Do not update the game at start of the gameserver (no entities yet)
         //  System.out.println("Entities array size: " + entities.size());
@@ -56,6 +106,15 @@ public class ServerMaster {
         updateEntities();
     }
 
+    /**
+     * Updates all entities that exist in the game, handles their death, and 
+     * handles special events like player revives and special enemy deaths.
+     * It calls the handleDownsAndRevives method to trigger revival mechanics.
+     * It handles the addition and removal of items dropped from enemies.
+     * It removes expired attacks. It calls the updateEntity() method on individual
+     * entities. And it checks if the currentRoom has been cleared.
+     *  
+     */
     public void updateEntities(){
         //Check on and resolve the end of life properties of each entity
         for (Entity entity:entities){
@@ -69,6 +128,7 @@ public class ServerMaster {
                 }
                 handleDownsAndRevives(player);
             }
+            // Special deaths, xp addition, and item drops
             else if (entity instanceof Enemy enemy){
                 if (enemy.getIsBoss()) bossHPPercent = (int) (((double)enemy.getHitPoints()/enemy.getMaxHealth())*100);
                 if (enemy.getHitPoints() <= 0){
@@ -108,7 +168,13 @@ public class ServerMaster {
         if (checkRoomCleared()) handleRoomCleared();
     }
 
-
+    /**
+     * Handles the player down and revive mechanics. When a player is downed,
+     * that is their hitPoints <= 0, their isDown field is set to true and their
+     * sprite is updated to show a downed state. However, they can be revived by
+     * other players by standing next to them. If all players in the game are downed,
+     * then the game is over.s
+     */
     private void handleDownsAndRevives(Player player) {
         //DOWNING AND REVIVAL MECHANICS
             //Set death sprite
@@ -162,6 +228,14 @@ public class ServerMaster {
             }
         }
     
+    /**
+     * Checks if the currentRoom has been cleared of enemies. Different room
+     * types have different clear logics. Start Rooms are always cleared already.
+     * End rooms are only cleared when the boss is defeated. Non-start and non-end
+     * rooms are cleared when all the spawnable enemies from that Room's mobSpawner
+     * have been defeated.
+     * @return true if the room is cleared, false otherwise
+     */
     private boolean checkRoomCleared(){
         if (currentRoom.isStartRoom() || currentRoom.isCleared()) return true;
 
@@ -232,7 +306,12 @@ public class ServerMaster {
         
         return d.serialize();
     }
-
+    
+    /**
+     * Scans through the entities ArrayList and returns a new ArrayList containing
+     * all the Player instances.
+     * @return an ArrayList with all Player instances in the entities ArrayList
+     */
     private ArrayList<Player> getAllPlayers(){
         ArrayList<Player> players = new ArrayList<>();
 
@@ -273,20 +352,28 @@ public class ServerMaster {
         for (GameServer.ConnectedPlayer cp : connectedPlayers) {
             cp.promptAssetsThread(getAssetsData(cp.getCid()));
         }
-
-        // System.out.println("Message sent " + playersData.toString());        
-        // sendMessageToClients(playersData.toString());
     }
     
+    /**
+     * Broadcasts a message to all connectd clients. It is used for sending
+     * specific game state updates and events.
+     * @param message the message String to send to all the clients
+     */
     private void sendMessageToClients(String message){
-        // System.out.println("Message in sendMessageToClients(): " + message);
-        // System.out.println("Number of connected clients: " + connectedPlayers.size());
         for (GameServer.ConnectedPlayer cp : connectedPlayers) {
             cp.promptAssetsThread(message);
         }
     }
 
-    // Checks for collisions between all objects inside the entity ArrayList
+    /**
+     * Detects and handles collisions between the game entities. 
+     * It uses a sort, sweep, and prune algorithm for more efficient
+     * collision detection.
+     * First, it sorts entities by their x-axis position.
+     * Then, it checks for possible collisions between those that overlap on the x-axis.
+     * Then, it confirms if a collision really is happening through the entities' hitBoxBounds.
+     * If a collision is detected, it calls resolveCollision() to handle the collision.
+     */
     public void checkCollisions(){
         //SORT, SWEEP, AND, PRUNE DETECTION
         try {
@@ -328,6 +415,18 @@ public class ServerMaster {
         
     }
 
+    /**
+     * Resolves a collision between two entities depending on their types.
+     * Attack and Enemy/Player collision damages and knocks back the enemy/player
+     * Players colliding with enemies damages the Player
+     * Enemies colliding with each other pushes them away from each other
+     * Players colliding with other players triggers revival mechanics if one of them is down
+     * Players colliding with items allows for item pick up
+     * @param e1 the first entity
+     * @param e2 the second entity
+     * @param b1 the hitboxBounds of the first entity
+     * @param b2 the hitboxBounds of the second entity
+     */
     public void resolveCollision(Entity e1, Entity e2, int[] b1, int[] b2){
         if (e1.getCurrentRoom() != e2.getCurrentRoom()) return;
 
@@ -389,6 +488,13 @@ public class ServerMaster {
         }
     }
 
+    /**
+     * Applies the item's effect to the Player on collision. Consumable items
+     * immediately applies its effects. Non-consumables are added to the 
+     * inventory to be held, if no item is held by the player already.
+     * @param item the item picked up
+     * @param player the player picking the item up
+     */
     private void applyItem(Item item, Player player){
         item.setOwner(player);
         
@@ -411,7 +517,13 @@ public class ServerMaster {
         
     }
 
-    //Players generate i-frames when damaged
+    /**
+     * Damages a player when hit by an enemy or an enemy attack. It applies
+     * knockback, invincibility frames, and the status effect from the attack
+     * if it has any. The damage taken is reduced by the player's defense field
+     * @param player the player taking damage
+     * @param entity the entity dealing the damage
+     */
     private void damagePlayer(Player player, Entity entity){
         //Debouncing condition
         if(!player.getIsInvincible()){
@@ -429,6 +541,12 @@ public class ServerMaster {
         }
     }
     
+    /**
+     * Applies status effects from attacks to the Player by creating new copies
+     * of the StatusEffect stored in Attack
+     * @param player the player getting the StatusEffect
+     * @param attack the attack giving the StatusEffect
+     */
     private void applyAttackEffectsToPlayer(Player player, Attack attack){
         for (StatusEffect se : attack.getAttackEffects()) {
             StatusEffect effectCopy = (StatusEffect) se.copy();
@@ -436,7 +554,13 @@ public class ServerMaster {
         }
     }
 
-    //Enemy can only take one instance of damage per attack
+    /**
+     * Damages an enemy when hit by an attack. It validates the attack using its 
+     * ID to prevent it from damaging the enemy multiple times too quickly. 
+     * It applies a knockback to non boss enemies
+     * @param enemy the enemy taking damage
+     * @param attack the attack dealing damage
+     */
     private void damageEnemy(Enemy enemy, Attack attack){
         int id = attack.getId();
         //Debouncing condition
@@ -447,6 +571,15 @@ public class ServerMaster {
         }
     }
 
+    /**
+     * Prevents two entities from overlapping by pushing them apart. It uses
+     * normal vectors to determine the direction by which to separate and how 
+     * much to separate entities
+     * @param e1 the first entity in the collision
+     * @param e2 the second entity in the collision
+     * @param b1 the hitBoxBounds of the first entity
+     * @param b2 the hitBoxBounds of the second entity
+     */
     private void preventOverlap(Entity e1, Entity e2, int[] b1, int[] b2){
         //Get the position vectors of both entities
         int[] positionVector1 = new int[2];
@@ -493,7 +626,14 @@ public class ServerMaster {
 
     }
 
-        private void applyKnockBack(Entity target, Entity attacker) {
+    /**
+     * Applies a knockback to an entity when hit by another entity.
+     * Calculates a direction based on the position of the two entities
+     * and pushes the target away from the attacker.
+     * @param target the entity being knocked back
+     * @param attacker the entity causing the knockback
+     */
+    private void applyKnockBack(Entity target, Entity attacker) {
 
         int[] entityPosition = target.getPositionVector();
         int[] attackPosition = attacker.getPositionVector();
@@ -517,6 +657,11 @@ public class ServerMaster {
         target.matchHitBoxBounds();
     }
 
+    /**
+     * Processes all inputs from clients, keyboard and mouse. Keyboard inputs
+     * are used for item pick up and movement. Mouse inputs are used for 
+     * attacks.
+     */
     private void processInputs(){
         keyInputQueue.forEach((key, cid) ->{
             // System.out.println("Processing input: " + key + "," + cid);
@@ -552,19 +697,35 @@ public class ServerMaster {
         clickInputQueue.clear();
     }
 
+    /**
+     * Adds a key input to the queue for processing
+     * @param input the character of the pressed keyboard input
+     * @param cid the client ID of the player sending the input
+     */
     public void loadKeyInput(char input, int cid){
         keyInputQueue.put(input, cid);
         // System.out.println("Key: " + input);
         // System.out.println("cid: " + cid);
     }
 
+    /**
+     * Adds a mouse click input to the queue for processing
+     * @param x the x-coordinate of the click
+     * @param y the y-coordinate of the click
+     * @param cid the client ID of the Player sending the click
+     */
     public void loadClickInput(int x, int y, int cid){
         clickInputQueue.add(new ClickInput(x, y, cid));
     }
 
+    /**
+     * Creates an Player Attack based on the direction of the click input
+     * relative to the player and the type of player.
+     * @param clickX the x-coordinate of the click
+     * @param clickY the y-coordinate of the click
+     * @param cid the client ID of the player who sent the click
+     */
     public void processClickInput(int clickX, int clickY, int cid){
-        // System.out.println("Processing clickc input for player: " + cid);
-
         Player originPlayer = (Player) getPlayerFromClientId(cid);
 
         //Debouncing constraints
@@ -631,11 +792,16 @@ public class ServerMaster {
             }
         };
         runAttack.start();
-        
-
-        // System.out.println("Created PlayerSlash: " + playerAttack.getId() + " at (" + playerAttack.getWorldX() + ", " + playerAttack.getWorldX() + ")");
     }
 
+    /**
+     * Gets the normal vector created from two vectors by subtracting their x and
+     * y-components.
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return an int array with index 0 as the x-component of the normal vector and
+     * index 1 as the y-component of the normal vector
+     */
     private int[] getNormalVector(int[] v1, int[] v2){
         int[] normalVector = new int[2];
         normalVector[0] = v2[0] - v1[0];
@@ -643,7 +809,15 @@ public class ServerMaster {
 
         return normalVector;
     }
-
+    
+    /**
+     * Gets the unit normal of a vector by dividing each of its components by
+     * the normalVectorMagnitude
+     * @param normalVector the normalVector to get the unit vector of
+     * @param normalVectorMagnitude the magnitude of the normalVector, how long it is
+     * @return an int array with index 0 as the x-component of the unit normal vector
+     * and index 1 as the y-component of the unit normal vector.
+     */
     private double[] getUnitNormal(int[] normalVector, double normalVectorMagnitude) {
         double[] unitNormal = new double[2];
         unitNormal[0] = normalVector[0] / normalVectorMagnitude;
@@ -652,9 +826,14 @@ public class ServerMaster {
         return unitNormal;
     }
 
+    /**
+     * Sets the value of the connectedPlayers ArrayList to the passed argument
+     * @param connectedPlayers the ArrayList of ConnectedPlayers to set connectedPlayers to
+     */
     public void setConnectedPlayers(ArrayList<GameServer.ConnectedPlayer> connectedPlayers) {
         this.connectedPlayers = connectedPlayers;
     }
+    
     /**
      * Increments the static gameLevel field if it is less than MAX_LEVEL
      */
@@ -799,8 +978,6 @@ public class ServerMaster {
 
     public void handleSpawnersOnRoomChange(Room next){
         if (next.getMobSpawner() != null && (!next.getMobSpawner().isSpawning())) next.getMobSpawner().spawn();
-
-        if (next.isEndRoom() && next.getMobSpawner().isAllKilled()) incrementGameLevel();
     }
 
     /**
@@ -816,63 +993,112 @@ public class ServerMaster {
         return null;
     }
 
+    /**
+     * Gets the value of userPlayerIndex
+     * @return the int value of userPlayerIndex
+     */
     public int getUserPlayerIndex() {
         return userPlayerIndex;
     }
 
+    /**
+     * Sets the value of userPlayerIndex to the passed argument
+     * @param userPlayerIndex the int value to set userPlayerIndex to
+     */
     public void setUserPlayerIndex(int userPlayerIndex) {
         this.userPlayerIndex = userPlayerIndex;
     }
 
+    /**
+     * Updates the value of userPlayerIndex by getting the index of 
+     * the Player in the entities ArrayList with the client ID 
+     * value cid
+     * @param cid the client ID value of the userPlayer
+     */
     public void updateUserPlayerIndex(int cid) {
         userPlayerIndex = entities.indexOf(getPlayerFromClientId(cid));
     }
 
-      public DungeonMap getDungeonMap() {
+    /**
+     * Gets the current DungeonMap stored in dungeonMap
+     * @return a DungeonMap object that is the value of dungeonMap
+     */
+    public DungeonMap getDungeonMap() {
         return dungeonMap;
     }
 
+    /**
+     * Sets the reference in dungeonMap to the passed argument
+     * @param dungeonMap the reference to set dungeonMap to
+     */
     public void setDungeonMap(DungeonMap dungeonMap) {
         this.dungeonMap = dungeonMap;
     }
 
+    /**
+     * Gets the Room reference of currentRoom
+     * @return a Room reference to currentRoom
+     */
     public Room getCurrentRoom() {
         return currentRoom;
     }
 
+    /**
+     * Sets currentRoom to the passed Room reference
+     * @param currentRoom the Room reference to set currentRoom to
+     */
     public void setCurrentRoom(Room currentRoom) {
         this.currentRoom = currentRoom;
     }
 
+    /**
+     * Adds an entity to the entities ArrayList. Sets its currentRoom
+     * field value to the ServerMaster's currentRoom if it is not null
+     * If the entity is a Player, it increments playerNum.
+     * @param e
+     */
     public void addEntity(Entity e) {
         if (e.getCurrentRoom() == null) e.setCurrentRoom(currentRoom);
         if(e instanceof Player) playerNum++;
         entities.add(e);
     }
 
+    /**
+     * Removed an entity from the entities ArrayList
+     * @param e the entity to be removed
+     */
     public void removeEntity(Entity e) {
         entities.remove(e);
     }
 
+    /**
+     * Gets the entities CopyOnWriteArrayList
+     * @return a CopyOnWriteArrayList containing all the game's entities
+     */
     public CopyOnWriteArrayList<Entity> getEntities() {
         return entities;
     }
 
+    /**
+     * Gets the value of gameLevel
+     * @return the int value of gameLevel
+     */
     public int getGameLevel() {
         return gameLevel;
-    }
+    }   
 
-    public Entity getAttackFromClientId(int cid){
-        for (Entity entity : entities) {
-            if (entity instanceof Attack && entity.getClientId() == cid) return entity;
-        }
-        return null;
-    }
-
-    // Stores the x and y coordinates, as well as the client id of the click input.
+    /**
+     * Stores the x and y coordinates, as well as the client id of the click input.
+     */
     private static class ClickInput{
         public int x, y, cid;
 
+        /**
+         * Creates an instance of ClickInput with fields set to the parameters 
+         * @param x the x-coordinate
+         * @param y the y-coordinate
+         * @param cid the client ID of the Player initiating the click
+         */
         public ClickInput(int x, int y, int cid){
             this.x = x;
             this.y = y;
