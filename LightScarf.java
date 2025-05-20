@@ -4,7 +4,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 /**     
-        The LightScard class extends Item. It reduces the Player's attack
+        The LightScarf class extends Item. It reduces the Player's attack
         cooldown but also decreases their health.
 
         @author Niles Tristan Cabrera (240828)
