@@ -101,6 +101,7 @@ public class MobSpawner {
                     Enemy enemy = null;
                     if (inBossRoom && spawnedCount == 0) {
                         boss = createBoss(level);
+                        // System.out.println("Boss is " + boss.getClass());
                         spawnEnemy(boss);
                         for (int i = 0; i < 0; i++) {
                             enemy = createNormalEnemy(level);
@@ -214,6 +215,7 @@ public class MobSpawner {
             case "Turtle":
                 return new Turtle(x, y);
             default:
+                // System.out.println("Undetected enemy " + name );
                 return new Rat(x, y);
         }
     }

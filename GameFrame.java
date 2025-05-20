@@ -34,6 +34,7 @@ public class GameFrame extends JFrame{
     private ImageIcon btnBG;
     private final GameCanvas gameCanvas;
     private final GameClient gameClient;
+    private final SceneHandler sceneHandler;
     private final ArrayList<JButton> btns;
     private final JLabel label1;
     private final JLabel label2;
@@ -58,6 +59,7 @@ public class GameFrame extends JFrame{
         // btnBG = new ImageIcon("/UI Assets/btnBG");
         gameCanvas = new GameCanvas(width, height);
         gameClient = gameCanvas.getGameClient();
+        sceneHandler = gameCanvas.getSceneHandler();
 
         //Set default values
         playerType = NetworkProtocol.HEAVYCAT;
@@ -317,6 +319,14 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 gameClient.keyInput("Q", true);
+                sceneHandler.handleInput("Q");
+            }
+        };
+
+        AbstractAction keyInputESC = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae){
+                sceneHandler.handleInput("ESC");
             }
         };
 
@@ -324,6 +334,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 gameClient.keyInput("W", true);
+                sceneHandler.handleInput("W");
             }
         };
 
@@ -331,6 +342,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 gameClient.keyInput("S", true);
+                sceneHandler.handleInput("S");
             }
         };
 
@@ -338,6 +350,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 gameClient.keyInput("A", true);
+                sceneHandler.handleInput("A");
             }
         };
 
@@ -345,6 +358,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 gameClient.keyInput("D", true);
+                sceneHandler.handleInput("D");
             }
         };
 
@@ -384,6 +398,7 @@ public class GameFrame extends JFrame{
         };
 
         am.put("keyInputQ", keyInputQ);
+        am.put("keyInputESC", keyInputESC);
         am.put("keyInputW", keyInputW);
         am.put("keyInputS", keyInputS);
         am.put("keyInputA", keyInputA);
@@ -395,6 +410,7 @@ public class GameFrame extends JFrame{
         am.put("stopInputD", stopInputD);
 
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0, false), "keyInputQ");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false), "keyInputESC");
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "keyInputW");
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "keyInputA");
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "keyInputS");

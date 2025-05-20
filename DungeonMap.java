@@ -91,6 +91,8 @@ public class DungeonMap {
                         randomRoom = chooseRandomRoom();
                         if (room.isConnectable(direction, randomRoom) && (randomRoom.canAddMoreDoors())) {
                             room.connectRooms(direction, randomRoom);
+                            // System.out.println("Successfully connected Room " + room.getRoomId() + " to Room "
+                            //         + randomRoom.getRoomId());
                             break;
                         } 
                     }
@@ -210,7 +212,7 @@ public class DungeonMap {
     private void pickStartAndEndRooms() {
         // If called before all the rooms are connected, return.
         if (!areAllRoomsConnected()) {
-            System.out.println("Failed to pick start and end rooms. Not all rooms are connected yet.");
+            // System.out.println("Failed to pick start and end rooms. Not all rooms are connected yet.");
             return;
         }
 
@@ -229,6 +231,9 @@ public class DungeonMap {
 
         startRoom.setIsStartRoom(true);
         endRoom.setIsEndRoom(true);
+
+        // System.out.println("Start Room is Room " + startRoom.getRoomId());
+        // System.out.println("End Room is Room " + endRoom.getRoomId());
     }
 
     /**
@@ -330,6 +335,8 @@ public class DungeonMap {
      * @return the starting room where the players will spawn.
      */
     public DungeonMapDeserializeResult deserialize(String message){
+        
+        // System.out.println("Received in deserialize(): " + message);
         // Clear data 
         rooms.clear();
         
@@ -369,9 +376,9 @@ public class DungeonMap {
             startRoom = mapIdToRoom.get(Integer.valueOf(lastPart));
         }
 
-        if (startRoom == null) System.out.println("Start room is null");
+        // if (startRoom == null) System.out.println("Start room is null");
         
-        return new DungeonMapDeserializeResult(startRoom, mapIdToRoom);
+        return new DungeonMapDeserializeResult(startRoom, mapIdToRoom, gameLevel);
     }
 
     /**

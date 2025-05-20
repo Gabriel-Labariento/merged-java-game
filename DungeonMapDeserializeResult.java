@@ -3,8 +3,9 @@ import java.util.*;
 /**     
         The DungeonMapDeserializeResult is an class specifically
         designed to hold the result of DungeonMap.deserialize().
-        It has two fields: a Room corresponding to the map's startRoom
-        and a HashMap that "maps" the an Id to a Room. 
+        It has three fields: a Room corresponding to the map's startRoom
+        a HashMap that "maps" the an Id to a Room, 
+        and an int that indicates the gameLevel of the current map
 
         @author Niles Tristan Cabrera (240828)
         @author Gabriel Matthew Labariento (242425)
@@ -24,15 +25,18 @@ import java.util.*;
 public class DungeonMapDeserializeResult {
     private final Room startRoom;
     private HashMap<Integer, Room> allRooms = new HashMap<>();
+    private int gameLevel;
 
     /**
      * Creates an instance of DungeonMapDeserializeResult with a Room and Hashmap fields
      * @param startRoom the dungeon's starting room
      * @param allRooms the HashMap mapping rooms to their ids
+     * @param gameLevel
      */
-    public DungeonMapDeserializeResult(Room startRoom, HashMap<Integer, Room> allRooms){
+    public DungeonMapDeserializeResult(Room startRoom, HashMap<Integer, Room> allRooms, int gameLevel){
         this.startRoom = startRoom;
         this.allRooms = allRooms;
+        this.gameLevel = gameLevel;
     }
 
     /**
@@ -49,5 +53,13 @@ public class DungeonMapDeserializeResult {
      */
     public HashMap<Integer, Room> getAllRooms() {
         return allRooms;
+    }
+
+    /**
+     * Gets the gameLevel int
+     * @return gameLevel int
+     */
+    public int getGameLevel(){
+        return gameLevel;
     }
 }

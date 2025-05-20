@@ -95,6 +95,7 @@ public class GameClient {
             sendPreGameData(playerType);
             startAssetsThread();
             startInputsThread();
+            // startRenderLoop();
 
         } catch (IOException ex) {
             System.out.println("IOException from connectToServer() method");
@@ -182,6 +183,8 @@ public class GameClient {
                         byte[] buffer = new byte[byteLength];
                         dataIn.readFully(buffer);
                         String receivedMessage = new String(buffer, "UTF-8");
+                        // System.out.println("ReceivedMessage: " + receivedMessage);
+                        // If the received message starts with the protocol identifier for map data, parse the map data
                         if (receivedMessage.startsWith(NetworkProtocol.MAP_DATA)) {
                             parseMapData(receivedMessage);
                         } else if (receivedMessage.startsWith(NetworkProtocol.BOSS_KILLED)) {
@@ -222,6 +225,7 @@ public class GameClient {
      */
     private void parseEntitiesData(String message){
 
+        // System.out.println(message);
         String[] messageParts = message.split("\\" + NetworkProtocol.DELIMITER); // Have to use \\ to escape. Turns out "|" is special for java
         this.clientId = Integer.parseInt(messageParts[0]);
         clientMaster.setXPBarPercent(Integer.parseInt(messageParts[1]));
@@ -231,7 +235,9 @@ public class GameClient {
 
         for (String part : messageParts) {
             if (part.startsWith(NetworkProtocol.USER_PLAYER)) {
+                // System.out.println("Parsing player");
                 String[] playerData = part.substring(NetworkProtocol.USER_PLAYER.length()).split(NetworkProtocol.SUB_DELIMITER);
+                // System.out.println("User player data: " + part);
                 String identifier = playerData[0];
                 int playerId = Integer.parseInt(playerData[1]);
                 int playerX = Integer.parseInt(playerData[2]);
@@ -240,7 +246,8 @@ public class GameClient {
                 int playerRoomId = Integer.parseInt(playerData[5]);
                 int currsprite = Integer.parseInt(playerData[6]);
                 int playerZIndex = Integer.parseInt(playerData[7]);
-
+        
+                // System.out.println(" user Player loaded");
                 try {
                     Room currentRoom = clientMaster.getRoomById(playerRoomId);
                     Player player = (Player) clientMaster.getEntity(identifier, playerId, playerX, playerY);
@@ -257,6 +264,7 @@ public class GameClient {
                 } 
             } else if (part.startsWith(NetworkProtocol.PLAYER)) {
                 String[] otherPlayerData = part.substring(NetworkProtocol.PLAYER.length()).split(NetworkProtocol.SUB_DELIMITER);
+                // System.out.println("Other player data: " + part);
 
                 // Don't load if not in the same room as the client
                 int otherRoomId = Integer.parseInt(otherPlayerData[5]);
@@ -282,8 +290,13 @@ public class GameClient {
                     clientMaster.addEntity(other);
                 } 
             } else if (part.startsWith(NetworkProtocol.ENTITY)) {
+                // System.out.println("Whole entity string: " + part);
                 String[] entityData = part.substring(NetworkProtocol.ENTITY.length()).split(NetworkProtocol.SUB_DELIMITER);
                 
+                // for (String string : entityData) {
+                //     // System.out.println("Entity string: " + string);
+                // }
+
                 if (entityData.length >= 7) {
                     int roomId = Integer.parseInt(entityData[4]);
                     if (!(roomId == clientMaster.getCurrentRoom().getRoomId())) continue;
@@ -315,13 +328,14 @@ public class GameClient {
 
     /**
      * Parses a part of the String received by the receiveAssetsThread responsible for the map data.
-     * After parsing, it sets the currentRoom and allRooms fields of the clientMaster.
+     * After parsing, it sets the currentRoom, currentLevel, allRooms fields of the clientMaster.
      * @param message the substring containing map data
      */
     private void parseMapData(String message){
         DungeonMapDeserializeResult result = new DungeonMap().deserialize(message);
         clientMaster.setCurrentRoom(result.getStartRoom());
         clientMaster.setAllRooms(result.getAllRooms());
+        clientMaster.setCurrentStage(result.getGameLevel());
     }
     
     /**
@@ -334,6 +348,7 @@ public class GameClient {
         int doorId = Integer.parseInt(dataParts[0]);
         int x = Integer.parseInt(dataParts[1]);
         int y = Integer.parseInt(dataParts[2]);
+        // System.out.println("Door Y: " + doorY);
         String direction = dataParts[3];
         int roomAID = Integer.parseInt(dataParts[4]);
         int roomBID = Integer.parseInt(dataParts[5]);
@@ -403,7 +418,7 @@ public class GameClient {
         switch (input) {
             case "Q":
                 keyMap.replace("Q", isPressed);
-                break;
+                break;     
             case "W":
                 keyMap.replace("W", isPressed);
                 break;

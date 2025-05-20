@@ -64,7 +64,7 @@ public class GameServer {
             } 
             port++;
         }
-        System.out.println("GAMESERVER HAS BEEN CREATED.");
+        // System.out.println("GAMESERVER HAS BEEN CREATED.");
     }
 
     /**
@@ -249,10 +249,12 @@ public class GameServer {
                         try {
                             //Only start the rest of the thread if data is sent
                             String assetsDataString = sendQueue.take();
+                            // System.out.println(assetsDataString);
 
                             if (!mapDataSent){
                                 sendMapData();
                                 mapDataSent = true;
+                                // System.out.println("Map Data Sent");
                             }
 
                             byte[] assetsDataBytes = assetsDataString.getBytes("UTF-8");
@@ -286,6 +288,7 @@ public class GameServer {
             try {
                 String mapDataString = serverMaster.getMapData();
                 byte[] mapDataBytes = mapDataString.getBytes("UTF-8");
+                // System.out.println("Sending Map Data...");
                 dataOut.writeInt(mapDataString.length());
                 dataOut.write(mapDataBytes);
             } catch (IOException ex) {
@@ -322,8 +325,10 @@ public class GameServer {
                                 String[] coors = part.split(NetworkProtocol.SUB_DELIMITER);
                                 int x = Integer.parseInt(coors[0].substring(NetworkProtocol.CLICK.length()));
                                 int y = Integer.parseInt(coors[1]);
+                                // System.out.println("CLick at " + x + "," + y);
                                 serverMaster.loadClickInput(x, y, cid); 
                             } else {
+                                // System.out.println(part);
                                 int keyInputNum = 0;
 
                                 for (char keyInput:part.toCharArray()){
