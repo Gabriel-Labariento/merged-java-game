@@ -76,8 +76,6 @@ public class PlayerUI extends GameObject{
         double xpBarPercent = clientMaster.getXPBarPercent();
         int userLvl = clientMaster.getUserLvl();
         
-        // System.out.println("UI HEALTH: " + userHealth);
-
         //PORTRAIT UI ELEMENTS
         // Ellipse2D.Double portraitBG1 = new Ellipse2D.Double(21.4/sf, 23/sf, 102.4/sf, 102.4/sf);
         // g2d.setColor(Color.decode("#003a40"));

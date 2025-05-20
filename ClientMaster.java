@@ -204,8 +204,6 @@ public class ClientMaster {
      * @param zIndex a number that corresponds to which layer should the entity be rendered relative to other entities and gameObjects
      */
     public void loadEntity(String identifier, int id, int x, int y, int roomId, int sprite, int zIndex){
-        // System.out.println("Loading entity " + identifier + " " + name + "at " + x + ", " + y);
-        // if (name == null) System.out.println("Warning: unknown identity identifier " + identifier);
         Entity e = getEntity(identifier, id, x, y);
         if (e != null) {
             e.setId(id);

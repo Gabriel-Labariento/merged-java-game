@@ -249,7 +249,6 @@ public class GameServer {
                         try {
                             //Only start the rest of the thread if data is sent
                             String assetsDataString = sendQueue.take();
-                            // System.out.println(assetsDataString);
 
                             if (!mapDataSent){
                                 sendMapData();
@@ -325,10 +324,8 @@ public class GameServer {
                                 String[] coors = part.split(NetworkProtocol.SUB_DELIMITER);
                                 int x = Integer.parseInt(coors[0].substring(NetworkProtocol.CLICK.length()));
                                 int y = Integer.parseInt(coors[1]);
-                                // System.out.println("CLick at " + x + "," + y);
                                 serverMaster.loadClickInput(x, y, cid); 
                             } else {
-                                // System.out.println(part);
                                 int keyInputNum = 0;
 
                                 for (char keyInput:part.toCharArray()){

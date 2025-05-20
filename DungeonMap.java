@@ -335,8 +335,6 @@ public class DungeonMap {
      * @return the starting room where the players will spawn.
      */
     public DungeonMapDeserializeResult deserialize(String message){
-        
-        // System.out.println("Received in deserialize(): " + message);
         // Clear data 
         rooms.clear();
         

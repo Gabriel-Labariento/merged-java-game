@@ -379,11 +379,10 @@ public class ServerMaster {
         try {
             //Make a new arraylist containing all of the elements of entities
             ArrayList<Entity> sortedEntities = new ArrayList<>(entities);
-            // System.out.println("Entity count: " + sortedEntities.size());
 
             //Sort entities from the universal arraylist by their worldx values (left bounds)
             Collections.sort(sortedEntities, Comparator.comparingInt(e -> e.getHitBoxBounds()[2]));
-            // System.out.println("Number of entities in sortedEntities " + sortedEntities.size());
+        
             int size = sortedEntities.size();
             for(int i = 0; i < size; i++){
                 Entity entity1 = sortedEntities.get(i);
@@ -393,7 +392,6 @@ public class ServerMaster {
                 for(int j = (i+1); j < size; j++){
                     Entity entity2 = sortedEntities.get(j);
                     if (entity2 == null) {
-                        // System.out.println("entity 2 is null in sortedEntities");
                         continue;
                     }
 
@@ -405,7 +403,6 @@ public class ServerMaster {
                     //Check for collisions in the top, bottom, left, right of entity1 against entity2
                     if (b1[0] < b2[1] && b1[1] > b2[0] && b1[2] < b2[3] && b1[3] > b2[2]){
                         resolveCollision(entity1, entity2, b1, b2);
-                        // System.out.println("Detected collision between " + entity1.getClass() + " and " + entity2.getClass());
                     }
                 }
             }   
@@ -664,7 +661,6 @@ public class ServerMaster {
      */
     private void processInputs(){
         keyInputQueue.forEach((key, cid) ->{
-            // System.out.println("Processing input: " + key + "," + cid);
             Player player = (Player) getPlayerFromClientId(cid);
 
             //Restrain player if downed
@@ -704,8 +700,6 @@ public class ServerMaster {
      */
     public void loadKeyInput(char input, int cid){
         keyInputQueue.put(input, cid);
-        // System.out.println("Key: " + input);
-        // System.out.println("cid: " + cid);
     }
 
     /**
@@ -898,7 +892,6 @@ public class ServerMaster {
 
         if (userPlayerData.startsWith(NetworkProtocol.ROOM_CHANGE)) {
             // Handle room change logic here on the server side
-            // System.out.println("String in room change of getassetdata: " + userPlayerData); // What does this say
             sb.append(handleRoomTransition(userPlayer, userPlayerData));
         } else {
             // Normal data without room change
@@ -942,7 +935,6 @@ public class ServerMaster {
             
             // Extract data from it
             String identifier = dataParts[0].substring(NetworkProtocol.ROOM_CHANGE.length());
-            // System.out.println("identifier:" + identifier);
             int clientId = Integer.parseInt(dataParts[1]);
             int newX = Integer.parseInt(dataParts[2]);
             int newY = Integer.parseInt(dataParts[3]);
@@ -971,7 +963,6 @@ public class ServerMaster {
             .append(newRoomId).append(NetworkProtocol.SUB_DELIMITER)
             .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
             .append(zIndex).append(NetworkProtocol.DELIMITER);
-            // System.out.println("String returned by handleRoomTransition: " + sb.toString());
 
             return sb.toString();
     }
