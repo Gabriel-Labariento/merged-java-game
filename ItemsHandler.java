@@ -74,7 +74,6 @@ public class ItemsHandler{
             //Check to see if random number from 0-100 is within the selection interval for a specific item
             if (roll < cumulativeChance) {
                 //Create a new item from the middle of the enemy
-                System.out.print("SELECTED FROM SERVER: ");
                 switch(entry.getKey()){
                     case "None":
                         return null;
