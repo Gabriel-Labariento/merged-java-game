@@ -60,6 +60,8 @@ public abstract class Player extends Entity implements Effectable{
 
         while (currentXP >= currentXPCap) { 
             currentLvl++; 
+            // System.out.println("New level: " + currentLvl);
+
 
             //Increase stats and heal
             levelUpStats();
@@ -312,6 +314,7 @@ public abstract class Player extends Entity implements Effectable{
 
         // Added null safety for next room
         if (next == null) {
+            // System.out.println("Next room is null on getNewPositionAfterRoomTransition");
             newCoordinates[0] = (Room.WIDTH_TILES / 2) * GameCanvas.TILESIZE;
             newCoordinates[1] = (Room.HEIGHT_TILES / 2) * (GameCanvas.TILESIZE);
             return newCoordinates;
