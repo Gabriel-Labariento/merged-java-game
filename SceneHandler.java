@@ -168,7 +168,7 @@ public class SceneHandler{
     }
 
     /**
-     * Sets the GameCanvas field to b
+     * Sets the isScenePlaying field to b
      */
     public void setIsScenePlaying(boolean b){
         isScenePlaying = b;
