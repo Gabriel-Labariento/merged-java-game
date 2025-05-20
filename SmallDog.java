@@ -3,14 +3,41 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The SmallDog class extends Enemy. It appears in level two of the game.
+        It creates two attacks: a bark (wide) attack if the player is far and a
+        bite (narrow) attack if a player is near. It also chases the player around
+        the room.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class SmallDog extends Enemy{
     private static final int ATTACK_COOLDOWN = 1500;
     private static BufferedImage[] sprites;
 
+    // Call the static setSprites() method
     static {
         setSprites();
     }
 
+    /**
+     * Creates a SmallDog instance with appropriate fields
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public SmallDog(int x, int y) {
         id = enemyCount++;
         identifier = NetworkProtocol.SMALLDOG;
@@ -28,7 +55,10 @@ public class SmallDog extends Enemy{
         
     }
 
-     private static void setSprites() {
+    /**
+     * Set the sprite images to the class and not the instance
+     */
+    private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(SmallDog.class.getResourceAsStream("resources/Sprites/SmallDog/dog_left0.png"));
             BufferedImage left1 = ImageIO.read(SmallDog.class.getResourceAsStream("resources/Sprites/SmallDog/dog_left1.png"));
@@ -96,7 +126,6 @@ public class SmallDog extends Enemy{
             }
             lastSpriteUpdate = now;
         }
-
         matchHitBoxBounds();
     }
 }
