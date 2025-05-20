@@ -3,25 +3,44 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**     
+        The Snake class extends enemy. It is a boss that appears in level four.
+        It has the ability to spawn minions. In its first phase, it sends multiple
+        bullets towards the player in a fan shape. In its second phase after half
+        health, it follows the player and dashes towards the player simulating
+        an attack.
+
+        @author Niles Tristan Cabrera (240828)
+        @author Gabriel Matthew Labariento (242425)
+        @version 20 May 2025
+
+        We have not discussed the Java language code in our program
+        with anyone other than my instructor or the teaching assistants
+        assigned to this course.
+        We have not used Java language code obtained from another student,
+        or any other unauthorized source, either modified or unmodified.
+        If any Java language code or documentation used in our program
+        was obtained from another source, such as a textbook or website,
+        that has been clearly noted with a proper citation in the comments
+        of our program.
+**/
+
 public class Snake extends Enemy {
-    private static final int SPRITE_FRAME_DURATION = 200;
     private static final int BULLET_COOLDOWN = 5000;
     private static final int DASH_COOLDOWN = 1000;
-    private int SPAWN_COOLDOWN = 5000;
-    private static final int DASH_DISTANCE = GameCanvas.TILESIZE * 4;
-    private static final int ATTACK_DISTANCE = GameCanvas.TILESIZE * 4;
-     private static final int BURST_INTERVAL = 200;
+    private final int SPAWN_COOLDOWN = 5000;
+
+    private static final int DASH_DISTANCE = GameCanvas.TILESIZE * 3;
+    private static final int ATTACK_DISTANCE = GameCanvas.TILESIZE * 3;
+
+    private static final int BURST_INTERVAL = 200;
     private static final int TOTAL_BURSTS = 5;
-
-    private long lastSpriteUpdate = 0;
     private long lastBulletSend = 0;
-
     private int burstCount = 0;
     private boolean inBurst;
     private long lastBurstSend = 0;
 
     private long lastDashTime = 0;
-    
     private long lastSpawnTime = 0;
 
     private static BufferedImage[] sprites;
@@ -30,11 +49,17 @@ public class Snake extends Enemy {
 
     private enum State {IDLE, PURSUE, DASH};
     private State currentState;
-
+    
+    // Calls the static setSprites method
     static {
         setSprites();
     }
 
+    /**
+     * Creates a Snake instance with appropriate fields
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
     public Snake(int x, int y) {
         isBoss = true;
         enemyCount++;
@@ -55,6 +80,9 @@ public class Snake extends Enemy {
         isBoss= true;
     }
 
+    /**
+     * Set the sprite images to the class and not the instance
+     */
     private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(Snake.class.getResourceAsStream("resources/Sprites/Snake/snake_left0.png"));
@@ -86,7 +114,7 @@ public class Snake extends Enemy {
     
     @Override
     public void updateEntity(ServerMaster gsm){
-         long now = System.currentTimeMillis();
+        now = System.currentTimeMillis();
         Player pursued = scanForPlayer(gsm);
         if (pursued == null) return;
         switch (currentPhase) {
@@ -126,6 +154,11 @@ public class Snake extends Enemy {
         matchHitBoxBounds();
     }
 
+    /**
+     * Sends three SnakBullet instances towards the Player at slightly varied angles
+     * @param gsm the ServerMaster instance containing the entities ArrayList
+     * @param target the Player to send the projectiles to
+     */
     private void sendProjectile(ServerMaster gsm, Player target){
         int vectorX = target.getCenterX() - getCenterX();
         int vectorY = target.getCenterY() - getCenterY(); 
@@ -162,6 +195,14 @@ public class Snake extends Enemy {
         gsm.addEntity(sb2);
     }
 
+    /**
+     * Calls sendProjectile in succession every BURST_INTERVAL until TOTAL_BURSTS
+     * is reached. Then, waits for BULLET_COOLDOWN to finish before initiating
+     * the next attack
+     * @param gsm the ServerMaster instance containing the entities ArrayList
+     * @param target the attack's target Player
+     * @param now the current time in milliseconds when the method is called
+     */
     private void handleBurstAttack(ServerMaster gsm, Player target, long now){
         // Check if burst is available
         if (!inBurst && now - lastBulletSend > BULLET_COOLDOWN) {
@@ -185,6 +226,12 @@ public class Snake extends Enemy {
         }
     }
 
+    /**
+     * Handles the Phase 2 behavior of the Snake after health is halved. It
+     * follows the Player and periodically dashes towards it
+     * @param target the player being followed and dashed towards
+     * @param now the current time in milliseconds when the method was called
+     */
     private void handleConstrictBehavior(Player target, long now){
         switch (currentState) {
             case IDLE:
@@ -214,27 +261,5 @@ public class Snake extends Enemy {
                 throw new AssertionError();
         }
         matchHitBoxBounds();
-    }
-
-    @Override
-    public Player scanForPlayer(ServerMaster gsm){
-        final int scanRadius = GameCanvas.TILESIZE * 10; // Larger scan radius
-        Player closestPlayer = null;
-        double minDistance = Integer.MAX_VALUE;
-
-        for (Entity e : gsm.getEntities()) {
-            if (e instanceof Player player) {
-                if (this.getCurrentRoom() != player.getCurrentRoom()) continue; 
-                // Get the center distance between the player and the entity
-                double distanceSquared = 
-                    (Math.pow(getCenterX() - e.getCenterX(), 2) + Math.pow(getCenterY() - e.getCenterY(), 2));
-                
-                if ( (distanceSquared <= scanRadius * scanRadius) && (distanceSquared < minDistance)) {
-                    closestPlayer = player;
-                    minDistance = distanceSquared;
-                }
-            }
-        }
-        return closestPlayer;
     }
 }
