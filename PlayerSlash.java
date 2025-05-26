@@ -64,6 +64,7 @@ public class PlayerSlash extends Attack{
         setExpirationTime(duration);
 
         matchHitBoxBounds();
+        SoundManager.getInstance().playPooledSound("playerSlash.wav");
     }
 
     @Override

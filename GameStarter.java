@@ -27,5 +27,12 @@ public class GameStarter {
         gameFrame.setUpButtons();
         gameFrame.addKeyBindings();
         gameFrame.getCanvas().startRenderLoop();
+
+        SoundManager soundManager = SoundManager.getInstance();
+        soundManager.setUpAudio();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            SoundManager.getInstance().shutdown();
+        }));
     }
 }
