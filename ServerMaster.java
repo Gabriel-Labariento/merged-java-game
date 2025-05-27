@@ -536,6 +536,7 @@ public class ServerMaster {
         if (item.getIsConsumable()){
             item.applyEffects();
             entities.remove(item);
+            SoundManager.getInstance().playSound("equipItem"); // Play sound for consumable pickup
         }
         else {
             if(item.getIsOnPickUpCD()) return;
@@ -547,6 +548,7 @@ public class ServerMaster {
                 item.applyEffects();
                 item.setIsHeld(true);
                 entities.remove(item);
+                SoundManager.getInstance().playSound("equipItem"); // Play sound for non-consumable pickup
             } 
         }
         

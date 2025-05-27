@@ -31,6 +31,7 @@ public class Cockroach extends Enemy{
     private static BufferedImage[] sprites;
     private enum State {IDLE, PURSUE, ATTACK}; 
     private State currentState;
+
     
     /**
      * Calls the static setSprites() method.
@@ -136,6 +137,7 @@ public class Cockroach extends Enemy{
                     initiateJump(pursued);
                     currentState = State.IDLE;
                     lastStateChangeTime = now;
+                    SoundManager.getInstance().playSound("cockroach");
                 } 
                 break;
 

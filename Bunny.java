@@ -27,7 +27,9 @@ import javax.imageio.ImageIO;
 public class Bunny extends Enemy{
     private static final int BITE_COOLDOWN = 1500;
     private static final int BITE_DISTANCE = GameCanvas.TILESIZE * 2;
+    private static final int NOISE_COOLDOWN = 3000; // 3 seconds between noises
     private long lastBiteAttack = 0;
+    private long lastNoiseTime = 0;
     private static BufferedImage[] sprites;
 
     /**
@@ -120,5 +122,13 @@ public class Bunny extends Enemy{
         }
 
         matchHitBoxBounds();
+
+        // Play noise on cooldown
+        if (now - lastNoiseTime > NOISE_COOLDOWN) {
+            SoundManager.getInstance().playSound("rabbitNoise");
+            lastNoiseTime = now;
+        }
+
+        if (hitPoints <= 0) SoundManager.getInstance().stopSound("rabbitNoise");
     }
 }
