@@ -76,6 +76,10 @@ import javax.imageio.ImageIO;
         @Override
         public void updateEntity(ServerMaster gsm) {
             moveBullet();
+            if (!hasPlayedSound){
+                SoundManager.getInstance().playPooledSound("laserBullet.wav");
+                hasPlayedSound = true;
+            }
         }
 
         @Override

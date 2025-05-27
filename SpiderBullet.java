@@ -75,6 +75,10 @@ import javax.imageio.ImageIO;
 
         @Override
         public void updateEntity(ServerMaster gsm) {
+            if (!hasPlayedSound){
+                SoundManager.getInstance().playPooledSound("spiderBullet.wav");
+                hasPlayedSound = true;
+            }
             moveBullet();
         }
 

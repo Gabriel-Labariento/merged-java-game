@@ -31,6 +31,7 @@ public abstract class Attack extends Entity{
     public boolean isOffsetInitialized;
     public Entity owner;
     private final ArrayList<StatusEffect> attackEffects;
+    protected boolean hasPlayedSound = false;
 
     /**
      * At the instantiation of an object that extends Attack,

@@ -81,5 +81,9 @@ public class EnemySlash extends Attack{
 
     @Override
     public void updateEntity(ServerMaster gsm) {
+        if (!hasPlayedSound){
+            SoundManager.getInstance().playPooledSound("enemySlash.wav");
+            hasPlayedSound = true;
+        }
     }
 }

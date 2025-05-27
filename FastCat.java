@@ -52,7 +52,7 @@ public class FastCat extends Player{
         worldY = y;
         maxHealth = 4;
         hitPoints = maxHealth;
-        damage = 5;
+        damage = 30; // TODO: REVERT DAMAGE BACK TO 5
         isDown = false;
         attackCDDuration = 600;
         attackFrameDuration = 125;

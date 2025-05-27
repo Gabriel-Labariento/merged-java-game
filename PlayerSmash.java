@@ -80,6 +80,10 @@ public class PlayerSmash extends Attack{
 
     @Override
     public void updateEntity(ServerMaster gsm) {
+        if (!hasPlayedSound){
+            SoundManager.getInstance().playPooledSound("playerSmash.wav");
+            hasPlayedSound = true;
+        }
     }
 
 }

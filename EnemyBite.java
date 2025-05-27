@@ -81,6 +81,10 @@ public class EnemyBite extends Attack{
 
     @Override
     public void updateEntity(ServerMaster gsm) {
+        if (!hasPlayedSound){
+            SoundManager.getInstance().playPooledSound("enemyBite.wav");
+            hasPlayedSound = true;
+        }
         attachToOwner();
     }
 }

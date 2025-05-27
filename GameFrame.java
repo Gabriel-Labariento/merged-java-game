@@ -277,6 +277,12 @@ public class GameFrame extends JFrame{
         refreshFrame();
         //Force reload
         cp.requestFocusInWindow();
+        gameCanvas.startRenderLoop();
+        
+        // Start the level music after the scene is done playing
+        if (!sceneHandler.getIsScenePlaying()) {
+            SoundManager.getInstance().playLevelMusic(0);
+        }
     }
 
     /**

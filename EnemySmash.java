@@ -65,7 +65,12 @@ public class EnemySmash extends Attack {
 
     
     @Override
-    public void updateEntity(ServerMaster gsm) {}
+    public void updateEntity(ServerMaster gsm) {
+        if (!hasPlayedSound){
+            SoundManager.getInstance().playPooledSound("playerSmash.wav");
+            hasPlayedSound = true;
+        }
+    }
 
     @Override
     public void draw(Graphics2D g2d, int xOffset, int yOffset){

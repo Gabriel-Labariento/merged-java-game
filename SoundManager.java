@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -103,11 +102,7 @@ public class SoundManager {
     Runnable playSoundTask = () -> {
         Clip clip = soundClips.get(name);
         if (clip != null) {
-            clip.setFramePosition(0);
-            FloatControl gainControl = 
-                (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            float volume = (float) (Math.log(masterVolume * sfxVolume) / Math.log(10.0) * 20.0);
-            gainControl.setValue(volume);
+            clip.setFramePosition(0);       
             clip.start();
         }
     };
@@ -120,15 +115,14 @@ public class SoundManager {
    * @param name the name of the music clip to play
    */
   public void playMusic(String name) {
-    stopMusic();
-    Clip clip = musicClips.get(name);
-    if (clip != null) {
-      FloatControl gainControl = 
-        (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-      float volume = (float) (Math.log(masterVolume * musicVolume) / Math.log(10.0) * 20.0);
-      gainControl.setValue(volume);
-      clip.loop(Clip.LOOP_CONTINUOUSLY);
-    }
+    Runnable playMusicTask = () -> {
+        stopMusic();
+        Clip clip = musicClips.get(name);
+        if (clip != null) {
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+    };
+    audioExecutor.execute(playMusicTask);
   }
 
   /**
@@ -178,10 +172,6 @@ public class SoundManager {
                 for (Clip clip : pool) {
                 if (!clip.isRunning()) {
                     clip.setFramePosition(0);
-                    FloatControl gainControl = 
-                    (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                    float volume = (float) (Math.log(masterVolume * sfxVolume) / Math.log(10.0) * 20.0);
-                    gainControl.setValue(volume);
                     clip.start();
                     break;
                 }
@@ -192,7 +182,63 @@ public class SoundManager {
   }
 
   public void setUpAudio(){
-    initializeSoundPool("playerSlash.wav", 10);
+    // ATTACKS
+    initializeSoundPool("playerSlash.wav", 5);
+    initializeSoundPool("playerBullet.wav", 5); 
+    initializeSoundPool("playerSmash.wav", 5);   
+    initializeSoundPool("spiderBullet.wav", 10);
+    initializeSoundPool("snakeBullet.wav", 10);
+    initializeSoundPool("enemyBite.wav", 10);
+    initializeSoundPool("enemySlash.wav", 10);
+    initializeSoundPool("laserBullet.wav", 30);
+
+
+    // GAME OVER
+    loadSound("gameOver", "gameOver.wav");
+
+    // AMBIENT OR LEVEL-BASED
+    loadMusic("level0", "level0.wav");
+    loadMusic("level1", "level1.wav");
+    loadMusic("level2", "level1.wav");
+    loadMusic("level3", "level1.wav");
+    loadMusic("level4", "level1.wav");
+    loadMusic("level5", "level1.wav");
+    loadMusic("level6", "level1.wav");
+  }
+
+  /**
+   * Plays the ambient music for the specified level.
+   * @param level the current game level (0-6)
+   */
+  public void playLevelMusic(int level) {
+    String musicName = "level" + level;
+    playMusic(musicName);
+  }
+
+  /**
+   * Stops all currently playing sounds and music, except for the game over sound.
+   * This is useful for transitioning between game states or when needing to clear
+   * all audio except for critical game events.
+   */
+  public void stopAllSounds() {
+    // Stop all music
+    stopMusic();
+    
+    // Stop all sound effects except game over
+    for (Map.Entry<String, Clip> entry : soundClips.entrySet()) {
+        if (!entry.getKey().equals("gameOver") && entry.getValue().isRunning()) {
+            entry.getValue().stop();
+        }
+    }
+    
+    // Stop all pooled sounds
+    for (List<Clip> pool : soundPools.values()) {
+        for (Clip clip : pool) {
+            if (clip.isRunning()) {
+                clip.stop();
+            }
+        }
+    }
   }
 
   public void shutdown() {

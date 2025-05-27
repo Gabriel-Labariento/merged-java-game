@@ -77,6 +77,10 @@ public class SnakeBullet extends Attack {
 
         @Override
         public void updateEntity(ServerMaster gsm) {
+            if (!hasPlayedSound){
+                SoundManager.getInstance().playPooledSound("snakeBullet.wav");
+                hasPlayedSound = true;
+            }
             moveBullet();
         }
 

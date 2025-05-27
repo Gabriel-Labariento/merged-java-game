@@ -64,7 +64,6 @@ public class PlayerSlash extends Attack{
         setExpirationTime(duration);
 
         matchHitBoxBounds();
-        SoundManager.getInstance().playPooledSound("playerSlash.wav");
     }
 
     @Override
@@ -84,6 +83,9 @@ public class PlayerSlash extends Attack{
     @Override
     public void updateEntity(ServerMaster gsm) {
         attachToOwner();
-
+        if (!hasPlayedSound) {
+            SoundManager.getInstance().playPooledSound("playerSlash.wav");
+            hasPlayedSound = true;
+        }
     }
 }

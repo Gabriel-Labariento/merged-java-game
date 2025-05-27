@@ -47,6 +47,9 @@ public class ServerMaster {
     private int bossHPPercent;
 
     private static ServerMaster singleInstance = null;
+
+    boolean hasPlayedGameOverSound = false;
+
     
     /**
      * Private constructor used in the Singleton pattern. This 
@@ -191,7 +194,12 @@ public class ServerMaster {
                     
                     sb.append(NetworkProtocol.GAME_OVER);
                     sendMessageToClients(sb.toString());
-                    // System.out.println("GAME OVER");
+                    if (!hasPlayedGameOverSound) {
+                        SoundManager.getInstance().stopAllSounds();
+                        SoundManager.getInstance().playSound("gameOver");
+                        hasPlayedGameOverSound = true;
+                    }
+                    entities.clear(); // important
                 }
             }
 
@@ -333,6 +341,9 @@ public class ServerMaster {
         DungeonMap newDungeon = generateNewDungeon();
         dungeonMap = newDungeon;
         currentRoom = newDungeon.getStartRoom();
+
+        // Play the new level's ambient music
+        SoundManager.getInstance().playLevelMusic(gameLevel);
 
         String newDungeonMapData = newDungeon.serialize();  
         StringBuilder mapData = new StringBuilder();
@@ -524,7 +535,7 @@ public class ServerMaster {
      */
     private void damagePlayer(Player player, Entity entity){
         //Debouncing condition
-        if(!player.getIsInvincible()){
+        if(!player.getIsInvincible()){ // TODO: ADD NOT
             //Calculate damage taken: new health = current health - (damage*(1-(defense/100)))
             double dmgMitigationFactor = (1-(player.getDefense()/100.0));
             if(dmgMitigationFactor < 0) dmgMitigationFactor = 0;
@@ -729,67 +740,70 @@ public class ServerMaster {
         //Debouncing constraints
         if(originPlayer.getIsOnCoolDown() || originPlayer.getIsDown()) return;
         
-        Thread runAttack = new Thread(){
-            @Override
-            public void run(){
-                originPlayer.triggerCoolDown();
-                originPlayer.runAttackFrames();
+        // Only create a new attack if the player is not on cooldown
+        if (!originPlayer.getIsOnCoolDown()) {
+            Thread runAttack = new Thread(){
+                @Override
+                public void run(){
+                    originPlayer.triggerCoolDown();
+                    originPlayer.runAttackFrames();
 
-                int attackDamage = originPlayer.getDamage();
-                int frameWidth = 800;
-                int frameHeight = 600;
-                int centerX = frameWidth/2;
-                int centerY = frameHeight/2;
-                
-                //Get a point a set distance away from the center of the screen in the direction of the click
-                int vectorX = clickX - centerX;
-                int vectorY = clickY - centerY;  
-                int distance = 20;
-                double normalizedVector = Math.sqrt((vectorX*vectorX)+(vectorY*vectorY));
+                    int attackDamage = originPlayer.getDamage();
+                    int frameWidth = 800;
+                    int frameHeight = 600;
+                    int centerX = frameWidth/2;
+                    int centerY = frameHeight/2;
+                    
+                    //Get a point a set distance away from the center of the screen in the direction of the click
+                    int vectorX = clickX - centerX;
+                    int vectorY = clickY - centerY;  
+                    int distance = 20;
+                    double normalizedVector = Math.sqrt((vectorX*vectorX)+(vectorY*vectorY));
 
-                //Avoids 0/0 division edge case
-                if (normalizedVector == 0) normalizedVector = 1; 
-                double normalizedX = vectorX/normalizedVector;
-                double normalizedY = vectorY/normalizedVector;
-                int attackScreenX = (int) (centerX + distance*normalizedX);
-                int attackScreenY = (int) (centerY + distance*normalizedY);
+                    //Avoids 0/0 division edge case
+                    if (normalizedVector == 0) normalizedVector = 1; 
+                    double normalizedX = vectorX/normalizedVector;
+                    double normalizedY = vectorY/normalizedVector;
+                    int attackScreenX = (int) (centerX + distance*normalizedX);
+                    int attackScreenY = (int) (centerY + distance*normalizedY);
 
-                int playerScreenX = frameWidth/2 - originPlayer.getWidth()/2;
-                int playerScreenY = frameHeight/2 - originPlayer.getHeight()/2;
+                    int playerScreenX = frameWidth/2 - originPlayer.getWidth()/2;
+                    int playerScreenY = frameHeight/2 - originPlayer.getHeight()/2;
 
-                int worldX = (originPlayer.getWorldX() - playerScreenX) + attackScreenX;
-                int worldY = (originPlayer.getWorldY() - playerScreenY) + attackScreenY;
+                    int worldX = (originPlayer.getWorldX() - playerScreenX) + attackScreenX;
+                    int worldY = (originPlayer.getWorldY() - playerScreenY) + attackScreenY;
 
-                Attack playerAttack = null;
-                int attackHeight;
-                int attackWidth;
+                    Attack playerAttack = null;
+                    int attackHeight;
+                    int attackWidth;
 
-                if (originPlayer.getIdentifier().equals(NetworkProtocol.FASTCAT)){
-                    attackWidth = 40;
-                    attackHeight = 40;
-                    playerAttack = new PlayerSlash(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
-                    attackDamage, true);
-                } 
-                else if (originPlayer.getIdentifier().equals(NetworkProtocol.HEAVYCAT)){
-                    attackWidth = 80;
-                    attackHeight = 80;
-                    playerAttack = new PlayerSmash(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
-                    attackDamage, true);
+                    if (originPlayer.getIdentifier().equals(NetworkProtocol.FASTCAT)){
+                        attackWidth = 40;
+                        attackHeight = 40;
+                        playerAttack = new PlayerSlash(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
+                        attackDamage, true);
+                    } 
+                    else if (originPlayer.getIdentifier().equals(NetworkProtocol.HEAVYCAT)){
+                        attackWidth = 80;
+                        attackHeight = 80;
+                        playerAttack = new PlayerSmash(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
+                        attackDamage, true);
+                    }
+                    else if (originPlayer.getIdentifier().equals(NetworkProtocol.GUNCAT)){
+                        attackWidth = 16;
+                        attackHeight = 16;
+                        playerAttack = new PlayerBullet(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
+                        normalizedX, normalizedY, attackDamage, true);
+                    }
+                    
+                    if(playerAttack != null){
+                        playerAttack.setCurrentRoom(originPlayer.getCurrentRoom());
+                        addEntity(playerAttack); 
+                    }
                 }
-                else if (originPlayer.getIdentifier().equals(NetworkProtocol.GUNCAT)){
-                    attackWidth = 16;
-                    attackHeight = 16;
-                    playerAttack = new PlayerBullet(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
-                    normalizedX, normalizedY, attackDamage, true);
-                }
-                
-                if(playerAttack != null){
-                    playerAttack.setCurrentRoom(originPlayer.getCurrentRoom());
-                    addEntity(playerAttack); 
-                }
-            }
-        };
-        runAttack.start();
+            };
+            runAttack.start();
+        }
     }
 
     /**

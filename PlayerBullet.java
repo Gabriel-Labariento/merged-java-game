@@ -29,6 +29,7 @@ public class PlayerBullet extends Attack{
     public static final int WIDTH = 16;
     public static final int HEIGHT = 16;
     public static BufferedImage sprite;
+    
 
     // Sets the sprite image to the class and not the instance
     static {
@@ -99,6 +100,10 @@ public class PlayerBullet extends Attack{
 
     @Override
     public void updateEntity(ServerMaster gsm) {
+        if (!hasPlayedSound) {
+            SoundManager.getInstance().playPooledSound("playerBullet.wav");
+            hasPlayedSound = true;
+        }
         moveBullet();
     }
 
