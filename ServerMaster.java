@@ -48,7 +48,9 @@ public class ServerMaster {
 
     private static ServerMaster singleInstance = null;
 
-    boolean hasPlayedGameOverSound = false;
+    private boolean hasPlayedGameOverSound = false;
+    private boolean hasPlayedRevivingSound = false;
+    private boolean hasPlayedReviveSuccessSound = false;
 
     
     /**
@@ -85,7 +87,10 @@ public class ServerMaster {
      * @return the singleton instance of ServerMaster
      */
     public static synchronized ServerMaster getInstance() {
-        if (singleInstance == null) singleInstance = new ServerMaster();
+        if (singleInstance == null) {
+            singleInstance = new ServerMaster();
+            singleInstance.resetSoundFlags();  // Reset flags when creating new instance
+        }
         return singleInstance;
     }
 
@@ -212,8 +217,13 @@ public class ServerMaster {
                     if (!player.getIsReviving()){
                         player.triggerRevival();
                         player.setIsReviving(true);
-                    }
+                        if (!hasPlayedRevivingSound){
+                            SoundManager.getInstance().playSound("reviving");
+                            hasPlayedReviveSuccessSound = true;
+                        }
+                        
 
+                    }
                     isInContact = true;
                     break;
                 } 
@@ -222,6 +232,7 @@ public class ServerMaster {
             //If the other player has moved away from the downed player
             if(!isInContact){
                 player.setIsReviving(false);
+                hasPlayedRevivingSound = false;  // Reset the reviving sound flag when no longer in contact
                 //Insert UI indicators
             }
 
@@ -232,7 +243,15 @@ public class ServerMaster {
 
                 //Remove death sprite
                 player.setCurrSprite(3);
+
+                if (!hasPlayedReviveSuccessSound) {
+                    SoundManager.getInstance().playSound("reviveSuccess");
+                    hasPlayedReviveSuccessSound = true;
+                }
                 
+                // Reset all revive-related sound flags after successful revival
+                hasPlayedRevivingSound = false;
+                hasPlayedReviveSuccessSound = false;
             }
         }
     
@@ -285,11 +304,17 @@ public class ServerMaster {
      * data for this door is sent to the client for drawing
      */
     private void handleBossDefeat(){
-        incrementGameLevel();
         String doorData = addExitRoomGoingToNewDungeon();
         StringBuilder sb = new StringBuilder();
         sb.append(NetworkProtocol.BOSS_KILLED).append(doorData); //BK:D:doorId,x,y,direction,roomAId,roomBId
         sendMessageToClients(sb.toString());
+
+        // Stop boss music and play defeat sound
+        SoundManager.getInstance().stopSound("bossMusic");
+        SoundManager.getInstance().playSound("bossDefeat");
+        
+        // Ensure the room is marked as cleared
+        currentRoom.setCleared(true);
     }
 
     /**
@@ -334,7 +359,8 @@ public class ServerMaster {
      * Gets the data of the players and sends it to the clients as well.
      * Sent String is in the format: LC:M:(See DungeonMap.serialize())|E:(Player Data)
      */
-    public void triggerLevelTransition(){     
+    public void triggerLevelTransition(){    
+        incrementGameLevel();
         ArrayList<Player> players = getAllPlayers();
         entities.clear();
 
@@ -535,7 +561,7 @@ public class ServerMaster {
      */
     private void damagePlayer(Player player, Entity entity){
         //Debouncing condition
-        if(!player.getIsInvincible()){ // TODO: ADD NOT
+        if(player.getIsInvincible()){ // TODO: ADD NOT
             //Calculate damage taken: new health = current health - (damage*(1-(defense/100)))
             double dmgMitigationFactor = (1-(player.getDefense()/100.0));
             if(dmgMitigationFactor < 0) dmgMitigationFactor = 0;
@@ -713,8 +739,6 @@ public class ServerMaster {
      */
     public void loadKeyInput(char input, int cid){
         keyInputQueue.put(input, cid);
-        // System.out.println("Key: " + input);
-        // System.out.println("cid: " + cid);
     }
 
     /**
@@ -949,43 +973,65 @@ public class ServerMaster {
     private String handleRoomTransition(Player userPlayer, String userPlayerData) {
             StringBuilder sb = new StringBuilder();
 
-            // Split the userPlayerData string by ","
-            String[] dataParts = userPlayerData.split(NetworkProtocol.SUB_DELIMITER);
-            
-            // Extract data from it
-            String identifier = dataParts[0].substring(NetworkProtocol.ROOM_CHANGE.length());
-            // System.out.println("identifier:" + identifier);
-            int clientId = Integer.parseInt(dataParts[1]);
-            int newX = Integer.parseInt(dataParts[2]);
-            int newY = Integer.parseInt(dataParts[3]);
-            int hp = Integer.parseInt(dataParts[4]);
-            int newRoomId = Integer.parseInt(dataParts[5]);
-            int currSprite = Integer.parseInt(dataParts[6]);
-            int zIndex = Integer.parseInt(dataParts[7]);
+            try {
+                // Split the userPlayerData string by ","
+                String[] dataParts = userPlayerData.split(NetworkProtocol.SUB_DELIMITER);
+                
+                // Extract data from it
+                String identifier = dataParts[0].substring(NetworkProtocol.ROOM_CHANGE.length());
+                int clientId = Integer.parseInt(dataParts[1]);
+                int newX = Integer.parseInt(dataParts[2]);
+                int newY = Integer.parseInt(dataParts[3]);
+                int hp = Integer.parseInt(dataParts[4]);
+                int newRoomId = Integer.parseInt(dataParts[5]);
+                int currSprite = Integer.parseInt(dataParts[6]);
+                int zIndex = Integer.parseInt(dataParts[7]);
 
-            // Use the data to set relevant fields
-            Room newRoom = dungeonMap.getRoomFromId(newRoomId);
-            userPlayer.setPosition(newX, newY);
-            userPlayer.setCurrentRoom(newRoom);
-            userPlayer.setHitPoints(hp);
-            userPlayer.setzIndex(zIndex);
-            currentRoom = newRoom;
-            handleSpawnersOnRoomChange(newRoom);
-            if (!currentRoom.isStartRoom() && !currentRoom.isCleared()) newRoom.closeDoors();
+                // Use the data to set relevant fields
+                Room newRoom = dungeonMap.getRoomFromId(newRoomId);
+                
+                // Handle case where new room is null or invalid
+                if (newRoom == null) {
+                    // Keep player in current room if destination is invalid
+                    newRoom = currentRoom;
+                    newX = userPlayer.getWorldX();
+                    newY = userPlayer.getWorldY();
+                }
 
-            // Build String to be returned
-            sb.append(NetworkProtocol.USER_PLAYER) 
-            .append(identifier).append(NetworkProtocol.SUB_DELIMITER)
-            .append(clientId).append(NetworkProtocol.SUB_DELIMITER)
-            .append(newX).append(NetworkProtocol.SUB_DELIMITER)
-            .append(newY).append(NetworkProtocol.SUB_DELIMITER)
-            .append(hp).append(NetworkProtocol.SUB_DELIMITER)
-            .append(newRoomId).append(NetworkProtocol.SUB_DELIMITER)
-            .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
-            .append(zIndex).append(NetworkProtocol.DELIMITER);
-            // System.out.println("String returned by handleRoomTransition: " + sb.toString());
+                userPlayer.setPosition(newX, newY);
+                userPlayer.setCurrentRoom(newRoom);
+                userPlayer.setHitPoints(hp);
+                userPlayer.setzIndex(zIndex);
+                currentRoom = newRoom;
+                handleSpawnersOnRoomChange(newRoom);
+                
+                // Only play boss music if it's an end room AND not cleared
+                if (newRoom.isEndRoom() && !newRoom.isCleared()) {
+                    SoundManager.getInstance().playMusic("bossMusic");
+                } else if (newRoom.isEndRoom() && newRoom.isCleared()) {
+                    // If it's a cleared end room, make sure boss music is stopped
+                    SoundManager.getInstance().stopSound("bossMusic");
+                }
+                
+                if (!currentRoom.isStartRoom() && !currentRoom.isCleared()) newRoom.closeDoors();
 
-            return sb.toString();
+                // Build String to be returned
+                sb.append(NetworkProtocol.USER_PLAYER) 
+                .append(identifier).append(NetworkProtocol.SUB_DELIMITER)
+                .append(clientId).append(NetworkProtocol.SUB_DELIMITER)
+                .append(newX).append(NetworkProtocol.SUB_DELIMITER)
+                .append(newY).append(NetworkProtocol.SUB_DELIMITER)
+                .append(hp).append(NetworkProtocol.SUB_DELIMITER)
+                .append(newRoom.getRoomId()).append(NetworkProtocol.SUB_DELIMITER)
+                .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
+                .append(zIndex).append(NetworkProtocol.DELIMITER);
+
+                return sb.toString();
+            } catch (Exception e) {
+                // If any error occurs during room transition, keep player in current room
+                System.err.println("Error during room transition: " + e.getMessage());
+                return null;
+            }
     }
 
     public void handleSpawnersOnRoomChange(Room next){
@@ -1117,4 +1163,10 @@ public class ServerMaster {
             this.cid = cid;
         }
     } 
+
+    private void resetSoundFlags() {
+        hasPlayedGameOverSound = false;
+        hasPlayedRevivingSound = false;
+        hasPlayedReviveSuccessSound = false;
+    }
 }

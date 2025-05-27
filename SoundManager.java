@@ -42,6 +42,16 @@ public class SoundManager {
     audioExecutor = Executors.newSingleThreadExecutor();
   }
 
+  public void stopSound(String name){
+    Clip sound = soundClips.get(name);
+    if (sound == null) sound = musicClips.get(name);
+    if (sound == null) sound = soundPools.get(name).get(0);
+
+    if (sound == null) return;
+
+    if (sound.isRunning()) sound.stop();
+  }
+
   /**
    * Returns the singleton instance of SoundManager.
    * If the instance does not exist, it creates a new one.
@@ -193,17 +203,25 @@ public class SoundManager {
     initializeSoundPool("laserBullet.wav", 30);
 
 
-    // GAME OVER
+    // SPECIAL EVENTS
     loadSound("gameOver", "gameOver.wav");
+    loadSound("reviving", "reviving.wav");
+    loadSound("reviveSuccess", "reviveSuccess.wav");
+    loadSound("woodWalk", "woodWalk.wav");
+    loadSound("waterWalk", "waterWalk.wav");
+    loadSound("normalWalk", "normalWalk.wav");
+    loadMusic("bossMusic", "bossMusic.wav");
+    loadSound("bossDefeat", "bossDefeat.wav");
+    loadSound("levelUp", "levelUp.wav");
 
-    // AMBIENT OR LEVEL-BASED
+    // LEVEL-BASED MUSIC
     loadMusic("level0", "level0.wav");
     loadMusic("level1", "level1.wav");
-    loadMusic("level2", "level1.wav");
-    loadMusic("level3", "level1.wav");
-    loadMusic("level4", "level1.wav");
-    loadMusic("level5", "level1.wav");
-    loadMusic("level6", "level1.wav");
+    loadMusic("level2", "level2.wav");
+    loadMusic("level3", "level3.wav");
+    loadMusic("level4", "level4.wav");
+    loadMusic("level5", "level5.wav");
+    loadMusic("level6", "level6.wav");
   }
 
   /**
@@ -244,4 +262,6 @@ public class SoundManager {
   public void shutdown() {
     audioExecutor.shutdown();
   }
+
+
 }
