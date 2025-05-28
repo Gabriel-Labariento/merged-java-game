@@ -232,7 +232,9 @@ public class ServerMaster {
             //If the other player has moved away from the downed player
             if(!isInContact){
                 player.setIsReviving(false);
+                SoundManager.getInstance().stopSound("reviving");
                 hasPlayedRevivingSound = false;  // Reset the reviving sound flag when no longer in contact
+                
                 //Insert UI indicators
             }
 

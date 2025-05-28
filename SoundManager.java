@@ -232,6 +232,7 @@ public class SoundManager {
     loadSound("frogCroak", "frogCroak.wav");
     loadSound("beeBuzz", "beeBuzz.wav");
     loadSound("enemyDetected", "enemyDetected.wav");
+    loadSound("feralRatNoise", "feralRatNoise.wav");
     loadSound("screamerRat", "screamerRat.wav");
     loadSound("mutatedAnchovy", "mutatedAnchovy.wav");
     loadSound("mutatedArcherfish", "mutatedArcherfish.wav");
@@ -241,6 +242,12 @@ public class SoundManager {
     loadSound("dogSnarl", "dogSnarl.wav");
     loadSound("waterSplash", "waterSplash.wav");
     loadSound("snakeHiss", "snakeHiss.wav");
+    loadSound("angryCat", "angryCat.wav");
+    loadSound("ratMonsterNoise", "ratMonsterNoise.wav");
+    loadSound("phaseOneNoise", "phaseOneNoise.wav");
+    loadSound("phaseTwoNoise", "phaseTwoNoise.wav");
+    loadSound("phaseThreeNoise", "phaseThreeNoise.wav");
+
   }
 
   /**

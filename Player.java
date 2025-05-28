@@ -197,7 +197,7 @@ public abstract class Player extends Entity implements Effectable{
      * the value of REVIVAL_DURATION
      */
     public void triggerRevival(){
-       revivalTime = System.currentTimeMillis() + REVIVAL_DURATION;  
+       revivalTime = System.currentTimeMillis() + REVIVAL_DURATION;
     }
 
     /**

@@ -26,6 +26,8 @@ import javax.imageio.ImageIO;
 public class FeralRat extends Enemy{
     
     private static BufferedImage[] sprites;
+    private static final int NOISE_DURATION = 3500;
+    private long lastNoiseTime = 0;
 
     /**
      * Calls the static setSprites() method
@@ -119,5 +121,10 @@ public class FeralRat extends Enemy{
         }
 
         matchHitBoxBounds();
+
+        if (now - lastNoiseTime > NOISE_DURATION){
+            SoundManager.getInstance().playSound("feralRatNoise");
+            lastNoiseTime = now;
+        }
     }
 }
