@@ -232,6 +232,10 @@ public class SoundManager {
     loadSound("frogCroak", "frogCroak.wav");
     loadSound("beeBuzz", "beeBuzz.wav");
     loadSound("enemyDetected", "enemyDetected.wav");
+    loadSound("screamerRat", "screamerRat.wav");
+    loadSound("mutatedAnchovy", "mutatedAnchovy.wav");
+    loadSound("mutatedArcherfish", "mutatedArcherfish.wav");
+    loadSound("mutatedPufferfish", "mutatedPufferfish.wav");
   }
 
   /**

@@ -24,6 +24,8 @@ import javax.imageio.ImageIO;
 **/
 
 public class ScreamerRat extends Enemy{
+    private static final int SCREAM_COOLDOWN = 3000;
+    private long lastScreamTime = 0;
     private static BufferedImage[] sprites;
     public static final int MAXSUMMONCOUNT = 4;
 
@@ -96,6 +98,10 @@ public class ScreamerRat extends Enemy{
         double distanceSquared = getSquaredDistanceBetween(this, pursued);
         if (distanceSquared <= ACTION_DISTANCE) {
             if (now - lastAttackTime > attackCDDuration) {
+                if (now - lastScreamTime > SCREAM_COOLDOWN) {
+                    SoundManager.getInstance().playSound("screamerRat");
+                    lastScreamTime = now;
+                }
                 screamSummon(gsm);
                 lastAttackTime = now;
             }

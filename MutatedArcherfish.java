@@ -27,6 +27,8 @@ import javax.imageio.ImageIO;
 public class MutatedArcherfish extends Enemy{
     
     private static BufferedImage[] sprites;
+    private static final int MOAN_DURATION = 3000;
+    private long lastMoanTime = 0;
 
     // Calls the static setSprites() method
     static {
@@ -119,5 +121,10 @@ public class MutatedArcherfish extends Enemy{
             lastSpriteUpdate = now;
         }
         matchHitBoxBounds();
+
+        if (now - lastMoanTime > MOAN_DURATION){
+            SoundManager.getInstance().playSound("mutatedArcherfish");
+            lastMoanTime = now;
+        }
     }
 }

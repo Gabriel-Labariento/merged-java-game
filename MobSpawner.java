@@ -45,7 +45,7 @@ public class MobSpawner {
     
     private static final String[][] spawnableEnemiesAtLevel = {
         // {"Spider", "Cockroach"},
-        {"Frog", "Bee", "SecurityBot"},
+        {"MutatedAnchovy", "MutatedPufferfish", "MutatedArcherfish"},
         {"Rat", "SmallDog"},
         {"Bunny", "Frog"},
         {"Bee", "Snakelet"},
