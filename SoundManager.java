@@ -236,6 +236,9 @@ public class SoundManager {
     loadSound("mutatedAnchovy", "mutatedAnchovy.wav");
     loadSound("mutatedArcherfish", "mutatedArcherfish.wav");
     loadSound("mutatedPufferfish", "mutatedPufferfish.wav");
+    loadSound("ratKingGrowl", "ratKingGrowl.wav");
+    loadSound("buffHowl", "buffHowl.wav");
+    loadSound("dogSnarl", "dogSnarl.wav");
   }
 
   /**

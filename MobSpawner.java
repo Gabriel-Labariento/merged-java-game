@@ -44,8 +44,7 @@ public class MobSpawner {
     private static final int INITIALSPAWNDELAY = 1;
     
     private static final String[][] spawnableEnemiesAtLevel = {
-        // {"Spider", "Cockroach"},
-        {"MutatedAnchovy", "MutatedPufferfish", "MutatedArcherfish"},
+        {"Spider", "Cockroach"},
         {"Rat", "SmallDog"},
         {"Bunny", "Frog"},
         {"Bee", "Snakelet"},
@@ -55,7 +54,7 @@ public class MobSpawner {
     };
 
     private static final String[] bosses = {
-        "RatKing",
+        // "RatKing",
         "FeralDog",
         "Turtle",
         "Snake",
