@@ -240,6 +240,7 @@ public class SoundManager {
     loadSound("buffHowl", "buffHowl.wav");
     loadSound("dogSnarl", "dogSnarl.wav");
     loadSound("waterSplash", "waterSplash.wav");
+    loadSound("snakeHiss", "snakeHiss.wav");
   }
 
   /**
