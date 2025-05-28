@@ -229,6 +229,9 @@ public class SoundManager {
     loadSound("rat", "rat.wav");
     loadSound("dogBark", "dogBark.wav");
     loadSound("rabbitNoise", "rabbitNoise.wav");
+    loadSound("frogCroak", "frogCroak.wav");
+    loadSound("beeBuzz", "beeBuzz.wav");
+    loadSound("enemyDetected", "enemyDetected.wav");
   }
 
   /**
