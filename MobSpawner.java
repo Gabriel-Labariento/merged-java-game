@@ -54,7 +54,7 @@ public class MobSpawner {
     };
 
     private static final String[] bosses = {
-        // "RatKing",
+        "RatKing",
         "FeralDog",
         "Turtle",
         "Snake",

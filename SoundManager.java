@@ -239,6 +239,7 @@ public class SoundManager {
     loadSound("ratKingGrowl", "ratKingGrowl.wav");
     loadSound("buffHowl", "buffHowl.wav");
     loadSound("dogSnarl", "dogSnarl.wav");
+    loadSound("waterSplash", "waterSplash.wav");
   }
 
   /**
