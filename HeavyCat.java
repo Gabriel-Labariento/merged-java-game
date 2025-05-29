@@ -1,4 +1,4 @@
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -85,7 +85,30 @@ public class HeavyCat extends Player{
 
     @Override
     public void draw(Graphics2D g2d, int xOffset, int yOffset){
-        g2d.drawImage(sprites[currSprite], xOffset, yOffset, width, height, null);
+        BufferedImage spriteImage = sprites[currSprite];
+        long now = System.currentTimeMillis();
+        
+        boolean isSpriteWhite = false;
+
+        if (getIsInvincible() && (now - lastSpriteUpdate > (SPRITE_FRAME_DURATION*5))){
+            isSpriteWhite = !(isSpriteWhite);
+            lastSpriteUpdate = now;
+        } 
+
+
+        if (isSpriteWhite){
+            BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D tempG2d = temp.createGraphics();
+            
+            tempG2d.drawImage(spriteImage, 0, 0, null);
+            tempG2d.setComposite(AlphaComposite.SrcIn);
+            tempG2d.setColor(Color.WHITE);
+            tempG2d.fillRect(0, 0, width, height);
+            tempG2d.dispose();
+
+            g2d.drawImage(temp, xOffset, yOffset, null);
+        } 
+        else g2d.drawImage(spriteImage, xOffset, yOffset, width, height, null);
     }
 
     @Override

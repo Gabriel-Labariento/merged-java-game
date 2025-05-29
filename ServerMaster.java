@@ -37,7 +37,7 @@ public class ServerMaster {
     private static int gameLevel;
     private static final int MAX_LEVEL = 7;
 
-    private final ConcurrentHashMap<Character, Integer> keyInputQueue;
+    private final ConcurrentHashMap<String, Integer> keyInputQueue;
     private final ConcurrentHashMap<Integer, Integer> availableRevives;
     private ArrayList<GameServer.ConnectedPlayer> connectedPlayers;
     private final ArrayList<ClickInput> clickInputQueue;
@@ -225,6 +225,7 @@ public class ServerMaster {
             if(player.getIsReviving() && player.getIsRevived()){
                 player.setHitPoints(1);
                 player.setIsDown(false);
+                downedPlayersNum--;
 
                 //Remove death sprite
                 player.setCurrSprite(3);
@@ -531,7 +532,7 @@ public class ServerMaster {
      */
     private void damagePlayer(Player player, Entity entity){
         //Debouncing condition
-        if(!player.getIsInvincible()){ // TODO: ADD NOT
+        if(!player.getIsInvincible() && !player.getIsDown()){ // TODO: ADD NOT
             //Calculate damage taken: new health = current health - (damage*(1-(defense/100)))
             double dmgMitigationFactor = (1-(player.getDefense()/100.0));
             if(dmgMitigationFactor < 0) dmgMitigationFactor = 0;
@@ -668,9 +669,10 @@ public class ServerMaster {
      * attacks.
      */
     private void processInputs(){
-        keyInputQueue.forEach((key, cid) ->{
+        keyInputQueue.forEach((compositeKey, cid) ->{
             // System.out.println("Processing input: " + key + "," + cid);
             Player player = (Player) getPlayerFromClientId(cid);
+            char key = compositeKey.charAt(0);
 
             //Restrain player if downed
             if (!player.getIsDown()) {
@@ -708,7 +710,7 @@ public class ServerMaster {
      * @param cid the client ID of the player sending the input
      */
     public void loadKeyInput(char input, int cid){
-        keyInputQueue.put(input, cid);
+        keyInputQueue.put(input + "|" + cid, cid);
         // System.out.println("Key: " + input);
         // System.out.println("cid: " + cid);
     }
@@ -959,6 +961,7 @@ public class ServerMaster {
             int newRoomId = Integer.parseInt(dataParts[6]);
             int currSprite = Integer.parseInt(dataParts[7]);
             int zIndex = Integer.parseInt(dataParts[8]);
+            boolean isInvincible = Boolean.parseBoolean(dataParts[9]);
 
             // Use the data to set relevant fields
             Room newRoom = dungeonMap.getRoomFromId(newRoomId);
@@ -981,7 +984,8 @@ public class ServerMaster {
             .append(maxHp).append(NetworkProtocol.SUB_DELIMITER)
             .append(newRoomId).append(NetworkProtocol.SUB_DELIMITER)
             .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
-            .append(zIndex).append(NetworkProtocol.DELIMITER);
+            .append(zIndex).append(NetworkProtocol.SUB_DELIMITER)
+            .append(isInvincible).append(NetworkProtocol.DELIMITER);
             // System.out.println("String returned by handleRoomTransition: " + sb.toString());
 
             return sb.toString();

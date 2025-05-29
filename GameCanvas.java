@@ -1,10 +1,7 @@
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.concurrent.*;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 /**     
@@ -68,7 +65,7 @@ public class GameCanvas extends JComponent {
 
         Player userPlayer = clientMaster.getUserPlayer();
         if (specialFrameHandler.getIsScenePlaying()){
-            specialFrameHandler.drawScene(g2d, width, height, 5);
+            specialFrameHandler.drawScene(g2d, width, height, currentStage);
         }
         else if (clientMaster.getIsFinalBossDead()){
             specialFrameHandler.drawScene(g2d, width, height, 7);

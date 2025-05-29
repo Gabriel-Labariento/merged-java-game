@@ -22,7 +22,7 @@ import java.util.ArrayList;
 **/
 
 public abstract class Attack extends Entity{
-    public static int attackNum = Integer.MIN_VALUE;
+    public static int attackNum = 0;
     public int duration;
     public int xOffset;
     public int yOffset;

@@ -23,7 +23,7 @@ import java.util.Iterator;
 **/
 
 public abstract class Player extends Entity implements Effectable{
-    public static final int INVINCIBILITY_DURATION = 1000;
+    public static final int INVINCIBILITY_DURATION = 1200;
     public static final int REVIVAL_DURATION = 5000;
     public long invincibilityEnd;
     public long coolDownEnd;
@@ -45,6 +45,7 @@ public abstract class Player extends Entity implements Effectable{
      * an empty statusEffects ArrayList
      */
     public Player(){
+        invincibilityEnd = 0;
         currentLvl = 1;
         currentXPCap = 100;
         heldItem = null;
@@ -168,7 +169,7 @@ public abstract class Player extends Entity implements Effectable{
      */
     public boolean getIsDown(){
         return isDown;
-    }   
+    }
 
     /**
      * Sets the value of coolDownEnd for Player attacks based on the time of invocation
@@ -228,6 +229,7 @@ public abstract class Player extends Entity implements Effectable{
 
         int changeX = 0;
         int changeY = 0;
+        // System.out.println("Input: " + input);
 
         switch (input){
             case 'Q':
@@ -269,7 +271,7 @@ public abstract class Player extends Entity implements Effectable{
      * plus the value of INVINCIBILITY_DURATION
      */
     public void triggerInvincibility(){
-        invincibilityEnd = System.currentTimeMillis() + INVINCIBILITY_DURATION;
+        if (!getIsInvincible()) invincibilityEnd = System.currentTimeMillis() + INVINCIBILITY_DURATION;
     }
 
     /**
@@ -300,7 +302,8 @@ public abstract class Player extends Entity implements Effectable{
         .append(maxHealth).append(NetworkProtocol.SUB_DELIMITER)
         .append(next.getRoomId()).append(NetworkProtocol.SUB_DELIMITER)
         .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
-        .append(getZIndex());
+        .append(getZIndex()).append(NetworkProtocol.SUB_DELIMITER)
+        .append(getIsInvincible());
 
         return sb.toString();
     }
@@ -399,7 +402,8 @@ public abstract class Player extends Entity implements Effectable{
             .append(maxHealth).append(NetworkProtocol.SUB_DELIMITER)
             .append(currentRoom.getRoomId()).append(NetworkProtocol.SUB_DELIMITER)
             .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
-            .append(getZIndex()).append(NetworkProtocol.DELIMITER);
+            .append(getZIndex()).append(NetworkProtocol.SUB_DELIMITER)
+            .append(getIsInvincible()).append(NetworkProtocol.DELIMITER);
         }
 
         return sb.toString();
@@ -407,6 +411,8 @@ public abstract class Player extends Entity implements Effectable{
     
     @Override
     public void updateEntity(ServerMaster gsm) {
+
+        
         //Do regen mechanics if player is holding a thick sweater
         if(heldItem instanceof ThickSweater ts && !isDown){
             ts.triggerRegenSystem();
@@ -469,4 +475,5 @@ public abstract class Player extends Entity implements Effectable{
     public ArrayList<StatusEffect> getStatusEffects() {
         return statusEffects;
     }
+
 }
