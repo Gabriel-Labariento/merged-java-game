@@ -38,16 +38,18 @@ public class GameFrame extends JFrame{
     private final SceneHandler sceneHandler;
     private final ArrayList<JButton> btns;
     private final JLabel gameTitle;
-    private final JLabel label1;
-    private final JLabel label2;
+    private final JLabel ipLabel;
+    private final JLabel portLabel;
     private final JLabel label3;
-    private final JTextField textField1;
-    private final JTextField textField2;
+    private final JTextField ipTextField;
+    private final JTextField portTextField;
     private int fishSlideNum;
 
     private static Font gameFont;
     private static Font gameFont35;
     private static Font gameFont15;
+    private static Font gameFont16;
+    private static Font gameFont20;
 
     // Set sprites and font on class
     static {
@@ -62,6 +64,8 @@ public class GameFrame extends JFrame{
             gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
             gameFont35 = gameFont.deriveFont(35f);
             gameFont15 = gameFont.deriveFont(15f);
+            gameFont16 = gameFont.deriveFont(16f);
+            gameFont20 = gameFont.deriveFont(20f);
         } catch (FontFormatException | IOException ex) { 
             System.out.println("Exception in setFont for GameFrame");
         }
@@ -93,20 +97,20 @@ public class GameFrame extends JFrame{
         btns = new ArrayList<>();
         btns.add(new JButton("START"));
         btns.add(new JButton("QUIT"));
-        btns.add(new JButton("Connect"));
-        btns.add(new JButton("Back"));
-        btns.add(new JButton("Host Server"));
+        btns.add(new JButton("CONNECT"));
+        btns.add(new JButton("BACK"));
+        btns.add(new JButton("HOST SERVER"));
         btns.add(new JButton("Enter Game"));
         btns.add(new JButton("<"));
         btns.add(new JButton(">"));
 
         gameTitle = new JLabel("BITING ON FISH", SwingConstants.CENTER);
-        label1 = new JLabel();
-        label2 = new JLabel();
+        ipLabel = new JLabel();
+        portLabel = new JLabel();
         label3 = new JLabel();
 
-        textField1 = new JTextField(10);
-        textField2 = new JTextField(10);
+        ipTextField = new JTextField(10);
+        portTextField = new JTextField(10);
         lp = new JLayeredPane();
     }
 
@@ -197,30 +201,111 @@ public class GameFrame extends JFrame{
      */
     public void loadClientUI(){
 
-        label1.setForeground(Color.WHITE);
-        label1.setText("IP Address: ");
-        label1.setBounds(17, 133, 232, 15);
-        lp.add(label1, Integer.valueOf(1));
+        ipLabel.setForeground(Color.WHITE);
+        ipLabel.setText("IP ADDRESS:");
+        ipLabel.setBounds(85, 128, 244, 25);
+        ipLabel.setFont(gameFont16);
+        lp.add(ipLabel, Integer.valueOf(1));
+
         
-        label2.setForeground(Color.WHITE);
-        label2.setText("Port Number: ");
-        label2.setBounds(17, 194, 232, 15);
-        lp.add(label2, Integer.valueOf(1));
+        portLabel.setForeground(Color.WHITE);
+        portLabel.setText("PORT NUMBER");
+        portLabel.setBounds(85, 196, 244, 25);
+        portLabel.setFont(gameFont16);
+        lp.add(portLabel, Integer.valueOf(1));
 
-        textField1.setBounds(245, 131, 159,  28);
-        lp.add(textField1, Integer.valueOf(1));
+        ipTextField.setBounds(336, 128, 306, 26);
+        ipTextField.setBackground(Color.black);
+        ipTextField.setForeground(Color.white);
+        ipTextField.setFont(gameFont16);
+        ipTextField.setFocusable(true);
+        lp.add(ipTextField, Integer.valueOf(1));
 
-        textField2.setBounds(245, 192, 159, 28);
-        lp.add(textField2, Integer.valueOf(1));
+        portTextField.setBounds(336, 196, 306, 26);
+        portTextField.setBackground(Color.black);
+        portTextField.setForeground(Color.white);
+        portTextField.setFont(gameFont16);
+        lp.add(portTextField, Integer.valueOf(1));
+
+        JButton connectButton = btns.get(2);
+        connectButton.setBackground(Color.black);
+        connectButton.setForeground(Color.white);
+        connectButton.setBorderPainted(false);
+        connectButton.setFont(gameFont20);
+        connectButton.setBounds(105, 334, 189, 31);
+        lp.add(connectButton, Integer.valueOf(1));
+
+        // Add white line below connect button
+        JPanel connectLinePanel = new JPanel();
+        connectLinePanel.setBackground(Color.WHITE);
+        connectLinePanel.setBounds(130, 365, 130, 5);
+        lp.add(connectLinePanel, Integer.valueOf(1));
+
+        connectButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                connectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                connectLinePanel.setBounds(114, 365, 165, 5);
+            }
         
-        btns.get(2).setBounds(54, 280, 159, 35);
-        lp.add(btns.get(2), Integer.valueOf(1));
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                connectButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                connectLinePanel.setBounds(130, 365, 130, 5);
+            }
+        });
 
-        btns.get(3).setBounds(245, 280, 159, 35);
-        lp.add(btns.get(3), Integer.valueOf(1));
+        JButton quitButton = btns.get(3);
+        quitButton.setBackground(Color.black);
+        quitButton.setForeground(Color.white);
+        quitButton.setBorderPainted(false);
+        quitButton.setFont(gameFont20);
+        quitButton.setBounds(561, 334, 118, 31);
+        lp.add(quitButton, Integer.valueOf(1));
 
-        btns.get(4).setBounds(54, 385, 159, 35);
-        lp.add(btns.get(4), Integer.valueOf(1));
+        // Add white line below connect button
+        JPanel quitLinePanel = new JPanel();
+        quitLinePanel.setBackground(Color.WHITE);
+        quitLinePanel.setBounds(575, 365, 83, 5);
+        lp.add(quitLinePanel, Integer.valueOf(1));
+
+        quitButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                quitLinePanel.setBounds(561, 365, 118, 5);
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                quitLinePanel.setBounds(575, 365, 83, 5);
+            }
+        });
+
+        JButton hostServerButton = btns.get(4);
+        hostServerButton.setBackground(Color.white);
+        hostServerButton.setForeground(Color.black);
+        hostServerButton.setBounds(85, 426, 307, 58);
+        hostServerButton.setFont(gameFont20);
+
+        hostServerButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                hostServerButton.setBackground(Color.black);
+                hostServerButton.setForeground(Color.white);
+                hostServerButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                hostServerButton.setBackground(Color.white);
+                hostServerButton.setForeground(Color.black);
+                hostServerButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
+        lp.add(hostServerButton, Integer.valueOf(1));
+
     }
 
     /**
@@ -228,15 +313,15 @@ public class GameFrame extends JFrame{
      * and allows the user to select a player type.
      */
     public void loadPrePlayUI(){
-        label1.setForeground(Color.WHITE);
-        label1.setText("IP Address: " + serverIP);
-        label1.setBounds(17, 133, 232, 15);
-        lp.add(label1, Integer.valueOf(1));
+        ipLabel.setForeground(Color.WHITE);
+        ipLabel.setText("IP Address: " + serverIP);
+        ipLabel.setBounds(17, 133, 232, 15);
+        lp.add(ipLabel, Integer.valueOf(1));
         
-        label2.setForeground(Color.WHITE);
-        label2.setText("Port: " + serverPort);
-        label2.setBounds(17, 194, 232, 15);
-        lp.add(label2, Integer.valueOf(1));
+        portLabel.setForeground(Color.WHITE);
+        portLabel.setText("Port: " + serverPort);
+        portLabel.setBounds(17, 194, 232, 15);
+        lp.add(portLabel, Integer.valueOf(1));
 
         updateFishCarousel();
         label3.setForeground(Color.WHITE);
@@ -287,6 +372,8 @@ public class GameFrame extends JFrame{
      */
     public void setUpButtons(){
         ActionListener btnListener = (ActionEvent ae) -> {
+            SoundManager.getInstance().playSound("click");
+
             Object o = ae.getSource();
             
             if (o == btns.get(0)){
@@ -298,8 +385,8 @@ public class GameFrame extends JFrame{
                 System.exit(0);                
             }
             else if (o == btns.get(2)){
-                serverIP = textField1.getText();
-                serverPort = Integer.parseInt(textField2.getText());
+                serverIP = ipTextField.getText();
+                serverPort = Integer.parseInt(portTextField.getText());
                 clearGUI();
                 loadPrePlayUI();
                 refreshFrame();

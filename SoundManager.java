@@ -214,8 +214,9 @@ public class SoundManager {
     loadSound("bossDefeat", "bossDefeat.wav");
     loadSound("levelUp", "levelUp.wav");
     loadSound("equipItem", "equipItem.wav");
+    loadSound("click", "click.wav");
 
-    // LEVEL-BASED MUSIC
+    // LEVEL-BASED AMBIENT
     loadMusic("level0", "level0.wav");
     loadMusic("level1", "level1.wav");
     loadMusic("level2", "level2.wav");
@@ -223,6 +224,10 @@ public class SoundManager {
     loadMusic("level4", "level4.wav");
     loadMusic("level5", "level5.wav");
     loadMusic("level6", "level6.wav");
+
+    // MUSIC BEATS
+    loadMusic("preGameMusic", "preGameMusic.wav");
+
 
     // MONSTER NOISES
     loadSound("cockroach", "cockroach.wav");
