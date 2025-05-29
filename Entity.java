@@ -31,7 +31,7 @@ public abstract class Entity extends GameObject {
     protected int hitPoints;
     protected int defense;
     protected int clientId;
-    public boolean isMaxHealthSet;
+    // public boolean isMaxHealthSet;
     protected int currSprite;
     protected int damage;
     protected boolean isAttacking;
@@ -303,7 +303,8 @@ public abstract class Entity extends GameObject {
      * @param hP the int value to set hitPoints to
      */
     public void setHitPoints(int hP) {
-        if(hP > maxHealth && !isMaxHealthSet) hP = maxHealth; 
+        // if(hP > maxHealth && !isMaxHealthSet) hP = maxHealth; 
+        if(hP > maxHealth) hP = maxHealth; 
         hitPoints = hP;
     }
 
@@ -311,9 +312,9 @@ public abstract class Entity extends GameObject {
      * Sets the value of isMaxHealthSet to the provided argument
      * @param b the boolean value to set isMaxHealthSet to
      */
-    public void setIsMaxHealthSet(boolean b){
-        isMaxHealthSet = b;
-    }
+    // public void setIsMaxHealthSet(boolean b){
+    //     isMaxHealthSet = b;
+    // }
 
     /**
      * Gets the value of the currSprite field

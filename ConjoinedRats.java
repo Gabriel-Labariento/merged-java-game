@@ -28,8 +28,6 @@ public class ConjoinedRats extends Enemy{
     private static BufferedImage[] sprites;
     private long lastLimpTime;
     private static final int LIMP_CD_DURATION = 200;
-    private static final int NOISE_COOLDOWN = 4000;
-    private long lastNoiseTime = 0;
 
     /**
      * Calls the static setSprites() method
@@ -125,11 +123,6 @@ public class ConjoinedRats extends Enemy{
         
         // Update hitbox
         matchHitBoxBounds();
-
-        if (now - lastNoiseTime > NOISE_COOLDOWN){
-            SoundManager.getInstance().playSound("ratMonsterNoise");
-            lastNoiseTime = now;
-        }
     }
 
     /**

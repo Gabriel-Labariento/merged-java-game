@@ -32,6 +32,7 @@ public class ClientMaster {
     private int userLvl;
     private String heldItemIdentifier;
     private boolean isGameOver;
+    private boolean isFinalBossDead;
     private int bossHPPercent;
     private int currentStage;
     
@@ -292,12 +293,20 @@ public class ClientMaster {
         isGameOver = b;
     }
 
+    public void setIsFinalBossDead(boolean b){
+        isFinalBossDead = b;
+    }
+
     /**
      * Gets the value of isGameOver
      * @return true if isGameOver is true, false otherwise
      */
     public boolean getIsGameOver(){
         return isGameOver;
+    }
+
+    public boolean getIsFinalBossDead(){
+        return isFinalBossDead;
     }
 
     public int getCurrentStage(){

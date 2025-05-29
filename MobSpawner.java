@@ -54,13 +54,13 @@ public class MobSpawner {
     };
 
     private static final String[] bosses = {
-        "RatKing",
+        "FishMonster",
         "FeralDog",
         "Turtle",
         "Snake",
         "AdultCat",
         "ConjoinedRats",
-        "FishMonster"
+        "RatKing"
     };
 
     private ScheduledExecutorService spawnMobsScheduler;

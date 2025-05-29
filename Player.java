@@ -39,11 +39,6 @@ public abstract class Player extends Entity implements Effectable{
     protected int baseSpeed;
     public Item heldItem;
     private final ArrayList<StatusEffect> statusEffects;
-    private static final long BASE_STEP_SOUND_COOLDOWN = 300; // Base cooldown of 300ms
-    private static final float MIN_SPEED_MULTIPLIER = 0.5f; // Slowest speed will double the cooldown
-    private static final float MAX_SPEED_MULTIPLIER = 2.0f; // Fastest speed will halve the cooldown
-    private long lastStepSoundTime = 0;
-    protected boolean hasPlayedLevelUpSound = false;
 
     /**
      * Each Player instance starts at level 1, holds no item, and has 
@@ -62,15 +57,12 @@ public abstract class Player extends Entity implements Effectable{
      */
     public void applyXP(int xp){
         currentXP += xp;
-        hasPlayedLevelUpSound = false;
+
         while (currentXP >= currentXPCap) { 
             currentLvl++; 
-            
-            if (!hasPlayedLevelUpSound) {
-                SoundManager.getInstance().playSound("levelUp");
-                hasPlayedLevelUpSound = true;
-            }
-            
+            // System.out.println("New level: " + currentLvl);
+
+
             //Increase stats and heal
             levelUpStats();
             hitPoints = maxHealth;
@@ -123,7 +115,9 @@ public abstract class Player extends Entity implements Effectable{
 
     @Override
     public void setHitPoints(int hP){
-        if(hP > maxHealth && !isMaxHealthSet) hP = maxHealth; 
+        // if(hP > maxHealth && !isMaxHealthSet) hP = maxHealth; 
+
+        if (hP > maxHealth) hP = maxHealth; 
         if (hitPoints < 18) hitPoints = hP;
     }
 
@@ -197,7 +191,7 @@ public abstract class Player extends Entity implements Effectable{
      * the value of REVIVAL_DURATION
      */
     public void triggerRevival(){
-       revivalTime = System.currentTimeMillis() + REVIVAL_DURATION;
+       revivalTime = System.currentTimeMillis() + REVIVAL_DURATION;  
     }
 
     /**
@@ -267,46 +261,7 @@ public abstract class Player extends Entity implements Effectable{
 
         worldX += changeX;
         worldY += changeY;
-
-        if (changeX != 0 || changeY != 0){
-            playStepSound();
-        }
-
         matchHitBoxBounds();
-    }
-
-    private void playStepSound(){
-        long currentTime = System.currentTimeMillis();
-        
-        // Calculate cooldown based on current speed relative to base speed
-        float speedMultiplier = (float) speed / baseSpeed;
-        // Clamp the multiplier between MIN and MAX values
-        speedMultiplier = Math.max(MIN_SPEED_MULTIPLIER, Math.min(MAX_SPEED_MULTIPLIER, speedMultiplier));
-        // Invert the multiplier since we want faster speed = shorter cooldown
-        float cooldownMultiplier = 1.0f / speedMultiplier;
-        
-        long currentCooldown = (long)(BASE_STEP_SOUND_COOLDOWN * cooldownMultiplier);
-        
-        if (currentTime - lastStepSoundTime < currentCooldown) {
-            return;
-        }
-
-        switch (ServerMaster.getInstance().getGameLevel()) {
-            case 2:
-            case 4:
-                // WOODEN STEP
-                SoundManager.getInstance().playSound("woodWalk");
-                break;
-            case 6:
-                // WATER STEP
-                SoundManager.getInstance().playSound("waterWalk");
-                break;
-            default:
-                // NORMAL STEP
-                SoundManager.getInstance().playSound("normalWalk");
-                break;
-        }
-        lastStepSoundTime = currentTime;
     }
 
     /**
@@ -342,6 +297,7 @@ public abstract class Player extends Entity implements Effectable{
         .append(newX).append(NetworkProtocol.SUB_DELIMITER)
         .append(newY).append(NetworkProtocol.SUB_DELIMITER)
         .append(hitPoints).append(NetworkProtocol.SUB_DELIMITER)
+        .append(maxHealth).append(NetworkProtocol.SUB_DELIMITER)
         .append(next.getRoomId()).append(NetworkProtocol.SUB_DELIMITER)
         .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
         .append(getZIndex());
@@ -440,6 +396,7 @@ public abstract class Player extends Entity implements Effectable{
             .append(worldX).append(NetworkProtocol.SUB_DELIMITER)
             .append(worldY).append(NetworkProtocol.SUB_DELIMITER)
             .append(hitPoints).append(NetworkProtocol.SUB_DELIMITER)
+            .append(maxHealth).append(NetworkProtocol.SUB_DELIMITER)
             .append(currentRoom.getRoomId()).append(NetworkProtocol.SUB_DELIMITER)
             .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
             .append(getZIndex()).append(NetworkProtocol.DELIMITER);

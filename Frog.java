@@ -25,12 +25,10 @@ import javax.imageio.ImageIO;
 
 public class Frog extends Enemy{
     private static final int ATTACK_RANGE = GameCanvas.TILESIZE * 3;
-    private static final int CROAK_COOLDOWN = 2000;
     private static final int IDLE_DURATION = 400;
     private static final int ATTACK_DURATION = 300;
     private boolean smashPerformed;
     private long lastStateChangeTime = 0;
-    private long lastCroakTime = 0;
     private static BufferedImage[] sprites;
     private enum State {IDLE, PURSUE, ATTACK, SMASH}; 
     private State currentState;
@@ -149,11 +147,7 @@ public class Frog extends Enemy{
             default:
                 throw new AssertionError();
         }
-        matchHitBoxBounds();
 
-        if (now - lastCroakTime > CROAK_COOLDOWN) {
-            SoundManager.getInstance().playSound("frogCroak");
-            lastCroakTime = now;
-        }
+        matchHitBoxBounds();
     }    
 }

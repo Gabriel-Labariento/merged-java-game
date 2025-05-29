@@ -25,8 +25,6 @@ import javax.imageio.ImageIO;
 **/
 
 public class SecurityBot extends Enemy{
-    private static final int SOUND_COOLDOWN = 3000;
-    private long lastSoundTime = 0;
     public static int ratCount = 0;
     private static BufferedImage[] sprites;
 
@@ -123,11 +121,6 @@ public class SecurityBot extends Enemy{
             lastSpriteUpdate = now;
         }
         matchHitBoxBounds();
-
-        if (now - lastSoundTime > SOUND_COOLDOWN){
-            SoundManager.getInstance().playSound("enemyDetected");
-            lastSoundTime = now;
-        }
     }
 
     /**

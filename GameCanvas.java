@@ -34,31 +34,10 @@ public class GameCanvas extends JComponent {
     private final GameClient gameClient;
     private final ClientMaster clientMaster;
     private final ScheduledExecutorService renderLoopScheduler;
-    public SceneHandler sceneHandler;
+    public SpecialFrameHandler specialFrameHandler;
     public PlayerUI playerUI;
     private float screenOpacity;
     private int currentStage;
-
-    private static BufferedImage[] sprites;
-
-    /**
-     * Calls the static setScreens() method
-     */
-    static {
-        setScreens();
-    }
-
-    /**
-     * Sets the different game screens statically
-     */
-    private static void setScreens() {
-        try {
-            BufferedImage gameOverScreen = ImageIO.read(GameCanvas.class.getResourceAsStream("resources/Misc/gameOver.png"));
-            sprites = new BufferedImage[] {gameOverScreen};
-        } catch (IOException e) {
-            System.out.println("Exception in setScreens()" + e);
-        }
-    }
 
     /**
      * Creates a GameCanvas instance with width and height. Insantiates a gameClient,
@@ -74,7 +53,7 @@ public class GameCanvas extends JComponent {
         gameClient = new GameClient(clientMaster);
         setPreferredSize(new Dimension(width, height));
         playerUI = new PlayerUI();
-        sceneHandler = new SceneHandler();
+        specialFrameHandler = new SpecialFrameHandler();
         currentStage = -1;
     }   
 
@@ -88,16 +67,18 @@ public class GameCanvas extends JComponent {
         g2d.setRenderingHints(rh);
 
         Player userPlayer = clientMaster.getUserPlayer();
-        if (sceneHandler.getIsScenePlaying()){
-            sceneHandler.drawScene(g2d, width, height, currentStage);
+        if (specialFrameHandler.getIsScenePlaying()){
+            specialFrameHandler.drawScene(g2d, width, height, 5);
+        }
+        else if (clientMaster.getIsFinalBossDead()){
+            specialFrameHandler.drawScene(g2d, width, height, 7);
         }
         else if (clientMaster.getIsGameOver()){
             if (screenOpacity < 1f){
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, screenOpacity));
                 screenOpacity += 0.005f;
             } 
-            g2d.drawImage(sprites[0], 0, 0, width, height, null);
-
+            specialFrameHandler.drawDeathScreen(g2d, width, height);
         }
         else if ( (userPlayer == null) || (clientMaster.getCurrentRoom() == null) ){
             //Temporary Background
@@ -143,12 +124,12 @@ public class GameCanvas extends JComponent {
             userPlayer.draw(g2d, screenX, screenY); //CHANGE 50 BY ACTUAL ASSET SIZE
 
             //Draw UI elements
-            playerUI.drawPlayerUI(g2d, clientMaster, scaleFactor);
+            playerUI.drawPlayerUI(g2d, clientMaster, scaleFactor, currentStage);
 
             //Draw scenes
             if(currentStage < clientMaster.getCurrentStage()){
                 currentStage++;
-                sceneHandler.setIsScenePlaying(true);
+                specialFrameHandler.setIsScenePlaying(true);
             }
         }
     }
@@ -165,8 +146,8 @@ public class GameCanvas extends JComponent {
      * Gets a reference to gameClient
      * @return the GameClient object assigned to the canvas
      */
-    public SceneHandler getSceneHandler(){
-        return sceneHandler;
+    public SpecialFrameHandler getSpecialFrameHandler(){
+        return specialFrameHandler;
     }
 
 

@@ -42,16 +42,6 @@ public class SoundManager {
     audioExecutor = Executors.newSingleThreadExecutor();
   }
 
-  public void stopSound(String name){
-    Clip sound = soundClips.get(name);
-    if (sound == null) sound = musicClips.get(name);
-    if (sound == null) sound = soundPools.get(name).get(0);
-
-    if (sound == null) return;
-
-    if (sound.isRunning()) sound.stop();
-  }
-
   /**
    * Returns the singleton instance of SoundManager.
    * If the instance does not exist, it creates a new one.
@@ -203,51 +193,17 @@ public class SoundManager {
     initializeSoundPool("laserBullet.wav", 30);
 
 
-    // SPECIAL EVENTS
+    // GAME OVER
     loadSound("gameOver", "gameOver.wav");
-    loadSound("reviving", "reviving.wav");
-    loadSound("reviveSuccess", "reviveSuccess.wav");
-    loadSound("woodWalk", "woodWalk.wav");
-    loadSound("waterWalk", "waterWalk.wav");
-    loadSound("normalWalk", "normalWalk.wav");
-    loadMusic("bossMusic", "bossMusic.wav");
-    loadSound("bossDefeat", "bossDefeat.wav");
-    loadSound("levelUp", "levelUp.wav");
-    loadSound("equipItem", "equipItem.wav");
 
-    // LEVEL-BASED MUSIC
+    // AMBIENT OR LEVEL-BASED
     loadMusic("level0", "level0.wav");
     loadMusic("level1", "level1.wav");
-    loadMusic("level2", "level2.wav");
-    loadMusic("level3", "level3.wav");
-    loadMusic("level4", "level4.wav");
-    loadMusic("level5", "level5.wav");
-    loadMusic("level6", "level6.wav");
-
-    // MONSTER NOISES
-    loadSound("cockroach", "cockroach.wav");
-    loadSound("rat", "rat.wav");
-    loadSound("dogBark", "dogBark.wav");
-    loadSound("rabbitNoise", "rabbitNoise.wav");
-    loadSound("frogCroak", "frogCroak.wav");
-    loadSound("beeBuzz", "beeBuzz.wav");
-    loadSound("enemyDetected", "enemyDetected.wav");
-    loadSound("feralRatNoise", "feralRatNoise.wav");
-    loadSound("screamerRat", "screamerRat.wav");
-    loadSound("mutatedAnchovy", "mutatedAnchovy.wav");
-    loadSound("mutatedArcherfish", "mutatedArcherfish.wav");
-    loadSound("mutatedPufferfish", "mutatedPufferfish.wav");
-    loadSound("ratKingGrowl", "ratKingGrowl.wav");
-    loadSound("buffHowl", "buffHowl.wav");
-    loadSound("dogSnarl", "dogSnarl.wav");
-    loadSound("waterSplash", "waterSplash.wav");
-    loadSound("snakeHiss", "snakeHiss.wav");
-    loadSound("angryCat", "angryCat.wav");
-    loadSound("ratMonsterNoise", "ratMonsterNoise.wav");
-    loadSound("phaseOneNoise", "phaseOneNoise.wav");
-    loadSound("phaseTwoNoise", "phaseTwoNoise.wav");
-    loadSound("phaseThreeNoise", "phaseThreeNoise.wav");
-
+    loadMusic("level2", "level1.wav");
+    loadMusic("level3", "level1.wav");
+    loadMusic("level4", "level1.wav");
+    loadMusic("level5", "level1.wav");
+    loadMusic("level6", "level1.wav");
   }
 
   /**
@@ -288,6 +244,4 @@ public class SoundManager {
   public void shutdown() {
     audioExecutor.shutdown();
   }
-
-
 }

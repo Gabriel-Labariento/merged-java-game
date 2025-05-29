@@ -190,7 +190,9 @@ public class GameClient {
                         } else if (receivedMessage.startsWith(NetworkProtocol.BOSS_KILLED)) {
                             parseBossKilledData(receivedMessage);
                         } else if (receivedMessage.startsWith(NetworkProtocol.GAME_OVER)) {
-                            initiateGameOver();
+                            clientMaster.setIsGameOver(true);
+                        } else if (receivedMessage.startsWith(NetworkProtocol.FINAL_BOSS_KILLED)){
+                            clientMaster.setIsFinalBossDead(true);
                         } else if (receivedMessage.startsWith(NetworkProtocol.LEVEL_CHANGE)) {
                             clientMaster.getEntities().clear();
                             String mapData = receivedMessage.substring(NetworkProtocol.LEVEL_CHANGE.length());  // Receives a string containing map and player data
@@ -206,14 +208,6 @@ public class GameClient {
                     }
                 }}};
         receiveAssetsThread.start();
-    }
-    
-    /**
-     * Sets the isGameOver boolean field of the assigned clientMaster
-     * to true
-     */
-    private void initiateGameOver(){
-        clientMaster.setIsGameOver(true);
     }
 
     /**
@@ -243,16 +237,18 @@ public class GameClient {
                 int playerX = Integer.parseInt(playerData[2]);
                 int playerY = Integer.parseInt(playerData[3]);
                 int playerHealth = Integer.parseInt(playerData[4]);
-                int playerRoomId = Integer.parseInt(playerData[5]);
-                int currsprite = Integer.parseInt(playerData[6]);
-                int playerZIndex = Integer.parseInt(playerData[7]);
+                int playerMaxHp = Integer.parseInt(playerData[5]);
+                int playerRoomId = Integer.parseInt(playerData[6]);
+                int currsprite = Integer.parseInt(playerData[7]);
+                int playerZIndex = Integer.parseInt(playerData[8]);
         
                 // System.out.println(" user Player loaded");
                 try {
                     Room currentRoom = clientMaster.getRoomById(playerRoomId);
                     Player player = (Player) clientMaster.getEntity(identifier, playerId, playerX, playerY);
                     player.setCurrentRoom(currentRoom);
-                    player.setIsMaxHealthSet(true);
+                    // player.setIsMaxHealthSet(true);
+                    player.setMaxHealth(playerMaxHp);
                     player.setHitPoints(playerHealth);
                     player.setCurrSprite(currsprite);
                     player.setzIndex(playerZIndex);
@@ -267,7 +263,7 @@ public class GameClient {
                 // System.out.println("Other player data: " + part);
 
                 // Don't load if not in the same room as the client
-                int otherRoomId = Integer.parseInt(otherPlayerData[5]);
+                int otherRoomId = Integer.parseInt(otherPlayerData[6]);
                 if (otherRoomId != clientMaster.getCurrentRoom().getRoomId()) continue;
 
                 String identifier = otherPlayerData[0];
@@ -275,16 +271,18 @@ public class GameClient {
                 int x = Integer.parseInt(otherPlayerData[2]);
                 int y = Integer.parseInt(otherPlayerData[3]);
                 int hp = Integer.parseInt(otherPlayerData[4]);
-                int currsprite = Integer.parseInt(otherPlayerData[6]);
-                int zIndex = Integer.parseInt(otherPlayerData[7]);
+                int maxHp = Integer.parseInt(otherPlayerData[5]);
+                int currsprite = Integer.parseInt(otherPlayerData[7]);
+                int zIndex = Integer.parseInt(otherPlayerData[8]);
                 
                 
                 // Only load the player if it is not the user player and it is in the same room
                 if ( (otherId != clientId) && (otherRoomId == clientMaster.getCurrentRoom().getRoomId()) ) {
                     Player other = (Player) clientMaster.getEntity(identifier, otherId, x, y);
                     other.setCurrentRoom(clientMaster.getRoomById(otherRoomId));
-                    other.setIsMaxHealthSet(true);
+                    // other.setIsMaxHealthSet(true);
                     other.setHitPoints(hp);
+                    other.setMaxHealth(maxHp);
                     other.setCurrSprite(currsprite);
                     other.setzIndex(zIndex);
                     clientMaster.addEntity(other);

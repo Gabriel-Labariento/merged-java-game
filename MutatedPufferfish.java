@@ -27,8 +27,6 @@ import javax.imageio.ImageIO;
 public class MutatedPufferfish extends Enemy{
     
     private static BufferedImage[] sprites;
-    private static final int MOAN_DURATION = 3000;
-    private long lastMoanTime = 0;
 
     // Calls the static setSprites() method
     static {
@@ -118,10 +116,5 @@ public class MutatedPufferfish extends Enemy{
         }
 
         matchHitBoxBounds();
-
-        if (now - lastMoanTime > MOAN_DURATION){
-            SoundManager.getInstance().playSound("mutatedPufferfish");
-            lastMoanTime = now;
-        }
     }
 }

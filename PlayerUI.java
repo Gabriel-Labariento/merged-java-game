@@ -32,6 +32,9 @@ public class PlayerUI extends GameObject{
     
     private static BufferedImage[] sprites;
     private static Font gameFont;
+    private static Font levelFont;
+    private static Font stageFont;
+    private String currentStageName;
 
     // Set sprites and font on class
     static {
@@ -45,7 +48,8 @@ public class PlayerUI extends GameObject{
     private static void setFont(){
         try {
             gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
-            gameFont = gameFont.deriveFont(7f);
+            levelFont = gameFont.deriveFont(7f);
+            stageFont = gameFont.deriveFont(4f);
         } catch (FontFormatException | IOException ex) {
         }
             
@@ -62,7 +66,9 @@ public class PlayerUI extends GameObject{
             BufferedImage asset2 = ImageIO.read(PlayerUI.class.getResourceAsStream("resources/UserInterface/anchovy.png"));
             BufferedImage asset3 = ImageIO.read(PlayerUI.class.getResourceAsStream("resources/UserInterface/archerfish.png"));
             BufferedImage asset4 = ImageIO.read(PlayerUI.class.getResourceAsStream("resources/UserInterface/pufferfish.png"));
-            sprites = new BufferedImage[] {asset0, asset1, asset2, asset3, asset4};
+            BufferedImage asset5 = ImageIO.read(PlayerUI.class.getResourceAsStream("resources/UserInterface/emptyheart.png"));
+            BufferedImage asset6 = ImageIO.read(PlayerUI.class.getResourceAsStream("resources/UserInterface/halfemptyheart.png"));
+            sprites = new BufferedImage[] {asset0, asset1, asset2, asset3, asset4, asset5, asset6};
         } catch (IOException e) {
             System.out.println("Exception in PlayerUI setSprites()" + e);
         }
@@ -77,9 +83,10 @@ public class PlayerUI extends GameObject{
      * @param clientmaster the clientmaster
      * @param sf the scalefactor of gamecanvas
      */
-    public void drawPlayerUI(Graphics2D g2d, ClientMaster clientMaster, int sf){
+    public void drawPlayerUI(Graphics2D g2d, ClientMaster clientMaster, int sf, int currentStage){
         Player userPlayer = clientMaster.getUserPlayer();
         int userHealth = userPlayer.getHitPoints();
+        int userMaxHealth = userPlayer.getMaxHealth();
         double xpBarPercent = clientMaster.getXPBarPercent();
         int userLvl = clientMaster.getUserLvl();
         
@@ -105,7 +112,7 @@ public class PlayerUI extends GameObject{
 
         //LEVELING SYSTEM UI ELEMENTS
         g2d.setColor(Color.WHITE);
-        g2d.setFont(gameFont);  
+        g2d.setFont(levelFont);  
         g2d.drawString("LVL " + userLvl, 142/sf, 95/sf);
 
         Rectangle2D.Double xpBarBorder = new Rectangle2D.Double(143.7/sf, 98.1/sf, 195.5/sf, 10/sf);
@@ -121,12 +128,56 @@ public class PlayerUI extends GameObject{
         g2d.setColor(Color.decode("#1ed600"));
         g2d.fill(xpBar);
 
+        //Stage information
+        switch (currentStage){
+            case 0:
+                currentStageName = "JUNKYARD";
+                break;
+            case 1:
+                currentStageName = "CITY STREETS";
+                break;
+            case 2:
+                currentStageName = "PET STORE";
+                break;
+            case 3:
+                currentStageName = "FOREST";
+                break;
+            case 4:
+                currentStageName = "MANSION";
+                break;
+            case 5:
+                currentStageName = "ABANDONED BUILDING";
+                break;
+            case 6:
+                currentStageName = "SEWERS";
+                break;
+            default:
+                currentStageName = "";
+        }
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(stageFont);
+        g2d.drawString(currentStageName, 25/sf, 590/sf);
+        //TODO: Map display
+
+        //Empty Health
         double xOffset = 143.7 / sf;
         double yOffset = 33 / sf;
+        int fullMaxHearts = userMaxHealth / 2;
+        boolean hasHalfMaxHeart = (userMaxHealth % 2) == 1;
 
+        for (int i = 0; i < fullMaxHearts; i++) {
+            g2d.drawImage(sprites[5], (int)xOffset, (int)yOffset, 36 / sf, 36 / sf, null); 
+            xOffset += 50 / sf; 
+        }
+
+        if (hasHalfMaxHeart) {
+            g2d.drawImage(sprites[6], (int)xOffset, (int)yOffset, 36 / sf, 36 / sf, null); 
+        }
+
+        //Live Health
+        xOffset = 143.7 / sf;
         int fullHearts = userHealth / 2;
         boolean hasHalfHeart = (userHealth % 2) == 1;
-
         for (int i = 0; i < fullHearts; i++) {
             g2d.drawImage(sprites[0], (int)xOffset, (int)yOffset, 36 / sf, 36 / sf, null); 
             xOffset += 50 / sf; 

@@ -98,7 +98,6 @@ public class Rat extends Enemy{
             if (now - lastBiteAttack > BITE_COOLDOWN ) {
                 createBiteAttack(gsm, pursued, null);
                 lastBiteAttack = now;
-                SoundManager.getInstance().playSound("rat");
             }
         }
         else pursuePlayer(pursued);

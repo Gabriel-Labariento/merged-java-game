@@ -34,7 +34,7 @@ public class GameFrame extends JFrame{
     private ImageIcon btnBG;
     private final GameCanvas gameCanvas;
     private final GameClient gameClient;
-    private final SceneHandler sceneHandler;
+    private final SpecialFrameHandler specialFrameHandler;
     private final ArrayList<JButton> btns;
     private final JLabel label1;
     private final JLabel label2;
@@ -59,7 +59,7 @@ public class GameFrame extends JFrame{
         // btnBG = new ImageIcon("/UI Assets/btnBG");
         gameCanvas = new GameCanvas(width, height);
         gameClient = gameCanvas.getGameClient();
-        sceneHandler = gameCanvas.getSceneHandler();
+        specialFrameHandler = gameCanvas.getSpecialFrameHandler();
 
         //Set default values
         playerType = NetworkProtocol.HEAVYCAT;
@@ -191,7 +191,7 @@ public class GameFrame extends JFrame{
 
         switch(fishSlideNum){
             case 1:
-                label3.setText("Tuna (Heavy)");
+                label3.setText("Pufferfish (Heavy)");
                 playerType = NetworkProtocol.HEAVYCAT;
                 break;
             case 2:
@@ -280,7 +280,7 @@ public class GameFrame extends JFrame{
         gameCanvas.startRenderLoop();
         
         // Start the level music after the scene is done playing
-        if (!sceneHandler.getIsScenePlaying()) {
+        if (!specialFrameHandler.getIsScenePlaying()) {
             SoundManager.getInstance().playLevelMusic(0);
         }
     }
@@ -308,7 +308,8 @@ public class GameFrame extends JFrame{
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e){
-                gameClient.clickInput(e.getX(), e.getY());
+                if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleClickInput();
+                else gameClient.clickInput(e.getX(), e.getY());
             }
         });
     }
@@ -324,47 +325,48 @@ public class GameFrame extends JFrame{
         AbstractAction keyInputQ = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae){
-                gameClient.keyInput("Q", true);
-                sceneHandler.handleInput("Q");
+                if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("Q");
+                else gameClient.keyInput("Q", true);
+                
             }
         };
 
         AbstractAction keyInputESC = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae){
-                sceneHandler.handleInput("ESC");
+                specialFrameHandler.handleKeyInput("ESC");
             }
         };
 
         AbstractAction keyInputW = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae){
-                gameClient.keyInput("W", true);
-                sceneHandler.handleInput("W");
+                if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("W");
+                else gameClient.keyInput("W", true);
             }
         };
 
         AbstractAction keyInputS = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae){
-                gameClient.keyInput("S", true);
-                sceneHandler.handleInput("S");
+                if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("S");
+                else gameClient.keyInput("S", true);
             }
         };
 
         AbstractAction keyInputA = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae){
-                gameClient.keyInput("A", true);
-                sceneHandler.handleInput("A");
+                if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("A");
+                else gameClient.keyInput("A", true);
             }
         };
 
         AbstractAction keyInputD = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae){
-                gameClient.keyInput("D", true);
-                sceneHandler.handleInput("D");
+                if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("D");
+                else gameClient.keyInput("D", true);
             }
         };
 
