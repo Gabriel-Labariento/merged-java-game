@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
@@ -36,12 +37,35 @@ public class GameFrame extends JFrame{
     private final GameClient gameClient;
     private final SceneHandler sceneHandler;
     private final ArrayList<JButton> btns;
+    private final JLabel gameTitle;
     private final JLabel label1;
     private final JLabel label2;
     private final JLabel label3;
     private final JTextField textField1;
     private final JTextField textField2;
     private int fishSlideNum;
+
+    private static Font gameFont;
+    private static Font gameFont35;
+    private static Font gameFont15;
+
+    // Set sprites and font on class
+    static {
+        setFont();
+    }
+
+    /**
+     * Loads font from the resources folder
+     */
+    private static void setFont(){
+        try {
+            gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
+            gameFont35 = gameFont.deriveFont(35f);
+            gameFont15 = gameFont.deriveFont(15f);
+        } catch (FontFormatException | IOException ex) { 
+            System.out.println("Exception in setFont for GameFrame");
+        }
+    }
 
     /**
      * Creates a GameFrame with a new GameCanvas and holds a reference 
@@ -67,8 +91,8 @@ public class GameFrame extends JFrame{
 
         // UI Elements
         btns = new ArrayList<>();
-        btns.add(new JButton("Play"));
-        btns.add(new JButton("Quit"));
+        btns.add(new JButton("START"));
+        btns.add(new JButton("QUIT"));
         btns.add(new JButton("Connect"));
         btns.add(new JButton("Back"));
         btns.add(new JButton("Host Server"));
@@ -76,6 +100,7 @@ public class GameFrame extends JFrame{
         btns.add(new JButton("<"));
         btns.add(new JButton(">"));
 
+        gameTitle = new JLabel("BITING ON FISH", SwingConstants.CENTER);
         label1 = new JLabel();
         label2 = new JLabel();
         label3 = new JLabel();
@@ -111,11 +136,60 @@ public class GameFrame extends JFrame{
      * Loads into the screen the Play and Quit buttons using absolute values
      */
     public void loadStartUI(){
-        btns.get(0).setBounds(54, 116, 158, 33);
-        lp.add(btns.get(0), Integer.valueOf(1));
 
-        btns.get(1).setBounds(54, 169, 158, 33);
-        lp.add(btns.get(1) , Integer.valueOf(1));
+        gameTitle.setForeground(Color.WHITE);
+        gameTitle.setBounds(89, 153, 622, 56);
+        gameTitle.setFont(gameFont35);
+        lp.add(gameTitle, Integer.valueOf(1));
+
+        gameFont = gameFont.deriveFont(15f);
+
+        JButton startButton = btns.get(0);
+        startButton.setBackground(Color.white);
+        startButton.setForeground(Color.black);
+        startButton.setBounds(285, 309, 226, 43);
+        startButton.setFont(gameFont15);
+        lp.add(startButton, Integer.valueOf(1));
+
+        startButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                startButton.setBackground(Color.black);
+                startButton.setForeground(Color.white);
+                startButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                startButton.setBackground(Color.white);
+                startButton.setForeground(Color.black);
+                startButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
+
+        JButton quitButton = btns.get(1);
+        quitButton.setBackground(Color.white);
+        quitButton.setForeground(Color.black);
+        quitButton.setBounds(285, 382, 226, 43);
+        quitButton.setFont(gameFont15);
+        lp.add(quitButton, Integer.valueOf(1));
+
+        quitButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                quitButton.setBackground(Color.black);
+                quitButton.setForeground(Color.white);
+                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                quitButton.setBackground(Color.white);
+                quitButton.setForeground(Color.black);
+                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
+
     }
 
     /**
