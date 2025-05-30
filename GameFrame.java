@@ -559,6 +559,7 @@ public class GameFrame extends JFrame{
         refreshFrame();
         //Force reload
         cp.requestFocusInWindow();
+        catCarousel.stopCarouselRenderLoop();
         gameCanvas.startRenderLoop();
         
         // Start the level music after the scene is done playing
@@ -868,6 +869,11 @@ public class GameFrame extends JFrame{
                 
             };
             renderLoopScheduler.scheduleAtFixedRate(renderLoop, 0, 16, TimeUnit.MILLISECONDS);
+        }
+
+        public void stopCarouselRenderLoop(){
+            stopAnimation();
+            renderLoopScheduler.shutdown();
         }
     }
 }
