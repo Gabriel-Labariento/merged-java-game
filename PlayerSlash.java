@@ -88,4 +88,13 @@ public class PlayerSlash extends Attack{
             hasPlayedSound = true;
         }
     }
+
+    @Override
+    public void updateCarousel() {
+        attachToOwner();
+        if (!hasPlayedSound) {
+            SoundManager.getInstance().playPooledSound("playerSlash.wav");
+            hasPlayedSound = true;
+        }
+    }
 }

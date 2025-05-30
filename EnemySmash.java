@@ -85,5 +85,12 @@ public class EnemySmash extends Attack {
         hitBoxBounds[2]= worldX;
         hitBoxBounds[3] = worldX + width;
     }
+
+
+    @Override
+    public void updateCarousel() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateCarousel'");
+    }
     
 }

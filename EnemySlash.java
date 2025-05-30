@@ -86,4 +86,10 @@ public class EnemySlash extends Attack{
             hasPlayedSound = true;
         }
     }
+
+    @Override
+    public void updateCarousel() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateCarousel'");
+    }
 }

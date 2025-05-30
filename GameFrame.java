@@ -2,6 +2,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import javax.swing.*;
 
 /**     
@@ -40,13 +43,17 @@ public class GameFrame extends JFrame{
     private final JLabel gameTitle;
     private final JLabel ipLabel;
     private final JLabel portLabel;
-    private final JLabel label3;
+    private final JLabel catNameLabel;
+    private final JLabel carouselLabel;
     private final JTextField ipTextField;
     private final JTextField portTextField;
     private int fishSlideNum;
 
+    private static CatCarousel catCarousel;
+
     private static Font gameFont;
     private static Font gameFont35;
+    private static Font gameFont6;
     private static Font gameFont15;
     private static Font gameFont16;
     private static Font gameFont20;
@@ -63,6 +70,7 @@ public class GameFrame extends JFrame{
         try {
             gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
             gameFont35 = gameFont.deriveFont(35f);
+            gameFont6 = gameFont.deriveFont(6f);
             gameFont15 = gameFont.deriveFont(15f);
             gameFont16 = gameFont.deriveFont(16f);
             gameFont20 = gameFont.deriveFont(20f);
@@ -100,14 +108,15 @@ public class GameFrame extends JFrame{
         btns.add(new JButton("CONNECT"));
         btns.add(new JButton("BACK"));
         btns.add(new JButton("HOST SERVER"));
-        btns.add(new JButton("Enter Game"));
+        btns.add(new JButton("ENTER GAME"));
         btns.add(new JButton("<"));
         btns.add(new JButton(">"));
 
         gameTitle = new JLabel("BITING ON FISH", SwingConstants.CENTER);
         ipLabel = new JLabel();
         portLabel = new JLabel();
-        label3 = new JLabel();
+        catNameLabel = new JLabel();
+        carouselLabel = new JLabel("CHOOSE A FISH:");
 
         ipTextField = new JTextField(10);
         portTextField = new JTextField(10);
@@ -209,7 +218,7 @@ public class GameFrame extends JFrame{
 
         
         portLabel.setForeground(Color.WHITE);
-        portLabel.setText("PORT NUMBER");
+        portLabel.setText("PORT NUMBER:");
         portLabel.setBounds(85, 196, 244, 25);
         portLabel.setFont(gameFont16);
         lp.add(portLabel, Integer.valueOf(1));
@@ -313,32 +322,140 @@ public class GameFrame extends JFrame{
      * and allows the user to select a player type.
      */
     public void loadPrePlayUI(){
+        // IP ADDRESS
         ipLabel.setForeground(Color.WHITE);
-        ipLabel.setText("IP Address: " + serverIP);
-        ipLabel.setBounds(17, 133, 232, 15);
+        ipLabel.setText("IP ADDRESS: " + serverIP);
+        ipLabel.setBounds(85, 128, 558, 25);
         lp.add(ipLabel, Integer.valueOf(1));
         
+        // PORT NUMBER
         portLabel.setForeground(Color.WHITE);
-        portLabel.setText("Port: " + serverPort);
-        portLabel.setBounds(17, 194, 232, 15);
+        portLabel.setText("PORT NUMBER: " + serverPort);
+        portLabel.setBounds(85, 196, 558, 25);
         lp.add(portLabel, Integer.valueOf(1));
 
+        // QUIT BUTTON
+        JButton quitButton = btns.get(3);
+        quitButton.setBackground(Color.black);
+        quitButton.setForeground(Color.white);
+        quitButton.setBorderPainted(false);
+        quitButton.setFont(gameFont20);
+        quitButton.setBounds(167, 474, 123, 31);
+        lp.add(quitButton, Integer.valueOf(1));
+
+        // Add white line below connect button
+        JPanel quitLinePanel = new JPanel();
+        quitLinePanel.setBackground(Color.WHITE);
+        quitLinePanel.setBounds(175, 505, 106, 5);
+        lp.add(quitLinePanel, Integer.valueOf(1));
+
+        quitButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                quitLinePanel.setBounds(163, 505, 127, 5);
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                quitLinePanel.setBounds(175, 505, 106, 5);
+            }
+        });
+
+        // ENTER GAME BUTTON
+        JButton enterGameButton = btns.get(5);
+        enterGameButton.setBackground(Color.white);
+        enterGameButton.setForeground(Color.black);
+        enterGameButton.setBounds(85, 390, 287, 56);
+        enterGameButton.setFont(gameFont20);
+
+        enterGameButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                enterGameButton.setBackground(Color.black);
+                enterGameButton.setForeground(Color.white);
+                enterGameButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                enterGameButton.setBackground(Color.white);
+                enterGameButton.setForeground(Color.black);
+                enterGameButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
+        lp.add(enterGameButton, Integer.valueOf(1));
+
+        // CAROUSEL TEXT
+        catCarousel = new CatCarousel();
+        lp.add(catCarousel, Integer.valueOf(1));
+
+        carouselLabel.setBackground(Color.black);
+        carouselLabel.setForeground(Color.white);
+        carouselLabel.setBounds(447, 262, 288, 25);
+        carouselLabel.setFont(gameFont16);
+        carouselLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lp.add(carouselLabel, Integer.valueOf(1));
+
         updateFishCarousel();
-        label3.setForeground(Color.WHITE);
-        label3.setBounds(460, 255, 227, 15);
-        lp.add(label3, Integer.valueOf(1));
+        catNameLabel.setForeground(Color.WHITE);
+        catNameLabel.setBounds(501, 459, 179, 10);
+        catNameLabel.setFont(gameFont6);
+        catNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lp.add(catNameLabel, Integer.valueOf(1));
 
-        btns.get(3).setBounds(245, 280, 159, 35);
-        lp.add(btns.get(3), Integer.valueOf(1));
+        // LEFT BUTTON
+        JButton leftButton = btns.get(6);
+        leftButton.setBounds(540, 490, 50, 31);
+        leftButton.setHorizontalAlignment(SwingConstants.CENTER);
+        leftButton.setBackground(Color.black);
+        leftButton.setForeground(Color.white);
+        leftButton.setBorderPainted(false);
+        leftButton.setFont(gameFont16);
+        lp.add(leftButton, Integer.valueOf(1));
 
-        btns.get(5).setBounds(54, 280, 159, 35);
-        lp.add(btns.get(5), Integer.valueOf(1));
+        leftButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                leftButton.setBackground(Color.white);
+                leftButton.setForeground(Color.black);
+                leftButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                leftButton.setBackground(Color.black);
+                leftButton.setForeground(Color.white);
+                leftButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
 
-        btns.get(6).setBounds(517, 280, 48, 35);
-        lp.add(btns.get(6), Integer.valueOf(1));
+        // RIGHT BUTTON
+        JButton rightButton = btns.get(7);
+        rightButton.setBounds(590, 490, 50, 31);
+        rightButton.setHorizontalAlignment(SwingConstants.CENTER);
+        rightButton.setBackground(Color.black);
+        rightButton.setForeground(Color.white);
+        rightButton.setBorderPainted(false);
+        rightButton.setFont(gameFont16);
+        lp.add(rightButton, Integer.valueOf(1));
 
-        btns.get(7).setBounds(582, 280, 48, 35);
-        lp.add(btns.get(7), Integer.valueOf(1));
+        rightButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                rightButton.setBackground(Color.white);
+                rightButton.setForeground(Color.black);
+                rightButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                rightButton.setBackground(Color.black);
+                rightButton.setForeground(Color.white);
+                rightButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
     }
 
     /**
@@ -350,17 +467,21 @@ public class GameFrame extends JFrame{
 
         switch(fishSlideNum){
             case 1:
-                label3.setText("Tuna (Heavy)");
+                catNameLabel.setText("TUNA (HEAVY)");
                 playerType = NetworkProtocol.HEAVYCAT;
                 break;
             case 2:
-                label3.setText("Anchovy (Light)");
+                catNameLabel.setText("ANCHOVY (LIGHT)");
                 playerType = NetworkProtocol.FASTCAT;
                 break;
             case 3:
-                label3.setText("Archerfish (Ranged)");
+                catNameLabel.setText("ARCHERFISH (RANGED)");
                 playerType = NetworkProtocol.GUNCAT;
                 break;
+        }
+        
+        if (catCarousel != null) {
+            catCarousel.updatePlayer(fishSlideNum);
         }
         refreshFrame();
     }
@@ -595,5 +716,158 @@ public class GameFrame extends JFrame{
      */
     public GameCanvas getCanvas(){
         return gameCanvas;
+    }
+
+    private class CatCarousel extends JComponent {
+        private static final int WIDTH = 191;
+        private static final int HEIGHT = 138;
+        private Player player;
+        private Thread animationThread;
+        private volatile boolean isRunning;
+        private static final int ATTACK_INTERVAL = 2000; // 2 seconds between attacks
+        private final ScheduledExecutorService renderLoopScheduler;
+        private ArrayList<Attack> activeAttacks;
+        private long lastAttackTime = 0;
+
+        public CatCarousel(){
+            setBounds(489, 300, WIDTH, HEIGHT);
+            setOpaque(true);
+            setBackground(Color.decode("#7a7979"));
+            activeAttacks = new ArrayList<>();
+            renderLoopScheduler = Executors.newSingleThreadScheduledExecutor();
+
+            // Default player
+            player = new HeavyCat(0, (WIDTH / 2) - 16, (HEIGHT / 2) - 8);
+            
+            // Start animation thread
+            startRenderLoop();
+        }
+
+        private void startAnimationThread() {
+            isRunning = true;
+            animationThread = new Thread(() -> {
+                while (isRunning) {
+                    // Run attack animation and spawn attack
+                    if (player != null && System.currentTimeMillis() - lastAttackTime > ATTACK_INTERVAL) {
+                        player.runAttackFrames();
+                        spawnAttack();
+                        repaint();
+                    } else {
+                        
+                    }
+                }
+            });
+            animationThread.setDaemon(true);
+            animationThread.start();
+        }
+
+        private void spawnAttack() {
+            long now = System.currentTimeMillis();
+            if (now - lastAttackTime < ATTACK_INTERVAL) {
+                activeAttacks.clear();
+                return;
+            }
+            lastAttackTime = now;
+
+            // Clear expired attacks
+            activeAttacks.clear();
+
+            // Calculate attack position (center of carousel)
+            int centerX = WIDTH / 2;
+            int centerY = HEIGHT / 2;
+
+            // Create attack based on player type
+            Attack attack = null;
+            if (player instanceof HeavyCat) {
+                attack = new PlayerSmash(0, player, centerX - PlayerSmash.WIDTH/2, centerY - PlayerSmash.HEIGHT/2, player.getDamage(), true);
+            } else if (player instanceof FastCat) {
+                attack = new PlayerSlash(0, player, centerX, centerY - PlayerSlash.HEIGHT/2, player.getDamage(), true);
+            } else if (player instanceof GunCat) {
+                // Calculate direction vector (shoot towards right side of carousel)
+                double normalizedX = 1.0;
+                double normalizedY = 0.0;
+                attack = new PlayerBullet(0, player, centerX, centerY - PlayerBullet.HEIGHT/2, normalizedX, normalizedY, player.getDamage(), true);
+            }
+
+            if (attack != null) {
+                activeAttacks.add(attack);
+            }
+        }
+
+        public void stopAnimation() {
+            isRunning = false;
+            if (animationThread != null) {
+                animationThread.interrupt();
+            }
+        }
+
+        @Override
+        protected void paintComponent(Graphics g){
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            
+            // Enable antialiasing
+            RenderingHints rh = new RenderingHints(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHints(rh);
+
+            // Draw background
+            g2d.setColor(getBackground());
+            g2d.fillRect(0, 0, WIDTH, HEIGHT);
+
+            // Draw active attacks
+            for (Attack attack : activeAttacks) {
+                attack.draw(g2d, attack.getWorldX(), attack.getWorldY());
+            }
+            
+            // Draw player
+            if (player != null) {
+                player.draw(g2d, player.getWorldX(), player.getWorldY());
+            }
+        }
+
+        public void updatePlayer(int fishSlideNum) {
+            // Stop current animation
+            stopAnimation();
+            
+            // Create new player
+            switch(fishSlideNum) {
+                case 1:
+                    player = new HeavyCat(0, (WIDTH / 2) - 8, (HEIGHT / 2) - 8);
+                    break;
+                case 2:
+                    player = new FastCat(0, (WIDTH / 2) - 8, (HEIGHT / 2) - 8);
+                    break;
+                case 3:
+                    player = new GunCat(0, (WIDTH / 2) - 8, (HEIGHT / 2) - 8);
+                    break;
+            }
+            
+            // Clear active attacks
+            activeAttacks.clear();
+            
+            // Start new animation
+            startAnimationThread();
+        }
+
+        /**
+         * Calls repaint on this GameCanvas every REFRESHINTERVAL milliseconds
+         */
+        private void startRenderLoop(){
+            //Since putting Thread.sleep in a loop as necessary for this Loop is bad, use ScheduledExecutorService instead
+            Runnable renderLoop = new Runnable() {
+                @Override
+                public void run() {
+                    for (Attack attack : activeAttacks) {
+                        attack.updateCarousel();
+                    }
+                    activeAttacks.removeIf(attack -> attack.getIsExpired());
+                    repaint();
+                }
+                
+            };
+            renderLoopScheduler.scheduleAtFixedRate(renderLoop, 0, 16, TimeUnit.MILLISECONDS);
+        }
     }
 }

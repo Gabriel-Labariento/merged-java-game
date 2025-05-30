@@ -100,5 +100,11 @@ import javax.imageio.ImageIO;
             worldY += speed * normalizedY;
             matchHitBoxBounds();
         }
+
+        @Override
+        public void updateCarousel() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'updateCarousel'");
+        }
         
     }

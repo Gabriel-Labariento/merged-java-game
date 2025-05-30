@@ -86,4 +86,12 @@ public class PlayerSmash extends Attack{
         }
     }
 
+    @Override
+    public void updateCarousel() {
+        if (!hasPlayedSound){
+            SoundManager.getInstance().playPooledSound("playerSmash.wav");
+            hasPlayedSound = true;
+        }
+    }
+
 }
