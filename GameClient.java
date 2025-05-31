@@ -187,6 +187,7 @@ public class GameClient {
                         // If the received message starts with the protocol identifier for map data, parse the map data
                         if (receivedMessage.startsWith(NetworkProtocol.MAP_DATA)) {
                             parseMapData(receivedMessage);
+                            clientMaster.getMiniMap().update(null, null);
                         } else if (receivedMessage.startsWith(NetworkProtocol.BOSS_KILLED)) {
                             parseBossKilledData(receivedMessage);
                         } else if (receivedMessage.startsWith(NetworkProtocol.GAME_OVER)) {
