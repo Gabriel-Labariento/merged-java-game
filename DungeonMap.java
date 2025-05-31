@@ -230,6 +230,7 @@ public class DungeonMap {
         endRoom = c;
 
         startRoom.setIsStartRoom(true);
+        startRoom.setVisited(true);
         endRoom.setIsEndRoom(true);
 
         // System.out.println("Start Room is Room " + startRoom.getRoomId());

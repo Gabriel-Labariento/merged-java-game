@@ -1,4 +1,3 @@
-import java.time.InstantSource;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -34,6 +33,7 @@ public class ClientMaster {
     private boolean isGameOver;
     private int bossHPPercent;
     private int currentStage;
+    private MiniMap minimap;
     
     /**
      * Creates a ClientMaster instance with the following fields as null:
@@ -45,6 +45,7 @@ public class ClientMaster {
         allRooms = null;
         currentRoom = null;
         entities = new CopyOnWriteArrayList<>();
+        minimap = new MiniMap();
     }
 
     /**
@@ -310,5 +311,21 @@ public class ClientMaster {
      */
     public void setCurrentStage(int i){
         currentStage = i;
+    }
+
+    /**
+     * Gets the HashMap of all rooms
+     * @return the allRooms HashMap
+     */
+    public HashMap<Integer, Room> getAllRooms() {
+        return allRooms;
+    }
+
+    /**
+     * Gets the minimap instance
+     * @return the minimap instance
+     */
+    public MiniMap getMiniMap() {
+        return minimap;
     }
 }

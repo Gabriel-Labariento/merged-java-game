@@ -1,3 +1,4 @@
+import java.awt.Point;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -31,6 +32,7 @@ public class ServerMaster {
     private CopyOnWriteArrayList<Entity> entities;
     private DungeonMap dungeonMap;
     private ItemsHandler itemsHandler;
+    private MiniMapManager miniMapManager;
     private int userPlayerIndex;
     private Room currentRoom;
 
@@ -75,7 +77,11 @@ public class ServerMaster {
         // INPUTS
         keyInputQueue = new ConcurrentHashMap<>();
         clickInputQueue = new ArrayList<>();
-        
+
+        // MINIMAP
+        miniMapManager = new MiniMapManager();
+        miniMapManager.initializeMap(currentRoom);
+
         // ITEMS
         itemsHandler = new ItemsHandler();
 
@@ -386,9 +392,13 @@ public class ServerMaster {
             entities.add(player);
         }
 
-        for (GameServer.ConnectedPlayer cp : connectedPlayers) {
-            cp.promptAssetsThread(getAssetsData(cp.getCid()));
+        // Clear and reinitialize the minimap
+        for (GameServer.ConnectedPlayer player : connectedPlayers) {
+            miniMapManager.clearDiscoveredRooms(player.getCid());
+            miniMapManager.addNewPlayer(player.getCid(), currentRoom);
         }
+
+        miniMapManager.initializeMap(dungeonMap.getStartRoom());
     }
     
     /**
@@ -1007,6 +1017,7 @@ public class ServerMaster {
                 userPlayer.setHitPoints(hp);
                 userPlayer.setzIndex(zIndex);
                 currentRoom = newRoom;
+                currentRoom.setVisited(true);
                 handleSpawnersOnRoomChange(newRoom);
                 
                 // Only play boss music if it's an end room AND not cleared
@@ -1030,8 +1041,27 @@ public class ServerMaster {
                 .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
                 .append(zIndex).append(NetworkProtocol.DELIMITER);
 
-                return sb.toString();
-            } catch (Exception e) {
+                // Update minimap for the player
+                miniMapManager.discoverRoom(clientId, newRoom);
+                
+                // Get visible rooms for the minimap update
+                HashMap<Room, Point> visibleRooms = miniMapManager.getVisibleRooms(clientId);
+                 
+                // Add minimap data to the response
+                StringBuilder minimapData = new StringBuilder();
+                minimapData.append(NetworkProtocol.MINIMAP_UPDATE);
+                for (Map.Entry<Room, Point> entry : visibleRooms.entrySet()) {
+                    minimapData.append(entry.getKey().getRoomId())
+                               .append(NetworkProtocol.SUB_DELIMITER)
+                               .append(entry.getValue().x)
+                               .append(NetworkProtocol.SUB_DELIMITER)
+                               .append(entry.getValue().y)
+                               .append(NetworkProtocol.MINIMAP_DELIMITER);
+                } minimapData.append(NetworkProtocol.DELIMITER);
+                
+                // System.out.println("String built in handleRoomTransition: " + sb.toString() + minimapData.toString());
+                return sb.toString() + minimapData.toString();
+            } catch (NumberFormatException e) {
                 // If any error occurs during room transition, keep player in current room
                 System.err.println("Error during room transition: " + e.getMessage());
                 return null;
@@ -1172,5 +1202,13 @@ public class ServerMaster {
         hasPlayedGameOverSound = false;
         hasPlayedRevivingSound = false;
         hasPlayedReviveSuccessSound = false;
+    }
+
+    /**
+     * Gets the MiniMapManager instance
+     * @return the MiniMapManager instance
+     */
+    public MiniMapManager getMiniMapManager() {
+        return miniMapManager;
     }
 }

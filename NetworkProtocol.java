@@ -81,6 +81,11 @@ public class NetworkProtocol {
     public static final String ATTACK = "ATK:";
     public static final String KEYS = "K:";
     public static final String CLICK = "CLK:";
+
     public static final String DELIMITER = "|";
     public static final String SUB_DELIMITER = ",";
+    public static final String MINIMAP_DELIMITER = ";";
+
+    // Message types
+    public static final String MINIMAP_UPDATE = "MINIMAP:";
 }

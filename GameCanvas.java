@@ -36,6 +36,7 @@ public class GameCanvas extends JComponent {
     private final ScheduledExecutorService renderLoopScheduler;
     public SceneHandler sceneHandler;
     public PlayerUI playerUI;
+    private MiniMap minimap;
     private float screenOpacity;
     private int currentStage;
 
@@ -76,6 +77,8 @@ public class GameCanvas extends JComponent {
         playerUI = new PlayerUI();
         sceneHandler = new SceneHandler();
         currentStage = -1;
+        minimap = clientMaster.getMiniMap();
+        add(minimap);
     }   
 
     @Override
@@ -144,6 +147,12 @@ public class GameCanvas extends JComponent {
 
             //Draw UI elements
             playerUI.drawPlayerUI(g2d, clientMaster, scaleFactor);
+
+            // Reset scale for UI elements
+            g2d.scale(1.0/scaleFactor, 1.0/scaleFactor);
+
+            // Update and draw minimap
+            minimap.paint(g2d);
 
             //Draw scenes
             if(currentStage < clientMaster.getCurrentStage()){

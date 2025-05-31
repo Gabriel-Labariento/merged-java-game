@@ -213,6 +213,9 @@ public class GameServer {
                 }
                                 
                 serverMaster.addEntity(chosenPlayer);
+                
+                // Add the new player to the minimap system
+                serverMaster.getMiniMapManager().addNewPlayer(cid, serverMaster.getCurrentRoom());
 
             } catch (IOException ex){
                 System.out.println("IOEception from receiveAssetsThread");
