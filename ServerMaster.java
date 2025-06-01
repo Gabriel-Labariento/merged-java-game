@@ -34,6 +34,7 @@ public class ServerMaster {
     private int userPlayerIndex;
     private Room currentRoom;
     private boolean isGameOver;
+    private boolean isFinalBossKilled;
 
     private static int gameLevel;
     private static final int MAX_LEVEL = 7;
@@ -90,6 +91,7 @@ public class ServerMaster {
         bossHPPercent = 0;
         
         isGameOver = false;
+        isFinalBossKilled = false;
         hasPlayedGameOverSound = false;
         
         // Clear arraylists
@@ -161,7 +163,10 @@ public class ServerMaster {
                     //Handle Special Deaths
                     if(enemy instanceof ConjoinedRats cr) cr.handleDeath(this);
                     else if(enemy instanceof FishMonster fm) {
-                        if (fm.isPhase3()) sendMessageToClients(NetworkProtocol.FINAL_BOSS_KILLED);
+                        if (fm.isPhase3()) {
+                            isFinalBossKilled = true;
+                            sendMessageToClients(NetworkProtocol.FINAL_BOSS_KILLED);
+                        }
                         else fm.triggerPhase3();
                         continue;    
                     }
@@ -1115,6 +1120,14 @@ public class ServerMaster {
     }
 
     public void setIsGameOver(boolean b){
+        isGameOver = b;
+    }
+
+    public boolean getIsFinalBossKilled(){
+        return isFinalBossKilled;
+    }
+
+    public void setIsFinalBossKilled(boolean b){
         isGameOver = b;
     }
 

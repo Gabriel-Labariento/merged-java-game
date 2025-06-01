@@ -32,10 +32,10 @@ public class GameFrame extends JFrame{
     private final JLayeredPane lp;
     private final JPanel cp;  
     private ImageIcon btnBG;
-    private final GameCanvas gameCanvas;
+    private GameCanvas gameCanvas;
     private GameClient gameClient;
     private ClientMaster clientMaster;
-    private final SpecialFrameHandler specialFrameHandler;
+    private SpecialFrameHandler specialFrameHandler;
     private final ArrayList<JButton> btns;
     private final JLabel label1;
     private final JLabel label2;
@@ -57,11 +57,8 @@ public class GameFrame extends JFrame{
         this.height = height;
         this.title = title;
         cp = (JPanel) this.getContentPane();
+        gameCanvas = null;
         // btnBG = new ImageIcon("/UI Assets/btnBG");
-        gameCanvas = new GameCanvas(width, height);
-        clientMaster = gameCanvas.getClientMaster();
-        gameClient = gameCanvas.getGameClient();
-        specialFrameHandler = gameCanvas.getSpecialFrameHandler();
 
         //Set default values
         playerType = NetworkProtocol.HEAVYCAT;
@@ -85,8 +82,30 @@ public class GameFrame extends JFrame{
         textField1 = new JTextField(10);
         textField2 = new JTextField(10);
         lp = new JLayeredPane();
+
+        createClientClasses();
     }
 
+    private void createClientClasses(){
+        //Account for already existing gameCanvas
+        if (gameCanvas != null) {
+            lp.remove(gameCanvas);
+            //Stop from renderloop thread from lingering
+            gameCanvas.stopRenderLoop();
+        }
+
+        //Create classes
+        gameCanvas = new GameCanvas(width, height);
+        clientMaster = gameCanvas.getClientMaster();
+        gameClient = gameCanvas.getGameClient();
+        specialFrameHandler = gameCanvas.getSpecialFrameHandler();
+
+        //Configure new instance of gameCanvas
+        gameCanvas.setBounds(0, 0, width, height);
+        gameCanvas.setVisible(true);
+        lp.add(gameCanvas, Integer.valueOf(0));
+        gameCanvas.startRenderLoop();
+    }
     /**
      * Sets up the main frame window components.
      * This is called after gameFrame creation to start the game
@@ -96,9 +115,6 @@ public class GameFrame extends JFrame{
         setResizable(false);
         cp.setFocusable(true);
         lp.setPreferredSize(new Dimension(width, height));
-
-        gameCanvas.setBounds(0, 0, width, height);
-        lp.add(gameCanvas, Integer.valueOf(0)); 
         
         loadStartUI();
         refreshFrame();
@@ -272,12 +288,9 @@ public class GameFrame extends JFrame{
      * and enabling player inputs.
      */
     private void startPlay(){
-        //Reset gameClient and ClientMaster
-        gameCanvas.setClientMaster(new ClientMaster());
-        clientMaster = gameCanvas.getClientMaster();
-        gameCanvas.setGameClient(new GameClient(clientMaster));
-        gameClient = gameCanvas.getGameClient();
-
+        //Reset client classes
+        createClientClasses();
+        gameCanvas.setIsOnMenu(false);
         gameClient.connectToServer(serverIP, serverPort, playerType);
         clearGUI();
         addKeyBindings();
@@ -286,10 +299,6 @@ public class GameFrame extends JFrame{
         //Force reload
         cp.requestFocusInWindow();
 
-        
-        gameCanvas.startRenderLoop();
-        gameCanvas.setIsOnMenu(false);
-        
         // Start the level music after the scene is done playing
         if (!specialFrameHandler.getIsScenePlaying()) {
             SoundManager.getInstance().playLevelMusic(0);
@@ -349,6 +358,7 @@ public class GameFrame extends JFrame{
                     loadStartUI();
                     gameClient.disconnectFromServer();
                     gameCanvas.setIsOnMenu(true);
+                    // gameCanvas.setSpecialFrameHandler(new SpecialFrameHandler());
                     clientMaster.setIsGameOver(false);
                     specialFrameHandler.setCanReturnToMenu(false);
                 }

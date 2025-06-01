@@ -85,7 +85,7 @@ public class GameServer {
                 }
 
                try {
-                    if (serverMaster.getIsGameOver()){
+                    if (serverMaster.getIsGameOver() || serverMaster.getIsFinalBossKilled()){
                         shutDownServer();
                     }
                     else if (!connectedPlayers.isEmpty()){
@@ -109,7 +109,7 @@ public class GameServer {
         //Disconnect players
         for (ConnectedPlayer cp : connectedPlayers) cp.disconnectFromServer();
             
-        //Close sockets
+        //Close socketss
         waitForConnectionsThread.interrupt();
         try { 
             if (ss != null && !ss.isClosed()) ss.close();
@@ -117,7 +117,6 @@ public class GameServer {
             System.out.println("IOException from shutDownServer method.");
         }
 
-        serverMaster.setIsGameOver(false);
         gameLoopScheduler.shutdown();
         
 

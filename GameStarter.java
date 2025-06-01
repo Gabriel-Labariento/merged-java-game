@@ -26,7 +26,6 @@ public class GameStarter {
         gameFrame.setUpGUI();
         gameFrame.setUpButtons();
         gameFrame.addKeyBindings();
-        gameFrame.getCanvas().startRenderLoop();
 
         SoundManager soundManager = SoundManager.getInstance();
         soundManager.setUpAudio();

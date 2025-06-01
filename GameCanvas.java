@@ -52,7 +52,7 @@ public class GameCanvas extends JComponent {
         setPreferredSize(new Dimension(width, height));
         playerUI = new PlayerUI();
         specialFrameHandler = new SpecialFrameHandler();
-        currentStage = -1;
+        currentStage = 6;
         isOnMenu = true;
     }   
 
@@ -65,18 +65,13 @@ public class GameCanvas extends JComponent {
             RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(rh);
 
-        
         if (isOnMenu){
             //Temporary Background
             g2d.setColor(Color.BLACK);
             g2d.fillRect(0, 0, width, height);
         } 
-        else if (specialFrameHandler.getIsScenePlaying()){
+        else if (specialFrameHandler.getIsScenePlaying())
             specialFrameHandler.drawScene(g2d, width, height, currentStage);
-        }
-        else if (clientMaster.getIsFinalBossDead()){
-            specialFrameHandler.drawScene(g2d, width, height, 7);
-        }
         else if (clientMaster.getIsGameOver()){
             if (screenOpacity < 1f){
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, screenOpacity));
@@ -86,9 +81,10 @@ public class GameCanvas extends JComponent {
         }
         else{
             Player userPlayer = clientMaster.getUserPlayer();
+            if (userPlayer == null) return;
 
             //Detect scene changes
-            if(currentStage < clientMaster.getCurrentStage()){
+            if(currentStage < clientMaster.getCurrentStage() || clientMaster.getIsFinalBossDead()){
                 currentStage++;
                 specialFrameHandler.setIsScenePlaying(true);
                 return;
@@ -169,6 +165,10 @@ public class GameCanvas extends JComponent {
 
     public void setClientMaster(ClientMaster clientMaster){
         this.clientMaster = clientMaster;
+    }
+
+    public void stopRenderLoop(){
+        renderLoopScheduler.shutdown();
     }
 
     /**

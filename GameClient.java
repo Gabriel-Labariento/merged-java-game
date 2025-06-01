@@ -412,6 +412,7 @@ public class GameClient {
      */
     private void parseMapData(String message){
         DungeonMapDeserializeResult result = new DungeonMap().deserialize(message);
+
         clientMaster.setCurrentRoom(result.getStartRoom());
         clientMaster.setAllRooms(result.getAllRooms());
         clientMaster.setCurrentStage(result.getGameLevel());
