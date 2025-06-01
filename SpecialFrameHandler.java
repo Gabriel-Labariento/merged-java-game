@@ -31,6 +31,7 @@ public class SpecialFrameHandler{
     private long lastFrameUpdate;
     private boolean isScenePlaying;
     private boolean isOnChoice;
+    private boolean canReturnToMenu;
     
     /**
      * Set sprites on class initialization
@@ -93,6 +94,7 @@ public class SpecialFrameHandler{
 
     public void drawDeathScreen(Graphics2D g2d, int width, int height){
         g2d.drawImage(deathScreen, 0, 0, width, height, null);
+        canReturnToMenu = true;
     }
 
     /**
@@ -105,6 +107,7 @@ public class SpecialFrameHandler{
     public void drawScene(Graphics2D g2d, int width, int height, int currentStage){
         long now = System.currentTimeMillis();
         currentScene = currentStage;
+        canReturnToMenu = (currentScene == 7 && currentFrame == 9) || (currentScene == 5 && currentFrame == 8);
         
         //Initiate frame update variables
         if (lastFrameUpdate == 0) lastFrameUpdate = now;
@@ -169,11 +172,11 @@ public class SpecialFrameHandler{
     }
 
     public void moveToNextFrame(){
-        boolean isOnRestrictedFrame = (!(currentScene == 7 && currentFrame == 9)) 
-                                        && !(currentScene == 5 && (currentFrame == 8 || currentFrame == 4));
+        boolean isOnRestrictedFrame = (currentScene == 7 && currentFrame == 9)
+                                        || (currentScene == 5 && (currentFrame == 8 || currentFrame == 4));
 
-        //Restrict movement during certain frames
-        if (isOnRestrictedFrame && !isOnChoice) {
+        //Restrict frame movement during certain frames
+        if (!isOnRestrictedFrame && !isOnChoice) {
             currentFrame++;
             lastFrameUpdate = 0;
         }   
@@ -192,6 +195,14 @@ public class SpecialFrameHandler{
      */
     public void setIsScenePlaying(boolean b){
         isScenePlaying = b;
+    }
+
+    public boolean getCanReturnToMenu(){
+        return canReturnToMenu;
+    }
+
+    public void setCanReturnToMenu(boolean b){
+        canReturnToMenu = b;
     }
     
 }

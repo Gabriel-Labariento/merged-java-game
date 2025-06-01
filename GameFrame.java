@@ -33,7 +33,8 @@ public class GameFrame extends JFrame{
     private final JPanel cp;  
     private ImageIcon btnBG;
     private final GameCanvas gameCanvas;
-    private final GameClient gameClient;
+    private GameClient gameClient;
+    private ClientMaster clientMaster;
     private final SpecialFrameHandler specialFrameHandler;
     private final ArrayList<JButton> btns;
     private final JLabel label1;
@@ -58,6 +59,7 @@ public class GameFrame extends JFrame{
         cp = (JPanel) this.getContentPane();
         // btnBG = new ImageIcon("/UI Assets/btnBG");
         gameCanvas = new GameCanvas(width, height);
+        clientMaster = gameCanvas.getClientMaster();
         gameClient = gameCanvas.getGameClient();
         specialFrameHandler = gameCanvas.getSpecialFrameHandler();
 
@@ -270,6 +272,12 @@ public class GameFrame extends JFrame{
      * and enabling player inputs.
      */
     private void startPlay(){
+        //Reset gameClient and ClientMaster
+        gameCanvas.setClientMaster(new ClientMaster());
+        clientMaster = gameCanvas.getClientMaster();
+        gameCanvas.setGameClient(new GameClient(clientMaster));
+        gameClient = gameCanvas.getGameClient();
+
         gameClient.connectToServer(serverIP, serverPort, playerType);
         clearGUI();
         addKeyBindings();
@@ -277,7 +285,10 @@ public class GameFrame extends JFrame{
         refreshFrame();
         //Force reload
         cp.requestFocusInWindow();
+
+        
         gameCanvas.startRenderLoop();
+        gameCanvas.setIsOnMenu(false);
         
         // Start the level music after the scene is done playing
         if (!specialFrameHandler.getIsScenePlaying()) {
@@ -334,6 +345,13 @@ public class GameFrame extends JFrame{
         AbstractAction keyInputESC = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae){
+                if (specialFrameHandler.getCanReturnToMenu()){
+                    loadStartUI();
+                    gameClient.disconnectFromServer();
+                    gameCanvas.setIsOnMenu(true);
+                    clientMaster.setIsGameOver(false);
+                    specialFrameHandler.setCanReturnToMenu(false);
+                }
                 specialFrameHandler.handleKeyInput("ESC");
             }
         };

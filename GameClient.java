@@ -36,7 +36,8 @@ public class GameClient {
     private final HashMap<String, Boolean> keyMap;
     private int clickedX;
     private int clickedY;
-    private final ScheduledExecutorService sendInputsScheduler;
+    private ScheduledExecutorService sendInputsScheduler;
+    private Thread receiveAssetsThread;
     private GameServer gs;
 
     /**
@@ -48,8 +49,6 @@ public class GameClient {
      */
     public GameClient(ClientMaster clientMaster){
         this.clientMaster = clientMaster;
-        sendInputsScheduler = Executors.newSingleThreadScheduledExecutor();
-
         keyMap = new HashMap<>();
         keyMap.put("Q", false);
         keyMap.put("W", false);
@@ -63,14 +62,57 @@ public class GameClient {
      */
     public void closeSocketsOnShutdown(){
         Runtime.getRuntime().addShutdownHook(new Thread (()-> {
-            try {
-                theSocket.close();
-            } catch (IOException ex) {
-                System.err.println("IOException from closeSocketOnShutdown() method");
-            } catch (NullPointerException ex2){
-                System.err.println("NullPointerException from closeSocketOnShutdown() method");
-            }
+            disconnectFromServer();
         }));
+    }
+
+    public void disconnectFromServer(){
+        //Stop threads    
+        // Stop scheduler and wait for completion
+        if (sendInputsScheduler != null && !sendInputsScheduler.isShutdown()) {
+            sendInputsScheduler.shutdown();
+            try {
+                if (!sendInputsScheduler.awaitTermination(2, TimeUnit.SECONDS)) {
+                    sendInputsScheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                sendInputsScheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+        
+        // Stop receive thread
+        if (receiveAssetsThread != null && receiveAssetsThread.isAlive()) {
+            receiveAssetsThread.interrupt();
+            try {
+                receiveAssetsThread.join(2000); // Wait up to 2 seconds
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        
+        // Close streams
+        try {
+            if (dataOut != null) {
+                dataOut.close();
+            }
+            if (dataIn != null) {
+                dataIn.close();
+            }
+            if (theSocket != null && !theSocket.isClosed()) {
+                theSocket.close();
+            }
+        } catch (IOException ex) {
+            System.err.println("IOException from disconnect method: " + ex.getMessage());
+        }
+        
+        // Clear references
+        dataIn = null;
+        dataOut = null;
+        theSocket = null;
+        sendInputsScheduler = null;
+        receiveAssetsThread = null;
+        
     }
 
     /**
@@ -85,12 +127,15 @@ public class GameClient {
             System.out.println("ATTEMPTING TO CONNECT TO SERVER...");
             theSocket = new Socket(ipAddress, portNum);
             
+            resetClient();
+            
             //Disable Nagle's buffering algorithm: basically reduces latency
             theSocket.setTcpNoDelay(true);
             System.out.println("CONNECTION SUCCESSFUL!");
 
             dataIn = new DataInputStream(theSocket.getInputStream());
             dataOut = new DataOutputStream(theSocket.getOutputStream());
+            sendInputsScheduler = Executors.newScheduledThreadPool(1);
 
             sendPreGameData(playerType);
             startAssetsThread();
@@ -101,6 +146,37 @@ public class GameClient {
             System.out.println("IOException from connectToServer() method");
         }
     }
+
+    public void resetClient() {
+        //Reset all relevant variables
+
+        if (clientMaster.getEntities() != null) {
+            synchronized (clientMaster.getEntities()) {
+                clientMaster.getEntities().clear();
+            }
+        }
+       
+        clientMaster.setXPBarPercent(0);
+        clientMaster.setUserLvl(1);
+        clientMaster.setHeldItemIdentifier("");
+        clientMaster.setBossHPBarPercent(0);
+        clientMaster.setCurrentRoom(null);
+        clientMaster.setAllRooms(null);
+        clientMaster.setCurrentStage(0);
+        clientMaster.setUserPlayer(null);
+        clientMaster.setIsGameOver(false);
+        clientMaster.setIsFinalBossDead(false);
+        
+        //Reset inputs
+        clickedX = 0;
+        clickedY = 0;
+        keyMap.clear();
+        keyMap.put("Q", false);
+        keyMap.put("W", false);
+        keyMap.put("A", false);
+        keyMap.put("S", false);
+        keyMap.put("D", false);
+}
 
     /**
      * This method allows a client to host the game
@@ -174,10 +250,10 @@ public class GameClient {
      * and entity (player and non-player) data. 
      */
     private void startAssetsThread(){
-        Thread receiveAssetsThread = new Thread(){
+        receiveAssetsThread = new Thread(){
             @Override
             public void run(){
-                while (true){
+                while (!receiveAssetsThread.isInterrupted()){
                     try {
                         int byteLength = dataIn.readInt();
                         byte[] buffer = new byte[byteLength];
@@ -205,6 +281,7 @@ public class GameClient {
                         }
                     } catch (IOException ex){
                         System.out.println("IOEception from receiveAssetsThread");
+                        break;
                     }
                 }}};
         receiveAssetsThread.start();
@@ -372,6 +449,7 @@ public class GameClient {
 
                     // Send data if there are any actual inputs only
                     if (!inputDataString.isEmpty()) {
+                        // System.out.println(inputDataString);
                         byte[] inputDataBytes = inputDataString.getBytes("UTF-8");
                         dataOut.writeInt(inputDataBytes.length);
                         dataOut.write(inputDataBytes);
@@ -379,6 +457,7 @@ public class GameClient {
 
                     } catch (IOException ex) {
                         System.out.println("IOException from startInputsThread");
+                        sendInputsScheduler.shutdown();
                     }   
             }
         };

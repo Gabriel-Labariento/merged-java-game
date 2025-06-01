@@ -33,6 +33,7 @@ public class ServerMaster {
     private ItemsHandler itemsHandler;
     private int userPlayerIndex;
     private Room currentRoom;
+    private boolean isGameOver;
 
     private static int gameLevel;
     private static final int MAX_LEVEL = 7;
@@ -40,7 +41,7 @@ public class ServerMaster {
     private final ConcurrentHashMap<String, Integer> keyInputQueue;
     private final ConcurrentHashMap<Integer, Integer> availableRevives;
     private ArrayList<GameServer.ConnectedPlayer> connectedPlayers;
-    private final ArrayList<ClickInput> clickInputQueue;
+    private final CopyOnWriteArrayList<ClickInput> clickInputQueue;
     
     private int playerNum;
     private int downedPlayersNum;
@@ -58,21 +59,13 @@ public class ServerMaster {
      */
     private ServerMaster(){
         // PLAYERS AND ENTITIES
-        playerNum = 0;
-        downedPlayersNum = 0;
-        gameLevel = 0;
+        
         entities = new CopyOnWriteArrayList<>();
         availableRevives = new ConcurrentHashMap<>();
-        userPlayerIndex = -1;
-
-        // MAP
-        dungeonMap = new DungeonMap(gameLevel);
-        dungeonMap.generateRooms();
-        currentRoom = dungeonMap.getStartRoom();
         
         // INPUTS
         keyInputQueue = new ConcurrentHashMap<>();
-        clickInputQueue = new ArrayList<>();
+        clickInputQueue = new CopyOnWriteArrayList<>();
         
         // ITEMS
         itemsHandler = new ItemsHandler();
@@ -87,6 +80,28 @@ public class ServerMaster {
     public static synchronized ServerMaster getInstance() {
         if (singleInstance == null) singleInstance = new ServerMaster();
         return singleInstance;
+    }
+
+    public void setGameValues() {
+        playerNum = 0;
+        downedPlayersNum = 0;
+        userPlayerIndex = -1;
+        gameLevel = 0;
+        bossHPPercent = 0;
+        
+        isGameOver = false;
+        hasPlayedGameOverSound = false;
+        
+        // Clear arraylists
+        entities.clear();
+        keyInputQueue.clear();
+        clickInputQueue.clear();
+        availableRevives.clear();
+        
+        // MAP
+        dungeonMap = new DungeonMap(gameLevel);
+        dungeonMap.generateRooms();
+        currentRoom = dungeonMap.getStartRoom();
     }
 
     /**
@@ -189,6 +204,7 @@ public class ServerMaster {
                 //If no players are left, activate end game sequence
                 downedPlayersNum++;
                 if (downedPlayersNum == playerNum){
+                    isGameOver = true;
                     sendMessageToClients(NetworkProtocol.GAME_OVER);
                     if (!hasPlayedGameOverSound) {
                         SoundManager.getInstance().stopAllSounds();
@@ -1092,6 +1108,14 @@ public class ServerMaster {
      */
     public CopyOnWriteArrayList<Entity> getEntities() {
         return entities;
+    }
+
+    public boolean getIsGameOver(){
+        return isGameOver;
+    }
+
+    public void setIsGameOver(boolean b){
+        isGameOver = b;
     }
 
     /**

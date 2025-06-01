@@ -28,13 +28,14 @@ public class GameCanvas extends JComponent {
     public static final int TILESIZE = 16;
     private static final int REFRESHINTERVAL = 16;
     private final int width, height;
-    private final GameClient gameClient;
-    private final ClientMaster clientMaster;
+    private GameClient gameClient;
+    private ClientMaster clientMaster;
     private final ScheduledExecutorService renderLoopScheduler;
     public SpecialFrameHandler specialFrameHandler;
     public PlayerUI playerUI;
     private float screenOpacity;
     private int currentStage;
+    private boolean isOnMenu;
 
     /**
      * Creates a GameCanvas instance with width and height. Insantiates a gameClient,
@@ -52,6 +53,7 @@ public class GameCanvas extends JComponent {
         playerUI = new PlayerUI();
         specialFrameHandler = new SpecialFrameHandler();
         currentStage = -1;
+        isOnMenu = true;
     }   
 
     @Override
@@ -63,8 +65,13 @@ public class GameCanvas extends JComponent {
             RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(rh);
 
-        Player userPlayer = clientMaster.getUserPlayer();
-        if (specialFrameHandler.getIsScenePlaying()){
+        
+        if (isOnMenu){
+            //Temporary Background
+            g2d.setColor(Color.BLACK);
+            g2d.fillRect(0, 0, width, height);
+        } 
+        else if (specialFrameHandler.getIsScenePlaying()){
             specialFrameHandler.drawScene(g2d, width, height, currentStage);
         }
         else if (clientMaster.getIsFinalBossDead()){
@@ -77,14 +84,16 @@ public class GameCanvas extends JComponent {
             } 
             specialFrameHandler.drawDeathScreen(g2d, width, height);
         }
-        else if ( (userPlayer == null) || (clientMaster.getCurrentRoom() == null) ){
-            //Temporary Background
-            g2d.setColor(Color.BLACK);
-            g2d.fillRect(0, 0, width, height);
-
-        } 
         else{
-            
+            Player userPlayer = clientMaster.getUserPlayer();
+
+            //Detect scene changes
+            if(currentStage < clientMaster.getCurrentStage()){
+                currentStage++;
+                specialFrameHandler.setIsScenePlaying(true);
+                return;
+            }
+
             // Set the background/outside of the room
             g2d.setColor(Color.BLACK);
             g2d.fillRect(0, 0, width, height);
@@ -123,12 +132,15 @@ public class GameCanvas extends JComponent {
             //Draw UI elements
             playerUI.drawPlayerUI(g2d, clientMaster, scaleFactor, currentStage);
 
-            //Draw scenes
-            if(currentStage < clientMaster.getCurrentStage()){
-                currentStage++;
-                specialFrameHandler.setIsScenePlaying(true);
-            }
         }
+    }
+
+    public void setIsOnMenu(boolean b){
+        isOnMenu = b;
+    }
+
+    public boolean getIsOnMenu(){
+        return isOnMenu;
     }
 
     /**
@@ -139,6 +151,10 @@ public class GameCanvas extends JComponent {
         return gameClient;
     }
 
+    public void setGameClient(GameClient gameClient){
+        this.gameClient = gameClient;
+    }
+
      /**
      * Gets a reference to gameClient
      * @return the GameClient object assigned to the canvas
@@ -147,6 +163,13 @@ public class GameCanvas extends JComponent {
         return specialFrameHandler;
     }
 
+    public ClientMaster getClientMaster(){
+        return clientMaster;
+    }
+
+    public void setClientMaster(ClientMaster clientMaster){
+        this.clientMaster = clientMaster;
+    }
 
     /**
      * Calls repaint on this GameCanvas every REFRESHINTERVAL milliseconds

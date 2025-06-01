@@ -34,6 +34,7 @@ public class GameServer {
     private ArrayList<Socket> sockets;
     private int clientNum;
     private int port;
+    private Thread waitForConnectionsThread;
 
     // Game State
     private ServerMaster serverMaster;
@@ -48,9 +49,11 @@ public class GameServer {
     public GameServer() {
         clientNum = 1;
         serverMaster = ServerMaster.getInstance();
+        serverMaster.setGameValues();
         sockets = new ArrayList<>();
         connectedPlayers = new ArrayList<>();
         gameLoopScheduler = Executors.newSingleThreadScheduledExecutor();
+
         serverMaster.setConnectedPlayers(connectedPlayers);
         
         port = 5000;
@@ -82,36 +85,50 @@ public class GameServer {
                 }
 
                try {
-                 if (!connectedPlayers.isEmpty()){
-                    for (ConnectedPlayer cp : connectedPlayers) {
-                        Player p = (Player) serverMaster.getPlayerFromClientId(cp.cid);
-                        if (p == null) continue;
-                        String data = serverMaster.getAssetsData(cp.cid);
-                        if (data != null) cp.promptAssetsThread(data);
+                    if (serverMaster.getIsGameOver()){
+                        shutDownServer();
                     }
+                    else if (!connectedPlayers.isEmpty()){
+                        for (ConnectedPlayer cp : connectedPlayers) {
+                            Player p = (Player) serverMaster.getPlayerFromClientId(cp.cid);
+                            if (p != null){
+                                String data = serverMaster.getAssetsData(cp.cid);
+                                if (data != null) cp.promptAssetsThread(data);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("Exception in asset dispersion to connected players: " + e);
                 }
-               } catch (Exception e) {
-                System.out.println("Exception in asset dispersion to connected players: " + e);
-                e.printStackTrace();
-               }
             }
         };
         gameLoopScheduler.scheduleAtFixedRate(gameLoop, 0, Math.round(1000/TICKSPERSECOND), TimeUnit.MILLISECONDS);
     }
 
+    public void shutDownServer(){
+        //Disconnect players
+        for (ConnectedPlayer cp : connectedPlayers) cp.disconnectFromServer();
+            
+        //Close sockets
+        waitForConnectionsThread.interrupt();
+        try { 
+            if (ss != null && !ss.isClosed()) ss.close();
+        } catch(IOException e) {
+            System.out.println("IOException from shutDownServer method.");
+        }
+
+        serverMaster.setIsGameOver(false);
+        gameLoopScheduler.shutdown();
+        
+
+    }
+
+
     /**
      * Closes sockets on game close
      */
     public void closeSocketsOnShutdown(){
-        Runtime.getRuntime().addShutdownHook( new Thread(() -> {
-            try { 
-                for (Socket skt:sockets) {
-                    skt.close();
-                }
-            } catch(IOException e) {
-                System.out.println("IOException fromcloseSocketsOnShutdown() method.");
-            }
-        }));  
+        Runtime.getRuntime().addShutdownHook( new Thread(() -> {shutDownServer();}));  
     }
 
     /**
@@ -119,12 +136,12 @@ public class GameServer {
      * for every client connection.
      */
     public void waitForConnections() {
-        Thread waitForConnectionsThread = new Thread(){        
+        waitForConnectionsThread = new Thread(){        
             @Override
             public void run(){
                 try {
                     System.out.println("NOW ACCEPTING CONNECTIONS...");
-                    while (true){
+                    while (!waitForConnectionsThread.isInterrupted()){
                         // Create a socket for the client to use
                         Socket sock = ss.accept();
                         
@@ -163,6 +180,8 @@ public class GameServer {
         private Socket clientSocket;
         private DataInputStream dataIn;
         private DataOutputStream dataOut;
+        private Thread getInputsThread;
+        private Thread sendAssetsThread;
         private BlockingQueue<String> sendQueue;    // For halting operations within a thread
         private int cid;
         
@@ -182,6 +201,24 @@ public class GameServer {
             } catch (IOException ex) {
                 System.out.println("IOException from ConnectedPlayer constructor");
             }
+            
+        }
+
+        public void disconnectFromServer(){
+            //Close data streams
+            try {
+                if (dataOut != null) dataOut.close();
+                if (dataIn != null) dataIn.close();
+                if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
+            } catch (IOException e) {
+                System.out.println("IOException from disconnectFromSever(): clientsocket closing");
+            }
+
+            //Properly close threads
+            getInputsThread.interrupt();
+            sendAssetsThread.interrupt();
+            sendQueue.clear();
+            sendQueue.offer("shutdown");
         }
 
         /**
@@ -240,16 +277,20 @@ public class GameServer {
          */
         private void startAssetsThread(){
             System.out.println("NEW PLAYER HAS ENTERED");
-            Thread sendAssetsThread = new Thread(){
+            sendAssetsThread = new Thread(){
                 boolean mapDataSent = false;
 
                 @Override
                 public void run(){
-                    while (true) { 
+                    while (!sendAssetsThread.isInterrupted()) { 
                         try {
                             //Only start the rest of the thread if data is sent
+                            //FLAG
                             String assetsDataString = sendQueue.take();
                             // System.out.println(assetsDataString);
+
+                            //Clear blocking operation above
+                            if (assetsDataString.equals("shutdown")) break;
 
                             if (!mapDataSent){
                                 sendMapData();
@@ -266,6 +307,7 @@ public class GameServer {
                             break;
                         } catch (InterruptedException ex) {
                             System.out.println("InterrupedException from ConnectedPlayer's startAssetsThread method");
+                            break;
                         }   
                     }
                 }    
@@ -301,11 +343,11 @@ public class GameServer {
          * both click and key inputs.
          */
         private void startInputsThread(){
-            Thread getInputsThread = new Thread(){
+            getInputsThread = new Thread(){
                 
                 @Override
                 public void run(){
-                    while (true){
+                    while (!getInputsThread.isInterrupted()){
                         String str = "";
                         try {
                             int byteLength = dataIn.readInt();

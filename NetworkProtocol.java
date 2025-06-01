@@ -77,6 +77,7 @@ public class NetworkProtocol {
     public static final String LEVEL_CHANGE = "LC:";
     public static final String BOSS_KILLED = "BK:";
     public static final String GAME_OVER = "GO:";
+    public static final String DISCONNECT_REQUEST = "DC:";
     public static final String FINAL_BOSS_KILLED = "FBK:";
     public static final String HP = "*";
     public static final String ATTACK = "ATK:";
