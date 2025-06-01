@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.concurrent.*;
 import javax.swing.*;
+import java.io.*;
 
 /**     
         The GameCanvas class extends Jcomponent. It serves as the main
@@ -36,7 +37,16 @@ public class GameCanvas extends JComponent {
     private float screenOpacity;
     private int currentStage;
     private boolean isOnMenu;
+    private static Font gameFont;
 
+    static{
+        try {
+            gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
+        } catch (FontFormatException e) {
+        } catch (IOException e) {
+        }
+    }
+    
     /**
      * Creates a GameCanvas instance with width and height. Insantiates a gameClient,
      * a clientMaster, playerUI, scenehandler.
@@ -50,9 +60,9 @@ public class GameCanvas extends JComponent {
         clientMaster = new ClientMaster();
         gameClient = new GameClient(clientMaster);
         setPreferredSize(new Dimension(width, height));
-        playerUI = new PlayerUI();
-        specialFrameHandler = new SpecialFrameHandler();
-        currentStage = 6;
+        playerUI = new PlayerUI(gameFont);
+        specialFrameHandler = new SpecialFrameHandler(gameFont);
+        currentStage = -1;
         isOnMenu = true;
     }   
 
@@ -71,7 +81,7 @@ public class GameCanvas extends JComponent {
             g2d.fillRect(0, 0, width, height);
         } 
         else if (specialFrameHandler.getIsScenePlaying())
-            specialFrameHandler.drawScene(g2d, width, height, currentStage);
+            specialFrameHandler.drawScene(g2d, width, height, currentStage, clientMaster);
         else if (clientMaster.getIsGameOver()){
             if (screenOpacity < 1f){
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, screenOpacity));
@@ -83,8 +93,13 @@ public class GameCanvas extends JComponent {
             Player userPlayer = clientMaster.getUserPlayer();
             if (userPlayer == null) return;
 
-            //Detect scene changes
-            if(currentStage < clientMaster.getCurrentStage() || clientMaster.getIsFinalBossDead()){
+            //Detect scene changes and apply specific triggers
+            // boolean isAdultCatDefeated = clientMaster.getIsAdultCatDefeated();
+            boolean hasStageProgressed = currentStage < clientMaster.getCurrentStage();
+            boolean isFinalBossDefeated = clientMaster.getIsFinalBossDead();
+
+            // Check if any scene change condition is met
+            if (hasStageProgressed || isFinalBossDefeated) {
                 currentStage++;
                 specialFrameHandler.setIsScenePlaying(true);
                 return;
@@ -126,7 +141,7 @@ public class GameCanvas extends JComponent {
             userPlayer.draw(g2d, screenX, screenY); //CHANGE 50 BY ACTUAL ASSET SIZE
 
             //Draw UI elements
-            playerUI.drawPlayerUI(g2d, clientMaster, scaleFactor, currentStage);
+            playerUI.drawPlayerUI(g2d, clientMaster, scaleFactor);
 
         }
     }

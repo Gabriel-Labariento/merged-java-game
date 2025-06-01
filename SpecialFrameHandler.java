@@ -1,6 +1,8 @@
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.io.*;
 import javax.imageio.ImageIO;
 
 /**     
@@ -25,13 +27,17 @@ import javax.imageio.ImageIO;
 public class SpecialFrameHandler{
     private static BufferedImage[][] scenes;
     private static BufferedImage deathScreen;
+    private ClientMaster clientMaster;
     private static final int FRAME_DURATION = 8000;
+    private static final int SKIP_CD_DURATION= 500;
     private int currentScene;
     private int currentFrame;
     private long lastFrameUpdate;
+    private long lastSkip;
     private boolean isScenePlaying;
     private boolean isOnChoice;
     private boolean canReturnToMenu;
+    private Font waitingTextFont;
     
     /**
      * Set sprites on class initialization
@@ -92,6 +98,10 @@ public class SpecialFrameHandler{
         }
     }
 
+    public SpecialFrameHandler (Font gameFont){
+        waitingTextFont = gameFont.deriveFont(7f);
+    }
+
     public void drawDeathScreen(Graphics2D g2d, int width, int height){
         g2d.drawImage(deathScreen, 0, 0, width, height, null);
         canReturnToMenu = true;
@@ -104,11 +114,24 @@ public class SpecialFrameHandler{
      * @param height the frame's height
      * @param currentstage gamecanvas' currentstage to be used for triggers
      */
-    public void drawScene(Graphics2D g2d, int width, int height, int currentStage){
+    public void drawScene(Graphics2D g2d, int width, int height, int currentStage, ClientMaster clientMaster){
         long now = System.currentTimeMillis();
         currentScene = currentStage;
+        this.clientMaster = clientMaster;
         canReturnToMenu = (currentScene == 7 && currentFrame == 9) || (currentScene == 5 && currentFrame == 8);
         
+        //Await server-side results of voting for the choice
+        if(!(clientMaster.getHasChosenScene5End() == null)){
+            if (clientMaster.getHasChosenScene5End()) currentFrame = 5;
+            else currentFrame = 4;
+
+            //Reset values
+            clientMaster.setHasChosenScene5End(null);
+            clientMaster.setIsWaitingForChoice(false);
+            isOnChoice = false;
+            lastFrameUpdate = 0;
+        }
+
         //Initiate frame update variables
         if (lastFrameUpdate == 0) lastFrameUpdate = now;
 
@@ -120,9 +143,16 @@ public class SpecialFrameHandler{
             isOnChoice = false;
             return;
         }
-        
+
         // Always draw current frame
         g2d.drawImage(scenes[currentScene][currentFrame], 0, 0, width, height, null);
+        
+        //Draw text to indicate waiting for scene5 choice resolution
+        if(clientMaster.getIsWaitingForChoice()){
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(waitingTextFont);  
+            g2d.drawString("WAITING FOR THE OTHER PLAYERS TO MAKE A CHOICE...", 27, 24);
+        }
 
         //specific trigger for scene 5
         if(currentFrame == 3 && currentScene == 5){
@@ -150,10 +180,13 @@ public class SpecialFrameHandler{
         
 
         if (isOnChoice){
-            if (input.equals("ESC")) currentFrame = 4;
-            else currentFrame = 5;
-            isOnChoice = false;
-            lastFrameUpdate = 0;
+            //Restrict to one vote to server per player
+            if(!clientMaster.getIsWaitingForChoice()){
+                if (input.equals("ESC")) clientMaster.setScene5Choice("NO");
+                else clientMaster.setScene5Choice("YES");
+                // System.out.println(clientMaster.getScene5Choice());
+                clientMaster.setIsWaitingForChoice(true);
+            }
         }
         else{
             if (input.equals("ESC") && isEscEnabled){
@@ -168,7 +201,11 @@ public class SpecialFrameHandler{
     }
 
     public void handleClickInput(){
-        moveToNextFrame();
+        long now = System.currentTimeMillis();
+        if(now - lastSkip > SKIP_CD_DURATION){
+            moveToNextFrame();
+            lastSkip = now;
+        }  
     }
 
     public void moveToNextFrame(){
@@ -178,7 +215,7 @@ public class SpecialFrameHandler{
         //Restrict frame movement during certain frames
         if (!isOnRestrictedFrame && !isOnChoice) {
             currentFrame++;
-            lastFrameUpdate = 0;
+            lastFrameUpdate = System.currentTimeMillis();
         }   
     }
 

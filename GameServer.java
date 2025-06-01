@@ -85,7 +85,8 @@ public class GameServer {
                 }
 
                try {
-                    if (serverMaster.getIsGameOver() || serverMaster.getIsFinalBossKilled()){
+                    if (serverMaster.getIsGameOver() || serverMaster.getIsFinalBossKilled() 
+                    || serverMaster.getHasChosenScene5End()){
                         shutDownServer();
                     }
                     else if (!connectedPlayers.isEmpty()){
@@ -358,16 +359,20 @@ public class GameServer {
                             break;
                         }
                         String[] inputStrParts = str.split("\\|");
-
+                        
                         for (String part : inputStrParts) {
-       
+                            
                             if (part.isEmpty()) continue;
                             else if (part.startsWith(NetworkProtocol.CLICK)){
                                 String[] coors = part.split(NetworkProtocol.SUB_DELIMITER);
                                 int x = Integer.parseInt(coors[0].substring(NetworkProtocol.CLICK.length()));
                                 int y = Integer.parseInt(coors[1]);
                                 // System.out.println("CLick at " + x + "," + y);
-                                serverMaster.loadClickInput(x, y, cid); 
+                                serverMaster.loadClickInput(x, y, cid);
+                            } else if (part.startsWith(NetworkProtocol.NO_TO_CHOICE)){
+                                serverMaster.pollChoice(false);
+                            } else if (part.startsWith(NetworkProtocol.YES_TO_CHOICE)){
+                                serverMaster.pollChoice(true);
                             } else {
                                 // System.out.println(part);
                                 int keyInputNum = 0;
@@ -391,6 +396,9 @@ public class GameServer {
          getInputsThread.start();
     }
 }
+    
+
+
     /**
      * Main method used to instantiate and run GameServer
      * @param args command line arguments provided

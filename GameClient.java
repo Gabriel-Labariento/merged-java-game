@@ -1,8 +1,11 @@
 
 import java.io.*;
 import java.net.*;
+import java.nio.channels.NetworkChannel;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
+import jdk.net.NetworkPermission;
 
 /**     
         The GameClient serves as the network and input handler
@@ -269,7 +272,14 @@ public class GameClient {
                             clientMaster.setIsGameOver(true);
                         } else if (receivedMessage.startsWith(NetworkProtocol.FINAL_BOSS_KILLED)){
                             clientMaster.setIsFinalBossDead(true);
-                        } else if (receivedMessage.startsWith(NetworkProtocol.LEVEL_CHANGE)) {
+                        } else if (receivedMessage.startsWith(NetworkProtocol.YES_TO_SCENE5_END)){
+                            clientMaster.setHasChosenScene5End(true);
+                            // System.out.println("YES RECEIVED");
+                        } else if (receivedMessage.startsWith(NetworkProtocol.NO_TO_SCENE5_END)){
+                            clientMaster.setHasChosenScene5End(false);
+                            // System.out.println("NO RECEIVED");
+                        }
+                        else if (receivedMessage.startsWith(NetworkProtocol.LEVEL_CHANGE)) {
                             clientMaster.getEntities().clear();
                             String mapData = receivedMessage.substring(NetworkProtocol.LEVEL_CHANGE.length());  // Receives a string containing map and player data
                             parseMapData(mapData);
@@ -415,6 +425,10 @@ public class GameClient {
 
         clientMaster.setCurrentRoom(result.getStartRoom());
         clientMaster.setAllRooms(result.getAllRooms());
+
+        //Reset isadultcatdefeated boolean on stage change
+        // int gameLevel = result.getGameLevel();
+        // if (gameLevel == 5) clientMaster.setIsAdultCatDefeated(false);
         clientMaster.setCurrentStage(result.getGameLevel());
     }
     
@@ -472,23 +486,36 @@ public class GameClient {
      */
     public String getInputsData(){
         StringBuilder str = new StringBuilder();
-
-        if(keyMap.get("Q")) str.append("Q");
-        if(keyMap.get("W")) str.append("W");
-        if(keyMap.get("A")) str.append("A");
-        if(keyMap.get("S")) str.append("S");
-        if(keyMap.get("D")) str.append("D");
-
-        if(clickedX != 0 && clickedY != 0){
+        String choice = clientMaster.getScene5Choice();
+        if (!choice.equals("")){
             str.append(NetworkProtocol.DELIMITER);
-            str.append(NetworkProtocol.CLICK);
-            str.append(clickedX);
-            str.append(",");
-            str.append(clickedY);
-            clickedX = 0;
-            clickedY = 0;
+            if(choice.equals("YES")) str.append(NetworkProtocol.YES_TO_CHOICE);
+            else if (choice.equals("NO")) str.append(NetworkProtocol.NO_TO_CHOICE);
+            clientMaster.setScene5Choice("");
         }
+        else{
+            if(keyMap.get("Q")) str.append("Q");
+            if(keyMap.get("W")) str.append("W");
+            if(keyMap.get("A")) str.append("A");
+            if(keyMap.get("S")) str.append("S");
+            if(keyMap.get("D")) str.append("D");
+
+            if(clickedX != 0 && clickedY != 0){
+                str.append(NetworkProtocol.DELIMITER);
+                str.append(NetworkProtocol.CLICK);
+                str.append(clickedX);
+                str.append(",");
+                str.append(clickedY);
+                clickedX = 0;
+                clickedY = 0;
+            }
+        }
+
+        
+
         return str.toString();
+
+        
     }
 
     /**

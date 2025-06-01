@@ -1,10 +1,8 @@
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
@@ -31,29 +29,18 @@ import javax.imageio.ImageIO;
 public class PlayerUI extends GameObject{
     
     private static BufferedImage[] sprites;
-    private static Font gameFont;
-    private static Font levelFont;
-    private static Font stageFont;
+    private final Font levelFont;
+    private final Font stageFont;
     private String currentStageName;
 
     // Set sprites and font on class
     static {
         setSprites();
-        setFont();
     }
 
-    /**
-     * Loads font from the resources folder
-     */
-    private static void setFont(){
-        try {
-            gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
-            levelFont = gameFont.deriveFont(7f);
-            stageFont = gameFont.deriveFont(4f);
-        } catch (FontFormatException | IOException ex) {
-        }
-            
-        
+    public PlayerUI(Font gameFont){
+        levelFont = gameFont.deriveFont(7f);
+        stageFont = gameFont.deriveFont(4f);
     }
 
     /**
@@ -83,8 +70,9 @@ public class PlayerUI extends GameObject{
      * @param clientmaster the clientmaster
      * @param sf the scalefactor of gamecanvas
      */
-    public void drawPlayerUI(Graphics2D g2d, ClientMaster clientMaster, int sf, int currentStage){
+    public void drawPlayerUI(Graphics2D g2d, ClientMaster clientMaster, int sf){
         Player userPlayer = clientMaster.getUserPlayer();
+        int currentStage = clientMaster.getCurrentStage();
         int userHealth = userPlayer.getHitPoints();
         int userMaxHealth = userPlayer.getMaxHealth();
         double xpBarPercent = clientMaster.getXPBarPercent();

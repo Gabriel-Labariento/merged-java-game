@@ -32,9 +32,13 @@ public class ClientMaster {
     private int userLvl;
     private String heldItemIdentifier;
     private boolean isGameOver;
+    private Boolean hasChosenScene5End;
+    // private boolean isAdultCatDefeated;
     private boolean isFinalBossDead;
     private int bossHPPercent;
     private int currentStage;
+    private String scene5Choice;
+    private boolean isWaitingForChoice;
     
     /**
      * Creates a ClientMaster instance with the following fields as null:
@@ -45,6 +49,9 @@ public class ClientMaster {
         userPlayer = null; // All rendering is respective to client's player noted as "userPlayer"
         allRooms = null;
         currentRoom = null;
+        scene5Choice = "";
+        hasChosenScene5End = null;
+        isWaitingForChoice = false;
         entities = new CopyOnWriteArrayList<>();
     }
 
@@ -293,6 +300,10 @@ public class ClientMaster {
         isGameOver = b;
     }
 
+    // public void setIsAdultCatDefeated(boolean b){
+    //     isAdultCatDefeated = b;
+    // }
+
     public void setIsFinalBossDead(boolean b){
         isFinalBossDead = b;
     }
@@ -305,6 +316,10 @@ public class ClientMaster {
         return isGameOver;
     }
 
+    // public boolean getIsAdultCatDefeated(){
+    //     return isAdultCatDefeated;
+    // }
+
     public boolean getIsFinalBossDead(){
         return isFinalBossDead;
     }
@@ -313,11 +328,35 @@ public class ClientMaster {
         return currentStage;
     }
 
+    public String getScene5Choice(){
+        return scene5Choice;
+    }
+
     /**
      * Sets the value of the currentLevel boolean to the passed argument
      * @param i the integer value to set currentLevel to
      */
     public void setCurrentStage(int i){
         currentStage = i;
+    }
+
+    public void setScene5Choice(String s){
+        scene5Choice = s;
+    }
+
+    public Boolean getHasChosenScene5End(){
+        return hasChosenScene5End;
+    }
+
+    public void setHasChosenScene5End(Boolean b){
+        hasChosenScene5End = b;
+    }
+
+    public boolean getIsWaitingForChoice(){
+        return isWaitingForChoice;
+    }
+
+    public void setIsWaitingForChoice(boolean b){
+        isWaitingForChoice = b;
     }
 }

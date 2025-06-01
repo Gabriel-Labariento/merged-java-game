@@ -119,7 +119,7 @@ public abstract class Player extends Entity implements Effectable{
         // if(hP > maxHealth && !isMaxHealthSet) hP = maxHealth; 
 
         if (hP > maxHealth) hP = maxHealth; 
-        if (hitPoints < 18) hitPoints = hP;
+        if (hP <= 18) hitPoints = hP;
     }
 
     @Override

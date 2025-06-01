@@ -93,6 +93,7 @@ public class CleaningRobot extends Enemy{
 
         now = System.currentTimeMillis();
         final double AGGRO_DISTANCE = (GameCanvas.TILESIZE * 3) * (GameCanvas.TILESIZE * 3);
+        final double RUN_DISTANCE = (GameCanvas.TILESIZE * 9) * (GameCanvas.TILESIZE * 9);
 
         Player pursued = scanForPlayer(gsm);
         if (pursued == null) return;
@@ -105,7 +106,9 @@ public class CleaningRobot extends Enemy{
                 activateDefense(gsm);
                 lastAttackTime = now;
             }
-        } else runFromPlayer(pursued);
+        } 
+        
+        if (distanceSquared <= RUN_DISTANCE) runFromPlayer(pursued);
         
         // Sprite walk update
         if (now - lastSpriteUpdate > SPRITE_FRAME_DURATION) {

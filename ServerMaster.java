@@ -35,6 +35,7 @@ public class ServerMaster {
     private Room currentRoom;
     private boolean isGameOver;
     private boolean isFinalBossKilled;
+    private boolean hasChosenScene5End;
 
     private static int gameLevel;
     private static final int MAX_LEVEL = 7;
@@ -46,6 +47,9 @@ public class ServerMaster {
     
     private int playerNum;
     private int downedPlayersNum;
+    private int voteCount;
+    private int yesVote;
+    private int noVote;
     private int bossHPPercent;
 
     private static ServerMaster singleInstance = null;
@@ -89,9 +93,13 @@ public class ServerMaster {
         userPlayerIndex = -1;
         gameLevel = 0;
         bossHPPercent = 0;
+        voteCount = 0;
+        yesVote = 0;
+        noVote = 0;
         
         isGameOver = false;
         isFinalBossKilled = false;
+        hasChosenScene5End = false;
         hasPlayedGameOverSound = false;
         
         // Clear arraylists
@@ -1157,4 +1165,29 @@ public class ServerMaster {
             this.cid = cid;
         }
     } 
+
+    public void pollChoice(boolean hasChosenYes){
+        voteCount++;
+        if(hasChosenYes) yesVote++;
+        else noVote++;
+    
+        if(playerNum == voteCount){
+            //Determine voting result
+            boolean isResultYes;
+            if (yesVote > noVote) isResultYes = true;
+            else if (yesVote < noVote) isResultYes = false;
+            else isResultYes = new Random().nextBoolean();
+
+            //Send results to client
+            if(isResultYes) {
+                sendMessageToClients(NetworkProtocol.YES_TO_SCENE5_END);
+                hasChosenScene5End = true;
+            }
+            else sendMessageToClients(NetworkProtocol.NO_TO_SCENE5_END);
+        }
+    }
+
+    public boolean getHasChosenScene5End(){
+        return hasChosenScene5End;
+    }
 }
