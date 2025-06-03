@@ -591,7 +591,13 @@ public class GameFrame extends JFrame{
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e){
-                gameClient.clickInput(e.getX(), e.getY());
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    // Left click - send to server
+                    gameClient.clickInput("L", e.getX(), e.getY());
+                } else if (e.getButton() == MouseEvent.BUTTON3) {
+                    // Right click - handle locally
+                    gameCanvas.handleRightClick(e.getX(), e.getY());
+                }
             }
         });
     }

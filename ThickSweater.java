@@ -42,16 +42,27 @@ public class ThickSweater extends Item {
      * @param x the x-coordinate
      * @param y the y-coordinate
      */
-    public ThickSweater(int x, int y){
-        identifier = NetworkProtocol.THICKSWEATER;
+    public ThickSweater(int x, int y) {
+        super();
         worldX = x;
         worldY = y;
         currentRoom = null;
+        identifier = NetworkProtocol.THICKSWEATER;
+        initialCDDuration = 0;
+        initialDamage = 0;
+        initialMaxHealth = 0;
+        initialHitPoints = 0;
+        initialSpeed = -1;
+        initialDefense = 2;
+        initialAttackFrameDuration = 0;
         isFirstTimeUse = true;
         regenTime = 0;
 
-        matchHitBoxBounds();
+        initTooltip("Thick Sweater", 
+                   "A cozy sweater that provides defense and health regeneration. Reduces movement speed but grants passive healing.", 
+                   false);
 
+        matchHitBoxBounds();
     }
 
     @Override

@@ -34,6 +34,9 @@ public class ClientMaster {
     private int bossHPPercent;
     private int currentStage;
     private MiniMap minimap;
+    private final Map<Integer, Boolean> tooltipStates;
+    private Entity cachedUIItem;  // Add this field to cache the UI item
+    private Item activeTooltipItem;
     
     /**
      * Creates a ClientMaster instance with the following fields as null:
@@ -46,6 +49,8 @@ public class ClientMaster {
         currentRoom = null;
         entities = new CopyOnWriteArrayList<>();
         minimap = new MiniMap();
+        tooltipStates = new HashMap<>();
+        activeTooltipItem = null;
     }
 
     /**
@@ -206,18 +211,31 @@ public class ClientMaster {
      * @param sprite the current sprite of the entity to render
      * @param zIndex a number that corresponds to which layer should the entity be rendered relative to other entities and gameObjects
      */
-    public void loadEntity(String identifier, int id, int x, int y, int roomId, int sprite, int zIndex){
-        // System.out.println("Loading entity " + identifier + " " + name + "at " + x + ", " + y);
-        // if (name == null) System.out.println("Warning: unknown identity identifier " + identifier);
-        Entity e = getEntity(identifier, id, x, y);
-        if (e != null) {
-            e.setId(id);
-            e.setCurrSprite(sprite);
-            e.matchHitBoxBounds();
-            e.setCurrentRoom(getRoomById(roomId));
-            e.setzIndex(zIndex);
-            entities.add(e);
-        }    
+    public void loadEntity(String identifier, int id, int x, int y, int roomId, int sprite, int zIndex) {
+        Entity entity = getEntity(identifier, id, x, y);
+        if (entity == null) return;
+
+        entity.setId(id);
+        entity.setCurrentRoom(getRoomById(roomId));
+        entity.setWorldX(x);
+        entity.setWorldY(y);
+        entity.setCurrSprite(sprite);
+        entity.setzIndex(zIndex);
+        entity.matchHitBoxBounds();
+
+        entities.add(entity);
+    }
+
+    /**
+     * Gets an instance of an Item corresponding to the value of heldItemIdentifier
+     * @return an instance of an Item corresponding to heldItemIdentifier
+     */
+    public Entity generateUIItem(){
+        // Only create a new item if we don't have one cached or if the held item changed
+        if (cachedUIItem == null || !cachedUIItem.getIdentifier().equals(heldItemIdentifier)) {
+            cachedUIItem = getEntity(heldItemIdentifier, 0, 0, 0);
+        }
+        return cachedUIItem;
     }
 
     /**
@@ -225,15 +243,10 @@ public class ClientMaster {
      * @param identifier the identifier to set the heldItemIdentifier to
      */
     public void setHeldItemIdentifier(String identifier){
-        heldItemIdentifier = identifier;
-    }
-    
-    /**
-     * Gets an instance of an Item corresponding to the value of heldItemIdentifier
-     * @return an instance of an Item corresponding to heldItemIdentifier
-     */
-    public Entity generateUIItem(){
-        return getEntity(heldItemIdentifier, 0, 0, 0);
+        if (!identifier.equals(heldItemIdentifier)) {
+            heldItemIdentifier = identifier;
+            cachedUIItem = null;  // Clear cache when held item changes
+        }
     }
 
     /**
@@ -327,5 +340,30 @@ public class ClientMaster {
      */
     public MiniMap getMiniMap() {
         return minimap;
+    }
+
+    /**
+     * Gets the tooltip visibility state for an item
+     * @param itemId the ID of the item
+     * @return true if the tooltip should be shown, false otherwise
+     */
+    public boolean getTooltipState(int itemId) {
+        return tooltipStates.getOrDefault(itemId, false);
+    }
+
+    /**
+     * Toggles the tooltip visibility state for an item
+     * @param itemId the ID of the item
+     */
+    public void toggleTooltipState(int itemId) {
+        tooltipStates.put(itemId, !tooltipStates.getOrDefault(itemId, false));
+    }
+
+    public void setActiveTooltipItem(Item item) {
+        this.activeTooltipItem = item;
+    }
+    
+    public Item getActiveTooltipItem() {
+        return this.activeTooltipItem;
     }
 }

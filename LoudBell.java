@@ -44,6 +44,7 @@ public class LoudBell extends Item {
         currentRoom = null;
 
         matchHitBoxBounds();
+        initTooltip("Loud Bell", "Reduces defense by 100 but increases damage by 2x and attack cooldown by 25%", false);    
     }
 
     @Override

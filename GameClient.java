@@ -34,6 +34,7 @@ public class GameClient {
     private DataOutputStream dataOut;
     private int clientId;
     private final HashMap<String, Boolean> keyMap;
+    private String mouseButton;
     private int clickedX;
     private int clickedY;
     private final ScheduledExecutorService sendInputsScheduler;
@@ -316,7 +317,7 @@ public class GameClient {
                     clientMaster.loadEntity(identifier, id, x, y, roomId, 0, 0);
                 }
             } else if (part.startsWith(NetworkProtocol.MINIMAP_UPDATE)) {
-                System.out.println("Recieved in parseEntitiesData:" + part);
+                // System.out.println("Recieved in parseEntitiesData:" + part);
                 // Parse minimap data
                 String[] minimapData = part.substring(NetworkProtocol.MINIMAP_UPDATE.length()).split(NetworkProtocol.MINIMAP_DELIMITER);
                 HashMap<Room, Point> visibleRooms = new HashMap<>();
@@ -416,14 +417,14 @@ public class GameClient {
         if(keyMap.get("D")) str.append("D");
 
         if(clickedX != 0 && clickedY != 0){
-            str.append(NetworkProtocol.DELIMITER);
-            str.append(NetworkProtocol.CLICK);
-            str.append(clickedX);
-            str.append(",");
-            str.append(clickedY);
+            str.append(NetworkProtocol.DELIMITER).append(NetworkProtocol.CLICK)
+            .append(mouseButton).append(NetworkProtocol.SUB_DELIMITER)
+            .append(clickedX).append(NetworkProtocol.SUB_DELIMITER)
+            .append(clickedY).append(NetworkProtocol.SUB_DELIMITER);
             clickedX = 0;
             clickedY = 0;
         }
+
         return str.toString();
     }
 
@@ -457,9 +458,9 @@ public class GameClient {
      * @param x the x-coordinate
      * @param y the y-coordinate
      */
-    public void clickInput(int x, int y){
+    public void clickInput(String mouseButton, int x, int y){
+        this.mouseButton = mouseButton;
         clickedX = x;
         clickedY = y;
     }
-
 }

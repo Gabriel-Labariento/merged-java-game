@@ -81,6 +81,7 @@ public class NetworkProtocol {
     public static final String ATTACK = "ATK:";
     public static final String KEYS = "K:";
     public static final String CLICK = "CLK:";
+    public static final String RIGHT_CLICK = "RCLK:";
 
     public static final String DELIMITER = "|";
     public static final String SUB_DELIMITER = ",";

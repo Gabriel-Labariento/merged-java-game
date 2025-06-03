@@ -47,6 +47,7 @@ public class PremiumCatFood extends Item {
         isConsumable = true;
 
         matchHitBoxBounds();
+        initTooltip("Premium Cat Food", "Increases damage by 1", true);
     }
 
     @Override

@@ -46,6 +46,7 @@ public class RedFish extends Item {
         isConsumable = true;
 
         matchHitBoxBounds();
+        initTooltip("Red Fish", "Restores 25% of the player's max health", true);
     }
 
     @Override
