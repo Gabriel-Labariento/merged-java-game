@@ -42,6 +42,7 @@ public class GameClient {
     private ScheduledExecutorService sendInputsScheduler;
     private Thread receiveAssetsThread;
     private GameServer gs;
+    private boolean wantsDisconnect;
 
     /**
      * Creates a GameClient and binds it to a clientMaster instance that handles
@@ -72,6 +73,8 @@ public class GameClient {
     public void disconnectFromServer(){
         //Stop threads    
         // Stop scheduler and wait for completion
+        wantsDisconnect = true;
+
         if (sendInputsScheduler != null && !sendInputsScheduler.isShutdown()) {
             sendInputsScheduler.shutdown();
             try {
@@ -117,6 +120,8 @@ public class GameClient {
         receiveAssetsThread = null;
         
     }
+
+
 
     /**
      * Establishes a connection to the Server. Sends the type of Player who joined.
@@ -189,6 +194,10 @@ public class GameClient {
         gs.waitForConnections();   
         gs.startGameLoop();
         gs.closeSocketsOnShutdown();
+    }
+
+    public GameServer getGameServer(){
+        return gs;
     }
     
     /**
@@ -468,6 +477,11 @@ public class GameClient {
                         byte[] inputDataBytes = inputDataString.getBytes("UTF-8");
                         dataOut.writeInt(inputDataBytes.length);
                         dataOut.write(inputDataBytes);
+
+                        if(wantsDisconnect) {
+                            wantsDisconnect = false;
+                            disconnectFromServer();
+                        }
                     }
 
                     } catch (IOException ex) {
@@ -492,6 +506,10 @@ public class GameClient {
             if(choice.equals("YES")) str.append(NetworkProtocol.YES_TO_CHOICE);
             else if (choice.equals("NO")) str.append(NetworkProtocol.NO_TO_CHOICE);
             clientMaster.setScene5Choice("");
+        }
+        else if (wantsDisconnect){
+            str.append(NetworkProtocol.DELIMITER);
+            str.append(NetworkProtocol.DISCONNECT_REQUEST);
         }
         else{
             if(keyMap.get("Q")) str.append("Q");
@@ -551,6 +569,14 @@ public class GameClient {
     public void clickInput(int x, int y){
         clickedX = x;
         clickedY = y;
+    }
+
+    public boolean getWantsDisconnect(){
+        return wantsDisconnect;
+    }
+
+    public void setWantsDisconnect(boolean b){
+        wantsDisconnect = b;
     }
 
 }

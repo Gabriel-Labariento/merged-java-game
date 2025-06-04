@@ -1,7 +1,12 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**     
         The GameFrame class extends JFrame. It serves as the main game window.
@@ -31,18 +36,36 @@ public class GameFrame extends JFrame{
     private String playerType;
     private final JLayeredPane lp;
     private final JPanel cp;  
-    private ImageIcon btnBG;
     private GameCanvas gameCanvas;
     private GameClient gameClient;
     private ClientMaster clientMaster;
     private SpecialFrameHandler specialFrameHandler;
     private final ArrayList<JButton> btns;
-    private final JLabel label1;
-    private final JLabel label2;
-    private final JLabel label3;
+    private final JLabel portLabel;
+    private final JLabel IPLabel;
+    private final JLabel fishLabel;
+    private final JLabel pauseTitleLabel;
+    private final JLabel volumeMainLabel;
+    private final JLabel volumeSubLabel;
     private final JTextField textField1;
     private final JTextField textField2;
+    private final JSlider sfxVolumeSlider;
+    private final JSlider musicVolumeSlider;
+    private final JSlider masterVolumeSlider;
     private int fishSlideNum;
+    private static Font gameFont;
+    public isGamePausedRef isGamePausedRef;
+    private SoundManager soundManager;
+    private static BufferedImage sliderThumb;
+
+    static{
+        try {
+            gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
+            sliderThumb = ImageIO.read(GameFrame.class.getResourceAsStream("resources/UserInterface/sliderThumb.png"));
+        } catch (FontFormatException e) {
+        } catch (IOException e) {
+        }
+    }
 
     /**
      * Creates a GameFrame with a new GameCanvas and holds a reference 
@@ -56,9 +79,10 @@ public class GameFrame extends JFrame{
         this.width = width;
         this.height = height;
         this.title = title;
+        this.soundManager = SoundManager.getInstance();
         cp = (JPanel) this.getContentPane();
         gameCanvas = null;
-        // btnBG = new ImageIcon("/UI Assets/btnBG");
+        isGamePausedRef = new isGamePausedRef(false);
 
         //Set default values
         playerType = NetworkProtocol.HEAVYCAT;
@@ -66,24 +90,42 @@ public class GameFrame extends JFrame{
 
         // UI Elements
         btns = new ArrayList<>();
-        btns.add(new JButton("Play"));
-        btns.add(new JButton("Quit"));
-        btns.add(new JButton("Connect"));
-        btns.add(new JButton("Back"));
-        btns.add(new JButton("Host Server"));
-        btns.add(new JButton("Enter Game"));
-        btns.add(new JButton("<"));
-        btns.add(new JButton(">"));
+        btns.add(new JButton("Play")); // 0
+        btns.add(new JButton("Quit")); // 1
+        btns.add(new JButton("Connect")); // 2
+        btns.add(new JButton("BACK")); // 3
+        btns.add(new JButton("Host Server")); // 4
+        btns.add(new JButton("Enter Game")); // 5
+        btns.add(new JButton("<")); // 6
+        btns.add(new JButton(">")); // 7
+        btns.add(new JButton("DISCONNECT")); // 8
+        btns.add(new JButton("BACK")); // 9
 
-        label1 = new JLabel();
-        label2 = new JLabel();
-        label3 = new JLabel();
-
+        IPLabel = new JLabel();
+        portLabel = new JLabel();
+        fishLabel = new JLabel();
+        pauseTitleLabel = new JLabel("--- PAUSED ---");
+        volumeMainLabel = new JLabel("MASTER VOLUME:");
+        volumeSubLabel = new JLabel("<html>Sound Effects:<br><br>Music:</html>");
+        
         textField1 = new JTextField(10);
         textField2 = new JTextField(10);
+
+        sfxVolumeSlider = new JSlider(0, 100, ((int)(soundManager.getSfxVolume()*100.0)));
+        musicVolumeSlider = new JSlider(0, 100, ((int) (soundManager.getMusicVolume()*100.0)));
+        masterVolumeSlider = new JSlider(0, 100, ((int) (soundManager.getMasterVolume()*100.0)));
+
         lp = new JLayeredPane();
 
         createClientClasses();
+    }
+
+    public class isGamePausedRef{
+        public boolean isGamePaused;
+
+        public isGamePausedRef(boolean b){
+            isGamePaused = b;
+        }
     }
 
     private void createClientClasses(){
@@ -95,7 +137,7 @@ public class GameFrame extends JFrame{
         }
 
         //Create classes
-        gameCanvas = new GameCanvas(width, height);
+        gameCanvas = new GameCanvas(width, height, gameFont, isGamePausedRef);
         clientMaster = gameCanvas.getClientMaster();
         gameClient = gameCanvas.getGameClient();
         specialFrameHandler = gameCanvas.getSpecialFrameHandler();
@@ -115,7 +157,8 @@ public class GameFrame extends JFrame{
         setResizable(false);
         cp.setFocusable(true);
         lp.setPreferredSize(new Dimension(width, height));
-        
+
+        setUpSliders();
         loadStartUI();
         refreshFrame();
 
@@ -130,10 +173,10 @@ public class GameFrame extends JFrame{
      */
     public void loadStartUI(){
         btns.get(0).setBounds(54, 116, 158, 33);
-        lp.add(btns.get(0), Integer.valueOf(1));
+        lp.add(btns.get(0), Integer.valueOf(2));
 
         btns.get(1).setBounds(54, 169, 158, 33);
-        lp.add(btns.get(1) , Integer.valueOf(1));
+        lp.add(btns.get(1) , Integer.valueOf(2));
     }
 
     /**
@@ -141,30 +184,30 @@ public class GameFrame extends JFrame{
      */
     public void loadClientUI(){
 
-        label1.setForeground(Color.WHITE);
-        label1.setText("IP Address: ");
-        label1.setBounds(17, 133, 232, 15);
-        lp.add(label1, Integer.valueOf(1));
+        IPLabel.setForeground(Color.WHITE);
+        IPLabel.setText("IP Address: ");
+        IPLabel.setBounds(17, 133, 232, 15);
+        lp.add(IPLabel, Integer.valueOf(2));
         
-        label2.setForeground(Color.WHITE);
-        label2.setText("Port Number: ");
-        label2.setBounds(17, 194, 232, 15);
-        lp.add(label2, Integer.valueOf(1));
+        portLabel.setForeground(Color.WHITE);
+        portLabel.setText("Port Number: ");
+        portLabel.setBounds(17, 194, 232, 15);
+        lp.add(portLabel, Integer.valueOf(2));
 
         textField1.setBounds(245, 131, 159,  28);
-        lp.add(textField1, Integer.valueOf(1));
+        lp.add(textField1, Integer.valueOf(2));
 
         textField2.setBounds(245, 192, 159, 28);
-        lp.add(textField2, Integer.valueOf(1));
+        lp.add(textField2, Integer.valueOf(2));
         
         btns.get(2).setBounds(54, 280, 159, 35);
-        lp.add(btns.get(2), Integer.valueOf(1));
+        lp.add(btns.get(2), Integer.valueOf(2));
 
         btns.get(3).setBounds(245, 280, 159, 35);
-        lp.add(btns.get(3), Integer.valueOf(1));
+        lp.add(btns.get(3), Integer.valueOf(2));
 
         btns.get(4).setBounds(54, 385, 159, 35);
-        lp.add(btns.get(4), Integer.valueOf(1));
+        lp.add(btns.get(4), Integer.valueOf(2));
     }
 
     /**
@@ -172,33 +215,232 @@ public class GameFrame extends JFrame{
      * and allows the user to select a player type.
      */
     public void loadPrePlayUI(){
-        label1.setForeground(Color.WHITE);
-        label1.setText("IP Address: " + serverIP);
-        label1.setBounds(17, 133, 232, 15);
-        lp.add(label1, Integer.valueOf(1));
+        IPLabel.setForeground(Color.WHITE);
+        IPLabel.setText("IP Address: " + serverIP);
+        IPLabel.setBounds(17, 133, 232, 15);
+        lp.add(IPLabel, Integer.valueOf(2));
         
-        label2.setForeground(Color.WHITE);
-        label2.setText("Port: " + serverPort);
-        label2.setBounds(17, 194, 232, 15);
-        lp.add(label2, Integer.valueOf(1));
+        portLabel.setForeground(Color.WHITE);
+        portLabel.setText("Port: " + serverPort);
+        portLabel.setBounds(17, 194, 232, 15);
+        lp.add(portLabel, Integer.valueOf(2));
 
         updateFishCarousel();
-        label3.setForeground(Color.WHITE);
-        label3.setBounds(460, 255, 227, 15);
-        lp.add(label3, Integer.valueOf(1));
+        fishLabel.setForeground(Color.WHITE);
+        fishLabel.setBounds(460, 255, 227, 15);
+        lp.add(fishLabel, Integer.valueOf(2));
 
         btns.get(3).setBounds(245, 280, 159, 35);
-        lp.add(btns.get(3), Integer.valueOf(1));
+        lp.add(btns.get(3), Integer.valueOf(2));
 
         btns.get(5).setBounds(54, 280, 159, 35);
-        lp.add(btns.get(5), Integer.valueOf(1));
+        lp.add(btns.get(5), Integer.valueOf(2));
 
         btns.get(6).setBounds(517, 280, 48, 35);
-        lp.add(btns.get(6), Integer.valueOf(1));
+        lp.add(btns.get(6), Integer.valueOf(2));
 
         btns.get(7).setBounds(582, 280, 48, 35);
-        lp.add(btns.get(7), Integer.valueOf(1));
+        lp.add(btns.get(7), Integer.valueOf(2));
     }
+
+    public void loadPauseUI(){
+        pauseTitleLabel.setForeground(Color.WHITE);
+        pauseTitleLabel.setBounds(260, 197, 308, 27);
+        pauseTitleLabel.setFont(getSizedGameFont(21f));
+        lp.add(pauseTitleLabel, Integer.valueOf(2));
+
+        volumeMainLabel.setForeground(Color.WHITE);
+        volumeMainLabel.setBounds(204, 328, 200, 16);
+        volumeMainLabel.setFont(getSizedGameFont(14f));
+        lp.add(volumeMainLabel, Integer.valueOf(2));
+
+        volumeSubLabel.setForeground(Color.WHITE);
+        volumeSubLabel.setBounds(204, 262, 269, 41);
+        volumeSubLabel.setFont(getSizedGameFont(12f));
+        lp.add(volumeSubLabel, Integer.valueOf(2));
+
+        
+        lp.add(sfxVolumeSlider, Integer.valueOf(2));
+        lp.add(musicVolumeSlider, Integer.valueOf(2));
+        lp.add(masterVolumeSlider, Integer.valueOf(2));
+
+        JButton pauseDisconnectBtn = btns.get(8);
+        pauseDisconnectBtn.setBackground(Color.white);
+        pauseDisconnectBtn.setForeground(Color.black);
+        pauseDisconnectBtn.setBorderPainted(false);
+        pauseDisconnectBtn.setBounds(217, 400, 192, 41);
+        pauseDisconnectBtn.setFont(getSizedGameFont(15f));
+        lp.add(pauseDisconnectBtn, Integer.valueOf(2));        
+
+        JButton pauseBackButton = btns.get(9);
+        pauseBackButton.setBackground(Color.white);
+        pauseBackButton.setForeground(Color.black);
+        pauseBackButton.setBorderPainted(false);
+        pauseBackButton.setFont(getSizedGameFont(15f));
+        pauseBackButton.setBounds(482, 400, 96, 41);
+        lp.add(pauseBackButton, Integer.valueOf(2));    
+    }
+
+    public void setUpSliders(){
+        // setup listeners
+        addSliderListeners();
+
+        // setup ui appearance
+        sfxVolumeSlider.setBounds(418, 261, 178, 12);
+        sfxVolumeSlider.setBackground(Color.black);
+        sfxVolumeSlider.setUI(new javax.swing.plaf.basic.BasicSliderUI(sfxVolumeSlider) {
+            @Override
+            public void paintThumb(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int x = thumbRect.x + (thumbRect.width - sliderThumb.getWidth(null)) / 2;
+                int y = thumbRect.y + (thumbRect.height - sliderThumb.getHeight(null)) / 2;
+
+                g2d.drawImage(sliderThumb, x, y, null);
+                g2d.dispose();
+            }
+
+            @Override
+            protected Dimension getThumbSize() {
+                return new Dimension(sliderThumb.getWidth(null), sliderThumb.getHeight(null));
+            }
+
+            //Delete slider focus border
+            @Override
+            public void paintFocus(Graphics g){}
+
+            @Override
+            public void paintTrack(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int x = trackRect.x;
+                int y = trackRect.y + trackRect.height / 2 - 3; 
+                int w = trackRect.width;
+                int h = 5; 
+
+                // Outer border
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(x, y, w, h, 5, 5);
+
+                // Slider background
+                g2.setColor(Color.BLACK);
+                g2.fillRoundRect(x + 1, y + 1, w - 2, h - 2, 3, 3);
+
+                // Dynamic filling
+                int fillWidth = thumbRect.x + thumbRect.width / 2 - x;
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(x + 1, y + 1, fillWidth, h - 2, 3, 3);
+
+                g2.dispose();
+            }
+        });
+
+        musicVolumeSlider.setBounds(418, 291, 178, 12);
+        musicVolumeSlider.setBackground(Color.black);
+        musicVolumeSlider.setUI(new javax.swing.plaf.basic.BasicSliderUI(musicVolumeSlider) {
+            @Override
+            public void paintThumb(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int x = thumbRect.x + (thumbRect.width - sliderThumb.getWidth(null)) / 2;
+                int y = thumbRect.y + (thumbRect.height - sliderThumb.getHeight(null)) / 2;
+
+                g2d.drawImage(sliderThumb, x, y, null);
+                g2d.dispose();
+            }
+
+            @Override
+            protected Dimension getThumbSize() {
+                return new Dimension(sliderThumb.getWidth(null), sliderThumb.getHeight(null));
+            }
+
+            //Delete slider focus border
+            @Override
+            public void paintFocus(Graphics g){}
+
+            @Override
+            public void paintTrack(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int x = trackRect.x;
+                int y = trackRect.y + trackRect.height / 2 - 3; 
+                int w = trackRect.width;
+                int h = 5; 
+
+                // Outer border
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(x, y, w, h, 5, 5);
+
+                // Slider background
+                g2.setColor(Color.BLACK);
+                g2.fillRoundRect(x + 1, y + 1, w - 2, h - 2, 3, 3);
+
+                // Dynamic filling
+                int fillWidth = thumbRect.x + thumbRect.width / 2 - x;
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(x + 1, y + 1, fillWidth, h - 2, 3, 3);
+
+                g2.dispose();
+            }
+        });
+
+
+        masterVolumeSlider.setBounds(418, 330, 178, 12);
+        masterVolumeSlider.setBackground(Color.black);
+        masterVolumeSlider.setUI(new javax.swing.plaf.basic.BasicSliderUI(masterVolumeSlider) {
+            @Override
+            public void paintThumb(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int x = thumbRect.x + (thumbRect.width - sliderThumb.getWidth(null)) / 2;
+                int y = thumbRect.y + (thumbRect.height - sliderThumb.getHeight(null)) / 2;
+
+                g2d.drawImage(sliderThumb, x, y, null);
+                g2d.dispose();
+            }
+
+            @Override
+            protected Dimension getThumbSize(){
+                return new Dimension(sliderThumb.getWidth(null), sliderThumb.getHeight(null));
+            }
+
+            //Delete slider focus border
+            @Override
+            public void paintFocus(Graphics g){}
+
+            @Override
+            public void paintTrack(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int x = trackRect.x;
+                int y = trackRect.y + trackRect.height / 2 - 3; 
+                int w = trackRect.width;
+                int h = 5; 
+
+                // Outer border
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(x, y, w, h, 5, 5);
+
+                // Slider background
+                g2.setColor(Color.BLACK);
+                g2.fillRoundRect(x + 1, y + 1, w - 2, h - 2, 3, 3);
+
+                // Dynamic filling
+                int fillWidth = thumbRect.x + thumbRect.width / 2 - x;
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(x + 1, y + 1, fillWidth, h - 2, 3, 3);
+
+                g2.dispose();
+            }
+        });
+    }
+
 
     /**
      * Updates the selected player display based on user input
@@ -207,17 +449,18 @@ public class GameFrame extends JFrame{
         if (fishSlideNum > 3) fishSlideNum = 1; 
         else if (fishSlideNum < 1) fishSlideNum = 3;
 
+
         switch(fishSlideNum){
             case 1:
-                label3.setText("Pufferfish (Heavy)");
+                fishLabel.setText("Pufferfish (Heavy)");
                 playerType = NetworkProtocol.HEAVYCAT;
                 break;
             case 2:
-                label3.setText("Anchovy (Light)");
+                fishLabel.setText("Anchovy (Light)");
                 playerType = NetworkProtocol.FASTCAT;
                 break;
             case 3:
-                label3.setText("Archerfish (Ranged)");
+                fishLabel.setText("Archerfish (Ranged)");
                 playerType = NetworkProtocol.GUNCAT;
                 break;
         }
@@ -252,6 +495,9 @@ public class GameFrame extends JFrame{
                 clearGUI();
                 loadStartUI();
                 refreshFrame();
+
+                GameServer gs = gameClient.getGameServer();
+                if (gs != null) gs.shutDownServer();
             }
             else if (o == btns.get(4)){
                 gameClient.hostServer();
@@ -272,6 +518,27 @@ public class GameFrame extends JFrame{
             else if (o == btns.get(7)){
                 fishSlideNum++;
                 updateFishCarousel();
+            }
+            else if (o == btns.get(8)){
+                //Return to main menu 
+                gameCanvas.setIsOnMenu(true);
+                gameClient.setWantsDisconnect(true);
+                SoundManager.getInstance().stopAllSounds();
+                isGamePausedRef.isGamePaused = false;
+
+                clearGUI();
+                loadStartUI();
+                refreshFrame();
+                
+                cp.requestFocusInWindow();
+                // isGamePaused = false;
+            }
+            else if (o == btns.get(9)){
+                
+                clearGUI();
+                refreshFrame();
+                cp.requestFocusInWindow();
+                isGamePausedRef.isGamePaused = false;
             }
 
  
@@ -294,8 +561,9 @@ public class GameFrame extends JFrame{
         gameClient.connectToServer(serverIP, serverPort, playerType);
         clearGUI();
         addKeyBindings();
-        addMouseListener();
+        addMouseListeners();
         refreshFrame();
+
         //Force reload
         cp.requestFocusInWindow();
 
@@ -309,7 +577,7 @@ public class GameFrame extends JFrame{
      * Clears UI components from Layer 1
      */
     public void clearGUI(){
-        Component[] components = lp.getComponentsInLayer(1);
+        Component[] components = lp.getComponentsInLayer(2);
         for (Component c:components) lp.remove(c);
     }
 
@@ -324,20 +592,69 @@ public class GameFrame extends JFrame{
     /**
      * Adds a mouseListener that tracks click inputs
      */
-    public void addMouseListener(){
+    public void addMouseListeners(){
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleClickInput();
-                else gameClient.clickInput(e.getX(), e.getY());
+                else if (!(isGamePausedRef.isGamePaused || gameCanvas.getIsOnMenu())) {
+                    gameClient.clickInput(e.getX(), e.getY());
+                }
             }
         });
+
+        // LOOP DATA PRIVY TO CHANGE (FOR SCALABILITY WITH OTHER BUTTONS)
+        for (int i = 8; i < 10; i++){
+            JButton btnWithMouseHover = btns.get(i);
+            btnWithMouseHover.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                invertBasicBtnColors(btnWithMouseHover);
+                btnWithMouseHover.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                invertBasicBtnColors(btnWithMouseHover);
+                btnWithMouseHover.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
+        }
+    }
+
+    private void invertBasicBtnColors(JButton btnWithMouseHover){
+        if(btnWithMouseHover.getBackground().equals(Color.white)) btnWithMouseHover.setBackground(Color.black);
+        else btnWithMouseHover.setBackground(Color.white);
+        
+        if(btnWithMouseHover.getForeground().equals(Color.white)) btnWithMouseHover.setForeground(Color.black);
+        else btnWithMouseHover.setForeground(Color.white);
+    }
+
+    public void addSliderListeners(){
+        ChangeListener changeListener = (ChangeEvent ae) -> {
+            Object o = ae.getSource();
+
+            if (o == sfxVolumeSlider){
+                soundManager.setSfxVolume(sfxVolumeSlider.getValue()/100f);
+            }
+            else if (o ==musicVolumeSlider){
+                soundManager.setMusicVolume(musicVolumeSlider.getValue()/100f);
+            }
+            if (o == masterVolumeSlider){
+                soundManager.setMasterVolume(masterVolumeSlider.getValue()/100f);
+            }
+        };
+
+        sfxVolumeSlider.addChangeListener(changeListener);
+        musicVolumeSlider.addChangeListener(changeListener);
+        masterVolumeSlider.addChangeListener(changeListener);
     }
 
     /**
      * Sets up key bindings for player input control for keys
      * Q (interact) and W, A, S, D (movement)
      */ 
+
     public void addKeyBindings(){
         ActionMap am = cp.getActionMap(); 
         InputMap im = cp.getInputMap();
@@ -346,7 +663,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("Q");
-                else gameClient.keyInput("Q", true);
+                else if (!isGamePausedRef.isGamePaused) gameClient.keyInput("Q", true);
                 
             }
         };
@@ -354,15 +671,41 @@ public class GameFrame extends JFrame{
         AbstractAction keyInputESC = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae){
+                //IMPOSE RESTRICTIONS
+                if (!specialFrameHandler.getIsScenePlaying() && !gameCanvas.getIsOnMenu() 
+                && !clientMaster.getIsGameOver()){
+                    // System.out.println("ESC REGISTERED");
+                    if (isGamePausedRef.isGamePaused){
+                        // System.out.println("unpaused");
+                        clearGUI();
+                        refreshFrame();
+                        cp.requestFocusInWindow();
+                        isGamePausedRef.isGamePaused = false;
+                    }
+                    else {
+                        loadPauseUI();
+                        refreshFrame();
+                        isGamePausedRef.isGamePaused = true;
+                        // System.out.println("paused");
+                    }
+                }
+
+            }
+        };
+
+        AbstractAction keyInputSPACE = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getCanReturnToMenu()){
                     loadStartUI();
                     gameClient.disconnectFromServer();
                     gameCanvas.setIsOnMenu(true);
+                    SoundManager.getInstance().stopAllSounds();
                     // gameCanvas.setSpecialFrameHandler(new SpecialFrameHandler());
                     clientMaster.setIsGameOver(false);
                     specialFrameHandler.setCanReturnToMenu(false);
                 }
-                specialFrameHandler.handleKeyInput("ESC");
+                specialFrameHandler.handleKeyInput("SPACE");
             }
         };
 
@@ -370,6 +713,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("W");
+                else if (isGamePausedRef.isGamePaused) gameClient.keyInput("W", false);
                 else gameClient.keyInput("W", true);
             }
         };
@@ -378,6 +722,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("S");
+                else if (isGamePausedRef.isGamePaused) gameClient.keyInput("S", false);
                 else gameClient.keyInput("S", true);
             }
         };
@@ -386,6 +731,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("A");
+                else if (isGamePausedRef.isGamePaused) gameClient.keyInput("A", false);
                 else gameClient.keyInput("A", true);
             }
         };
@@ -394,6 +740,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("D");
+                else if (isGamePausedRef.isGamePaused) gameClient.keyInput("D", false);
                 else gameClient.keyInput("D", true);
             }
         };
@@ -435,6 +782,7 @@ public class GameFrame extends JFrame{
 
         am.put("keyInputQ", keyInputQ);
         am.put("keyInputESC", keyInputESC);
+        am.put("keyInputSPACE", keyInputSPACE);
         am.put("keyInputW", keyInputW);
         am.put("keyInputS", keyInputS);
         am.put("keyInputA", keyInputA);
@@ -447,6 +795,7 @@ public class GameFrame extends JFrame{
 
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0, false), "keyInputQ");
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false), "keyInputESC");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), "keyInputSPACE");
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "keyInputW");
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "keyInputA");
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "keyInputS");
@@ -465,4 +814,11 @@ public class GameFrame extends JFrame{
     public GameCanvas getCanvas(){
         return gameCanvas;
     }
+
+    public Font getSizedGameFont(float size){
+        //Account for canva vs Java Font rendering difference in font size
+        // size *= 1.2;
+        return gameFont.deriveFont(size);
+    }
+    
 }

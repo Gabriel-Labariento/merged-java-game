@@ -1,9 +1,9 @@
 import java.awt.*;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.concurrent.*;
 import javax.swing.*;
-import java.io.*;
 
 /**     
         The GameCanvas class extends Jcomponent. It serves as the main
@@ -37,15 +37,8 @@ public class GameCanvas extends JComponent {
     private float screenOpacity;
     private int currentStage;
     private boolean isOnMenu;
-    private static Font gameFont;
-
-    static{
-        try {
-            gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
-        } catch (FontFormatException e) {
-        } catch (IOException e) {
-        }
-    }
+    public GameFrame.isGamePausedRef isGamePausedRef;
+    
     
     /**
      * Creates a GameCanvas instance with width and height. Insantiates a gameClient,
@@ -53,9 +46,10 @@ public class GameCanvas extends JComponent {
      * @param width the canvas' width
      * @param height the canvas' height
      */
-    public GameCanvas(int width, int height){
+    public GameCanvas(int width, int height, Font gameFont, GameFrame.isGamePausedRef isGamePausedRef){
         this.width = width;
         this.height = height;
+        this.isGamePausedRef = isGamePausedRef;
         renderLoopScheduler = Executors.newSingleThreadScheduledExecutor();
         clientMaster = new ClientMaster();
         gameClient = new GameClient(clientMaster);
@@ -142,6 +136,7 @@ public class GameCanvas extends JComponent {
 
             //Draw UI elements
             playerUI.drawPlayerUI(g2d, clientMaster, scaleFactor);
+            if(isGamePausedRef.isGamePaused) playerUI.drawPauseTab(g2d, scaleFactor);
 
         }
     }
@@ -193,5 +188,9 @@ public class GameCanvas extends JComponent {
         //Since putting Thread.sleep in a loop as necessary for this Loop is bad, use ScheduledExecutorService instead
         final Runnable renderLoop = this::repaint;
         renderLoopScheduler.scheduleAtFixedRate(renderLoop, 0, REFRESHINTERVAL, TimeUnit.MILLISECONDS);
+    }
+
+    public PlayerUI getPlayerUI(){
+        return playerUI;
     }
 }

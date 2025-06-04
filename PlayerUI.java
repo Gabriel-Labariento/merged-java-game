@@ -64,6 +64,13 @@ public class PlayerUI extends GameObject{
     @Override
     public void matchHitBoxBounds() {}
 
+    public void drawPauseTab(Graphics2D g2d, int sf){
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(161/sf, 163/sf, 477/sf, 316/sf);
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(165/sf, 167/sf, 468/sf, 308/sf);
+    }
+
     /**
      * Draws all of the UI elements
      * @param g2d graphics2d object
@@ -155,7 +162,7 @@ public class PlayerUI extends GameObject{
 
         for (int i = 0; i < fullMaxHearts; i++) {
             g2d.drawImage(sprites[5], (int)xOffset, (int)yOffset, 36 / sf, 36 / sf, null); 
-            xOffset += 50 / sf; 
+            xOffset += 47 / sf; 
         }
 
         if (hasHalfMaxHeart) {
@@ -168,7 +175,7 @@ public class PlayerUI extends GameObject{
         boolean hasHalfHeart = (userHealth % 2) == 1;
         for (int i = 0; i < fullHearts; i++) {
             g2d.drawImage(sprites[0], (int)xOffset, (int)yOffset, 36 / sf, 36 / sf, null); 
-            xOffset += 50 / sf; 
+            xOffset += 47 / sf; 
         }
 
         if (hasHalfHeart) {

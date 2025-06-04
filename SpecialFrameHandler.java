@@ -176,20 +176,20 @@ public class SpecialFrameHandler{
      * @param input keyinput identifier specificied in the gameframe
      */
     public void handleKeyInput(String input){
-        boolean isEscEnabled = !(currentScene == 5 && currentFrame >= 4) && !(currentScene == 7);
+        boolean isSpaceEnabled = !(currentScene == 5 && currentFrame >= 4) && !(currentScene == 7);
         
 
         if (isOnChoice){
             //Restrict to one vote to server per player
             if(!clientMaster.getIsWaitingForChoice()){
-                if (input.equals("ESC")) clientMaster.setScene5Choice("NO");
+                if (input.equals("SPACE")) clientMaster.setScene5Choice("NO");
                 else clientMaster.setScene5Choice("YES");
                 // System.out.println(clientMaster.getScene5Choice());
                 clientMaster.setIsWaitingForChoice(true);
             }
         }
         else{
-            if (input.equals("ESC") && isEscEnabled){
+            if (input.equals("SPACE") && isSpaceEnabled){
                 if (currentScene == 5) currentFrame = 3;
                 else{
                     isScenePlaying = false;

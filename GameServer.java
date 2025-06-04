@@ -35,6 +35,7 @@ public class GameServer {
     private int clientNum;
     private int port;
     private Thread waitForConnectionsThread;
+    private boolean hasPlayerDisconnected;
 
     // Game State
     private ServerMaster serverMaster;
@@ -85,9 +86,18 @@ public class GameServer {
                 }
 
                try {
+                    //Check flags before sending assets data to players
                     if (serverMaster.getIsGameOver() || serverMaster.getIsFinalBossKilled() 
                     || serverMaster.getHasChosenScene5End()){
                         shutDownServer();
+                    }
+                    //Check disconnection flag for shutting down server if there are no remaining players in it
+                    else if (hasPlayerDisconnected) {
+                        //Remove disconnected player from arraylist
+                        connectedPlayers.removeIf(cp -> cp.isDisconnected);
+
+                        if (connectedPlayers.isEmpty()) shutDownServer();
+                        else hasPlayerDisconnected = false;
                     }
                     else if (!connectedPlayers.isEmpty()){
                         for (ConnectedPlayer cp : connectedPlayers) {
@@ -108,8 +118,10 @@ public class GameServer {
 
     public void shutDownServer(){
         //Disconnect players
-        for (ConnectedPlayer cp : connectedPlayers) cp.disconnectFromServer();
-            
+        if(!connectedPlayers.isEmpty()) {
+            for (ConnectedPlayer cp : connectedPlayers) cp.disconnectFromServer();
+        }
+        
         //Close socketss
         waitForConnectionsThread.interrupt();
         try { 
@@ -177,6 +189,7 @@ public class GameServer {
      * individual client connection.
      */
     public class ConnectedPlayer {
+        private boolean isDisconnected;
         private Socket clientSocket;
         private DataInputStream dataIn;
         private DataOutputStream dataOut;
@@ -195,6 +208,7 @@ public class GameServer {
             this.cid = cid;
             sendQueue = new LinkedBlockingDeque<>();
             
+    
             try {
                 dataIn = new DataInputStream(clientSocket.getInputStream());
                 dataOut = new DataOutputStream(clientSocket.getOutputStream());
@@ -205,6 +219,9 @@ public class GameServer {
         }
 
         public void disconnectFromServer(){
+            //Remove player from gamestate
+            serverMaster.removeEntity(serverMaster.getPlayerFromClientId(cid));
+
             //Close data streams
             try {
                 if (dataOut != null) dataOut.close();
@@ -219,6 +236,7 @@ public class GameServer {
             sendAssetsThread.interrupt();
             sendQueue.clear();
             sendQueue.offer("shutdown");
+        
         }
 
         /**
@@ -373,6 +391,10 @@ public class GameServer {
                                 serverMaster.pollChoice(false);
                             } else if (part.startsWith(NetworkProtocol.YES_TO_CHOICE)){
                                 serverMaster.pollChoice(true);
+                            } else if (part.startsWith(NetworkProtocol.DISCONNECT_REQUEST)){
+                                disconnectFromServer();
+                                hasPlayerDisconnected = true;
+                                isDisconnected = true;
                             } else {
                                 // System.out.println(part);
                                 int keyInputNum = 0;

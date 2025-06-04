@@ -5,11 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.*;
 
 /**
  * A singleton class that manages sound and music clips for the application.
@@ -36,9 +32,9 @@ public class SoundManager {
     soundClips = new HashMap<>();
     musicClips = new HashMap<>();
     soundPools = new HashMap<>();
-    masterVolume = 1.0f;
-    musicVolume = 0.7f;
-    sfxVolume = 1.0f;
+    masterVolume = 0.5f;
+    musicVolume = 0.5f;
+    sfxVolume = 0.5f;
     audioExecutor = Executors.newSingleThreadExecutor();
   }
 
@@ -102,6 +98,7 @@ public class SoundManager {
     Runnable playSoundTask = () -> {
         Clip clip = soundClips.get(name);
         if (clip != null) {
+            applyVolume(clip, masterVolume * sfxVolume);
             clip.setFramePosition(0);       
             clip.start();
         }
@@ -119,7 +116,8 @@ public class SoundManager {
         stopMusic();
         Clip clip = musicClips.get(name);
         if (clip != null) {
-            clip.loop(Clip.LOOP_CONTINUOUSLY);
+          applyVolume(clip, masterVolume * musicVolume);
+          clip.loop(Clip.LOOP_CONTINUOUSLY);
         }
     };
     audioExecutor.execute(playMusicTask);
@@ -171,6 +169,7 @@ public class SoundManager {
             if (pool != null) {
                 for (Clip clip : pool) {
                 if (!clip.isRunning()) {
+                    applyVolume(clip, masterVolume * sfxVolume);
                     clip.setFramePosition(0);
                     clip.start();
                     break;
@@ -243,5 +242,67 @@ public class SoundManager {
 
   public void shutdown() {
     audioExecutor.shutdown();
+  }
+
+  public void reapplyVolume() {
+        for (Clip clip : musicClips.values()) {
+            if (clip.isRunning()) {
+                applyVolume(clip, masterVolume * musicVolume);
+            }
+        }
+        for (Clip clip : soundClips.values()) {
+            if (clip.isRunning()) {
+                applyVolume(clip, masterVolume * sfxVolume);
+            }
+        }
+        for (List<Clip> pool : soundPools.values()) {
+            for (Clip clip : pool) {
+                if (clip.isRunning()) {
+                    applyVolume(clip, masterVolume * sfxVolume);
+                }
+            }
+        }
+    }
+
+    private void applyVolume(Clip clip, float volume) {
+        if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+
+            //avoid 0 volume error
+            float limitedVolume = Math.max(volume, 0.0001f);
+
+            //convert volume factor into decibels
+            float decibels = (float) (Math.log10(limitedVolume) * 20);
+
+            //apply decibel change
+            gainControl.setValue(decibels);
+        }
+    }
+
+  public void setMasterVolume(float f){
+    masterVolume = f;
+    reapplyVolume();
+  }
+
+  public void setMusicVolume(float f){
+    musicVolume = f;
+    reapplyVolume();
+  }
+
+  public void setSfxVolume(float f){
+    sfxVolume = f;
+    reapplyVolume();
+  }
+
+  public float getMasterVolume(){
+    return masterVolume;
+  }
+
+  public float getMusicVolume(){
+    return musicVolume;
+  }
+
+  public float getSfxVolume(){
+    return sfxVolume;
   }
 }
