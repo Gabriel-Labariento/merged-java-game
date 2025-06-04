@@ -89,4 +89,6 @@ public class NetworkProtocol {
 
     // Message types
     public static final String MINIMAP_UPDATE = "MINIMAP:";
+
+    public static final int SPAWN_INDICATOR = 1000;
 }
