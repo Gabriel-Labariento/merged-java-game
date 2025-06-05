@@ -153,6 +153,9 @@ public class ClientMaster {
         else if (identifier.equals( NetworkProtocol.PRINGLESCAN)) return new PringlesCan(x,y);
 
         //Enemy entities
+        else if (identifier.equals(NetworkProtocol.SPAWN_INDICATOR))
+             return new SpawnIndicator(x, y);
+             
         //Normal 
         else if (identifier.equals( NetworkProtocol.SPIDER)) return new Spider(x, y);
         else if (identifier.equals( NetworkProtocol.COCKROACH)) return new Cockroach(x, y);
@@ -180,7 +183,7 @@ public class ClientMaster {
         else if (identifier.equals( NetworkProtocol.FISHMONSTER)) return new FishMonster(x, y);
 
         //Attack entities
-        else if (identifier.equals( NetworkProtocol.PLAYERSMASH)) 
+        else if (identifier.equals(NetworkProtocol.PLAYERSMASH)) 
             return new PlayerSmash(id, null, x, y, 0, false);
         else if (identifier.equals( NetworkProtocol.PLAYERSLASH)) 
             return new PlayerSlash(id, null, x, y, 0, false);
@@ -212,18 +215,26 @@ public class ClientMaster {
      * @param zIndex a number that corresponds to which layer should the entity be rendered relative to other entities and gameObjects
      */
     public void loadEntity(String identifier, int id, int x, int y, int roomId, int sprite, int zIndex) {
+        // First check if we already have this entity
+        for (Entity e : entities) {
+            if (e.getId() == id && e.getIdentifier().equals(identifier)) {
+                // Update existing entity
+                e.setPosition(x, y);
+                e.setCurrSprite(sprite);
+                e.setzIndex(zIndex);
+                if (e.getCurrentRoom() == null) {
+                    e.setCurrentRoom(getRoomById(roomId));
+                }
+                return;
+            }
+        }
+        
+        // If we don't have this entity, create a new one
         Entity entity = getEntity(identifier, id, x, y);
-        if (entity == null) return;
-
-        entity.setId(id);
-        entity.setCurrentRoom(getRoomById(roomId));
-        entity.setWorldX(x);
-        entity.setWorldY(y);
         entity.setCurrSprite(sprite);
         entity.setzIndex(zIndex);
-        entity.matchHitBoxBounds();
-
-        entities.add(entity);
+        entity.setCurrentRoom(getRoomById(roomId));
+        addEntity(entity);
     }
 
     /**

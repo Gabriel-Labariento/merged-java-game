@@ -201,6 +201,7 @@ public class SoundManager {
     initializeSoundPool("enemyBite.wav", 10);
     initializeSoundPool("enemySlash.wav", 10);
     initializeSoundPool("laserBullet.wav", 30);
+    initializeSoundPool("monsterSpawn.wav", 10);
 
 
     // SPECIAL EVENTS

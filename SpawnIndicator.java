@@ -1,56 +1,63 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public class SpawnIndicator extends Entity {
     private static final int INDICATOR_DURATION = 2000; // 2 seconds
-    private static final int PULSE_DURATION = 500; // 0.5 seconds
-    private static BufferedImage sprite;
-    private static int entityCount = 0;
-    private long startTime;
-    private float alpha;
-    private boolean isPulsing;
-    private long lastPulseTime;
+    private static final int SPRITE_DURATION = 20;
     
+    private static BufferedImage sprites[];
+    private static int entityCount = 0;
+    private long startTime = 0;
+    private long lastSpriteChange = 0;
+    private boolean hasPlayedSound;
+
     static {
         try {
-            sprite = ImageIO.read(SpawnIndicator.class.getResourceAsStream("resources/Sprites/SharedEnemy/spawn_indicator.png"));
+            BufferedImage redSpawnIndicator = ImageIO.read(SpawnIndicator.class.getResourceAsStream("/resources/Sprites/SharedEnemy/spawnindicator.png"));
+            BufferedImage whiteSpawnIndicator = ImageIO.read(SpawnIndicator.class.getResourceAsStream("/resources/Sprites/SharedEnemy/spawnindicatorwhite.png"));
+            BufferedImage blackSpawnIndicator = ImageIO.read(SpawnIndicator.class.getResourceAsStream("/resources/Sprites/SharedEnemy/spawnindicatorblack.png"));
+            sprites = new BufferedImage[] {redSpawnIndicator, whiteSpawnIndicator, blackSpawnIndicator};
         } catch (IOException e) {
-            System.out.println("Exception in SpawnIndicator setSprite()" + e);
+            System.out.println("Exception in SpawnIndicator setSprite(): " + e);
+            e.printStackTrace();
         }
     }
     
     public SpawnIndicator(int x, int y) {
         id = entityCount++;
         identifier = NetworkProtocol.SPAWN_INDICATOR;
-        width = GameCanvas.TILESIZE * 2;
-        height = GameCanvas.TILESIZE * 2;
+        width = 32;
+        height = 32;
         worldX = x;
         worldY = y;
+        currSprite = 0;
         startTime = System.currentTimeMillis();
-        lastPulseTime = startTime;
-        alpha = 0.7f;
-        isPulsing = true;
-        matchHitBoxBounds();
+        currentRoom = null;
+        hasPlayedSound = false;
     }
     
     @Override
     public void updateEntity(ServerMaster gsm) {
+        if (!hasPlayedSound){
+            SoundManager.getInstance().playPooledSound("monsterSpawn.wav");
+            hasPlayedSound = true;
+        }
+
         long now = System.currentTimeMillis();
         
-        // Handle pulsing effect
-        if (isPulsing) {
-            if (now - lastPulseTime > PULSE_DURATION) {
-                alpha = alpha == 0.7f ? 0.3f : 0.7f;
-                lastPulseTime = now;
-            }
+        if (now - lastSpriteChange > SPRITE_DURATION) {
+            currSprite = (currSprite + 1) % 3;
+            lastSpriteChange = now;
         }
-        
+
         // Check if indicator should be removed
         if (now - startTime > INDICATOR_DURATION) {
             gsm.removeEntity(this);
         }
+
+        matchHitBoxBounds();
     }
     
     @Override
@@ -58,14 +65,8 @@ public class SpawnIndicator extends Entity {
         // Enable anti-aliasing
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        // Set composite for transparency
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-        
-        // Draw the indicator
-        g2d.drawImage(sprite, xOffset, yOffset, width, height, null);
-        
-        // Reset composite
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+        // Draw the indicator at the correct screen position
+        g2d.drawImage(sprites[currSprite], xOffset, yOffset, width, height, null);
     }
     
     @Override

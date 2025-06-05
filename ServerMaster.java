@@ -963,19 +963,17 @@ public class ServerMaster {
 
         // Loop through entities array
         for (Entity entity : entities) {
+            if (entity == null) continue;
             if ((entity instanceof Player) && (entity != userPlayer)) {
                 // Player String: P:clientId,playerX,playerY
                 sb.append(NetworkProtocol.PLAYER).append((entity.getAssetData(false)))
                 .append(NetworkProtocol.DELIMITER);
-            } else if (!(entity instanceof  Player)) {
+            } else if (!(entity instanceof Player)) {
                 // NPCs ex. G:B,id,x,y,currentRoomId| => Rat with id at currentRoomId (x,y)
-                if (entity == null) continue;
                 sb.append(NetworkProtocol.ENTITY)
                 .append(entity.getAssetData(false));  
             } 
-            
         }
-
         return sb.toString();
     }
 
