@@ -172,7 +172,7 @@ public class RatKing extends Enemy {
         matchHitBoxBounds();
 
         if (now - lastGrowlTime > GROWL_COOLDOWN){
-            SoundManager.getInstance().playSound("ratKingGrowl");
+            SoundManager.getInstance().playPooledSound("ratKingGrowl");
             lastGrowlTime = now;
         }
     }

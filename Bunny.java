@@ -125,7 +125,7 @@ public class Bunny extends Enemy{
 
         // Play noise on cooldown
         if (now - lastNoiseTime > NOISE_COOLDOWN) {
-            SoundManager.getInstance().playSound("rabbitNoise");
+            SoundManager.getInstance().playPooledSound("rabbitNoise");
             lastNoiseTime = now;
         }
 

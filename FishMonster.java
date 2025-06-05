@@ -141,7 +141,7 @@ public class FishMonster extends Enemy{
                 }
 
                 if (now - lastPhaseOneNoiseTime > PHASE_ONE_NOISE_DURATION){
-                    SoundManager.getInstance().playSound("phaseOneNoise");
+                    SoundManager.getInstance().playPooledSound("phaseOneNoise");
                     lastPhaseOneNoiseTime = now;
                 }
 
@@ -162,7 +162,7 @@ public class FishMonster extends Enemy{
                 }
 
                 if (now - lastPhaseTwoNoiseTime > PHASE_TWO_NOISE_DURATION){
-                    SoundManager.getInstance().playSound("phaseTwoNoise");
+                    SoundManager.getInstance().playPooledSound("phaseTwoNoise");
                     lastPhaseTwoNoiseTime = now;
                 }
 
@@ -171,7 +171,7 @@ public class FishMonster extends Enemy{
             // BULLETS
             case PHASE3:
                 if (!hasPlayedPhaseThreeNoise){
-                    SoundManager.getInstance().playSound("phaseThreeNoise");
+                    SoundManager.getInstance().playPooledSound("phaseThreeNoise");
                     hasPlayedPhaseThreeNoise = true;
                 }
                 

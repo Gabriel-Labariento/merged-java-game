@@ -137,7 +137,7 @@ public class Cockroach extends Enemy{
                     initiateJump(pursued);
                     currentState = State.IDLE;
                     lastStateChangeTime = now;
-                    SoundManager.getInstance().playSound("cockroach");
+                    SoundManager.getInstance().playPooledSound("cockroach");
                 } 
                 break;
 

@@ -135,7 +135,7 @@ public class FeralDog extends Enemy {
 
             case BUFFED:
                 if (!hasPlayedBuffSound) {
-                    SoundManager.getInstance().playSound("buffHowl");
+                    SoundManager.getInstance().playPooledSound("buffHowl");
                     hasPlayedBuffSound = true;
                 }
                 if (pursued == null) return;    
@@ -168,7 +168,7 @@ public class FeralDog extends Enemy {
         matchHitBoxBounds();
 
         if (now - lastSnarlTime > SNARL_COOLDOWN){
-            SoundManager.getInstance().playSound("dogSnarl");
+            SoundManager.getInstance().playPooledSound("dogSnarl");
             lastSnarlTime = now;
         }
     }

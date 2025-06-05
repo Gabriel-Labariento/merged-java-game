@@ -123,7 +123,7 @@ public class FeralRat extends Enemy{
         matchHitBoxBounds();
 
         if (now - lastNoiseTime > NOISE_DURATION){
-            SoundManager.getInstance().playSound("feralRatNoise");
+            SoundManager.getInstance().playPooledSound("feralRatNoise");
             lastNoiseTime = now;
         }
     }

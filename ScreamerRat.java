@@ -99,7 +99,7 @@ public class ScreamerRat extends Enemy{
         if (distanceSquared <= ACTION_DISTANCE) {
             if (now - lastAttackTime > attackCDDuration) {
                 if (now - lastScreamTime > SCREAM_COOLDOWN) {
-                    SoundManager.getInstance().playSound("screamerRat");
+                    SoundManager.getInstance().playPooledSound("screamerRat");
                     lastScreamTime = now;
                 }
                 screamSummon(gsm);

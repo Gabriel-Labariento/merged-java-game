@@ -127,7 +127,7 @@ public class ConjoinedRats extends Enemy{
         matchHitBoxBounds();
 
         if (now - lastNoiseTime > NOISE_COOLDOWN){
-            SoundManager.getInstance().playSound("ratMonsterNoise");
+            SoundManager.getInstance().playPooledSound("ratMonsterNoise");
             lastNoiseTime = now;
         }
     }

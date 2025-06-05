@@ -493,7 +493,7 @@ public class GameFrame extends JFrame{
      */
     public void setUpButtons(){
         ActionListener btnListener = (ActionEvent ae) -> {
-            SoundManager.getInstance().playSound("click");
+            SoundManager.getInstance().playPooledSound("click");
 
             Object o = ae.getSource();
             

@@ -98,7 +98,7 @@ public class MobSpawner {
                     // Stop spawning if maxSpawned has been reached.
                     if (spawnedCount >= maxSpawned) return;
 
-                    if (inBossRoom && spawnedCount == 0) {
+                    if (inBossRoom && spawnedCount == 0 && boss == null) {
                         boss = createBoss(level);
                         // Create spawn indicator for boss
                         SpawnIndicator indicator = new SpawnIndicator(spawnX, spawnY);
@@ -324,4 +324,7 @@ public class MobSpawner {
         return boss.getHitPoints() <= 0;
     }
 
+    public void setBoss(Enemy boss){
+        this.boss = boss;
+    }
 }

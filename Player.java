@@ -67,7 +67,7 @@ public abstract class Player extends Entity implements Effectable{
             currentLvl++; 
             
             if (!hasPlayedLevelUpSound) {
-                SoundManager.getInstance().playSound("levelUp");
+                SoundManager.getInstance().playPooledSound("levelUp");
                 hasPlayedLevelUpSound = true;
             }
             
@@ -295,15 +295,15 @@ public abstract class Player extends Entity implements Effectable{
             case 2:
             case 4:
                 // WOODEN STEP
-                SoundManager.getInstance().playSound("woodWalk");
+                SoundManager.getInstance().playPooledSound("woodWalk");
                 break;
             case 6:
                 // WATER STEP
-                SoundManager.getInstance().playSound("waterWalk");
+                SoundManager.getInstance().playPooledSound("waterWalk");
                 break;
             default:
                 // NORMAL STEP
-                SoundManager.getInstance().playSound("normalWalk");
+                SoundManager.getInstance().playPooledSound("normalWalk");
                 break;
         }
         lastStepSoundTime = currentTime;

@@ -224,7 +224,7 @@ public class ServerMaster {
                         player.triggerRevival();
                         player.setIsReviving(true);
                         if (!hasPlayedRevivingSound){
-                            SoundManager.getInstance().playSound("reviving");
+                            SoundManager.getInstance().playPooledSound("reviving");
                             hasPlayedReviveSuccessSound = true;
                         }
                         
@@ -253,7 +253,7 @@ public class ServerMaster {
                 player.setCurrSprite(3);
 
                 if (!hasPlayedReviveSuccessSound) {
-                    SoundManager.getInstance().playSound("reviveSuccess");
+                    SoundManager.getInstance().playPooledSound("reviveSuccess");
                     hasPlayedReviveSuccessSound = true;
                 }
                 
@@ -319,7 +319,7 @@ public class ServerMaster {
 
         // Stop boss music and play defeat sound
         SoundManager.getInstance().stopSound("bossMusic");
-        SoundManager.getInstance().playSound("bossDefeat");
+        SoundManager.getInstance().playPooledSound("bossDefeat");
         
         // Ensure the room is marked as cleared
         currentRoom.setCleared(true);
@@ -548,7 +548,7 @@ public class ServerMaster {
         if (item.getIsConsumable()){
             item.applyEffects();
             entities.remove(item);
-            SoundManager.getInstance().playSound("equipItem"); // Play sound for consumable pickup
+            SoundManager.getInstance().playPooledSound("equipItem"); // Play sound for consumable pickup
         }
         else {
             if(item.getIsOnPickUpCD()) return;
@@ -560,7 +560,7 @@ public class ServerMaster {
                 item.applyEffects();
                 item.setIsHeld(true);
                 entities.remove(item);
-                SoundManager.getInstance().playSound("equipItem"); // Play sound for non-consumable pickup
+                SoundManager.getInstance().playPooledSound("equipItem"); // Play sound for non-consumable pickup
             } 
         }
         

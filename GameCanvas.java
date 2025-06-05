@@ -110,7 +110,7 @@ public class GameCanvas extends JComponent{
         clientMaster.setActiveTooltipItem(item);
         clientMaster.toggleTooltipState(item.getId());
         item.getTooltip().setShowTooltips(clientMaster.getTooltipState(item.getId()));
-        SoundManager.getInstance().playSound("click");
+        SoundManager.getInstance().playPooledSound("click");
     }
     
     @Override
