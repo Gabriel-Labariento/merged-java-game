@@ -221,6 +221,7 @@ public class GameServer {
         public void disconnectFromServer(){
             //Remove player from gamestate
             serverMaster.removeEntity(serverMaster.getPlayerFromClientId(cid));
+            // serverMaster.setPlayerNum(serverMaster.getPlayerNum() - 1);
 
             //Close data streams
             try {

@@ -337,7 +337,7 @@ public class GameClient {
                 int playerRoomId = Integer.parseInt(playerData[6]);
                 int currsprite = Integer.parseInt(playerData[7]);
                 int playerZIndex = Integer.parseInt(playerData[8]);
-                boolean isInvincible = Boolean.parseBoolean(playerData[9]);
+                boolean isSpriteWhite = Boolean.parseBoolean(playerData[9]);
         
                 // System.out.println(" user Player loaded");
                 try {
@@ -349,7 +349,7 @@ public class GameClient {
                     player.setHitPoints(playerHealth);
                     player.setCurrSprite(currsprite);
                     player.setzIndex(playerZIndex);
-                    if (isInvincible) player.triggerInvincibility();
+                    player.setIsSpriteWhite(isSpriteWhite);
                     clientMaster.setUserPlayer(player);
                     clientMaster.setCurrentRoom(currentRoom);
                         
@@ -372,7 +372,7 @@ public class GameClient {
                 int maxHp = Integer.parseInt(otherPlayerData[5]);
                 int currsprite = Integer.parseInt(otherPlayerData[7]);
                 int zIndex = Integer.parseInt(otherPlayerData[8]);
-                boolean isInvincible = Boolean.parseBoolean(otherPlayerData[9]);
+                boolean isSpriteWhite = Boolean.parseBoolean(otherPlayerData[9]);
                 
                 
                 // Only load the player if it is not the user player and it is in the same room
@@ -384,7 +384,7 @@ public class GameClient {
                     other.setMaxHealth(maxHp);
                     other.setCurrSprite(currsprite);
                     other.setzIndex(zIndex);
-                    if (isInvincible) other.triggerInvincibility();
+                    other.setIsSpriteWhite(isSpriteWhite);
                     clientMaster.addEntity(other);
                 } 
             } else if (part.startsWith(NetworkProtocol.ENTITY)) {

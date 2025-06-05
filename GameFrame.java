@@ -244,9 +244,10 @@ public class GameFrame extends JFrame{
     }
 
     public void loadPauseUI(){
+
         pauseTitleLabel.setForeground(Color.WHITE);
-        pauseTitleLabel.setBounds(260, 197, 308, 27);
-        pauseTitleLabel.setFont(getSizedGameFont(21f));
+        pauseTitleLabel.setBounds(235, 190, 350, 40);
+        pauseTitleLabel.setFont(getSizedGameFont(24f));
         lp.add(pauseTitleLabel, Integer.valueOf(2));
 
         volumeMainLabel.setForeground(Color.WHITE);
@@ -278,7 +279,19 @@ public class GameFrame extends JFrame{
         pauseBackButton.setBorderPainted(false);
         pauseBackButton.setFont(getSizedGameFont(15f));
         pauseBackButton.setBounds(482, 400, 96, 41);
-        lp.add(pauseBackButton, Integer.valueOf(2));    
+        lp.add(pauseBackButton, Integer.valueOf(2)); 
+        
+        JPanel pauseTabBG2 = new JPanel();
+        pauseTabBG2.setBackground(Color.BLACK);
+        pauseTabBG2.setOpaque(true);
+        pauseTabBG2.setBounds(165, 167, 468, 308);
+        lp.add(pauseTabBG2, Integer.valueOf(2));
+
+        JPanel pauseTabBG1 = new JPanel();
+        pauseTabBG1.setBackground(Color.WHITE);
+        pauseTabBG1.setOpaque(true);
+        pauseTabBG1.setBounds(161, 163, 477, 316);
+        lp.add(pauseTabBG1, Integer.valueOf(2));
     }
 
     public void setUpSliders(){
@@ -324,7 +337,7 @@ public class GameFrame extends JFrame{
                 g2.setColor(Color.WHITE);
                 g2.fillRoundRect(x, y, w, h, 5, 5);
 
-                // Slider background
+                // Slider Background
                 g2.setColor(Color.BLACK);
                 g2.fillRoundRect(x + 1, y + 1, w - 2, h - 2, 3, 3);
 
@@ -375,7 +388,7 @@ public class GameFrame extends JFrame{
                 g2.setColor(Color.WHITE);
                 g2.fillRoundRect(x, y, w, h, 5, 5);
 
-                // Slider background
+                // Slider Background
                 g2.setColor(Color.BLACK);
                 g2.fillRoundRect(x + 1, y + 1, w - 2, h - 2, 3, 3);
 
@@ -427,7 +440,7 @@ public class GameFrame extends JFrame{
                 g2.setColor(Color.WHITE);
                 g2.fillRoundRect(x, y, w, h, 5, 5);
 
-                // Slider background
+                // Slider Background
                 g2.setColor(Color.BLACK);
                 g2.fillRoundRect(x + 1, y + 1, w - 2, h - 2, 3, 3);
 

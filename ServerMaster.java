@@ -213,19 +213,20 @@ public class ServerMaster {
             //If the player has not yet been recorded as being downed, set them as such
             if (!player.getIsDown()){
                 player.setIsDown(true);
-
-                //If no players are left, activate end game sequence
                 downedPlayersNum++;
-                if (downedPlayersNum == playerNum){
-                    isGameOver = true;
-                    sendMessageToClients(NetworkProtocol.GAME_OVER);
-                    if (!hasPlayedGameOverSound) {
-                        SoundManager.getInstance().stopAllSounds();
-                        SoundManager.getInstance().playSound("gameOver");
-                        hasPlayedGameOverSound = true;
-                    }
-                    entities.clear(); // important
+            }
+
+            //If no players are left, activate end game sequence
+            System.out.println(downedPlayersNum + " - " + playerNum);
+            if (downedPlayersNum == playerNum){
+                isGameOver = true;
+                sendMessageToClients(NetworkProtocol.GAME_OVER);
+                if (!hasPlayedGameOverSound) {
+                    SoundManager.getInstance().stopAllSounds();
+                    SoundManager.getInstance().playSound("gameOver");
+                    hasPlayedGameOverSound = true;
                 }
+                entities.clear(); // important
             }
 
             //Search through list of available revives to see if the player can be revived
@@ -254,6 +255,7 @@ public class ServerMaster {
             if(player.getIsReviving() && player.getIsRevived()){
                 player.setHitPoints(1);
                 player.setIsDown(false);
+                player.triggerInvincibility();
                 downedPlayersNum--;
 
                 //Remove death sprite
@@ -990,7 +992,7 @@ public class ServerMaster {
             int newRoomId = Integer.parseInt(dataParts[6]);
             int currSprite = Integer.parseInt(dataParts[7]);
             int zIndex = Integer.parseInt(dataParts[8]);
-            boolean isInvincible = Boolean.parseBoolean(dataParts[9]);
+            boolean isSpriteWhite = Boolean.parseBoolean(dataParts[9]);
 
             // Use the data to set relevant fields
             Room newRoom = dungeonMap.getRoomFromId(newRoomId);
@@ -1014,7 +1016,7 @@ public class ServerMaster {
             .append(newRoomId).append(NetworkProtocol.SUB_DELIMITER)
             .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
             .append(zIndex).append(NetworkProtocol.SUB_DELIMITER)
-            .append(isInvincible).append(NetworkProtocol.DELIMITER);
+            .append(isSpriteWhite).append(NetworkProtocol.DELIMITER);
             // System.out.println("String returned by handleRoomTransition: " + sb.toString());
 
             return sb.toString();
@@ -1112,6 +1114,7 @@ public class ServerMaster {
      * @param e the entity to be removed
      */
     public void removeEntity(Entity e) {
+        if(e instanceof Player) playerNum--;
         entities.remove(e);
     }
 
@@ -1189,5 +1192,13 @@ public class ServerMaster {
 
     public boolean getHasChosenScene5End(){
         return hasChosenScene5End;
+    }
+
+    public int getPlayerNum(){
+        return playerNum;
+    }
+
+    public void setPlayerNum(int i){
+        playerNum = i;
     }
 }

@@ -32,7 +32,7 @@ public class SoundManager {
     soundClips = new HashMap<>();
     musicClips = new HashMap<>();
     soundPools = new HashMap<>();
-    masterVolume = 0.5f;
+    masterVolume = 0.7f;
     musicVolume = 0.5f;
     sfxVolume = 0.5f;
     audioExecutor = Executors.newSingleThreadExecutor();

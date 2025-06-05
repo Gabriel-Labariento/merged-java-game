@@ -51,7 +51,7 @@ public class GunCat extends Player{
         screenY = 600/2 - height/2;
         worldX = x;
         worldY = y;
-        maxHealth = 2;
+        maxHealth = 17;
         hitPoints = maxHealth;
         damage = 500;
         isDown = false;
@@ -63,14 +63,6 @@ public class GunCat extends Player{
     @Override
     public void draw(Graphics2D g2d, int xOffset, int yOffset){
         BufferedImage spriteImage = sprites[currSprite];
-        long now = System.currentTimeMillis();
-        
-        boolean isSpriteWhite = false;
-
-        if (getIsInvincible() && (now - lastSpriteUpdate > (SPRITE_FRAME_DURATION*5))){
-            isSpriteWhite = !(isSpriteWhite);
-            lastSpriteUpdate = now;
-        } 
 
         if (isSpriteWhite){
             BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);

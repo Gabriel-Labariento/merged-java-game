@@ -39,6 +39,8 @@ public abstract class Player extends Entity implements Effectable{
     protected int baseSpeed;
     public Item heldItem;
     private final ArrayList<StatusEffect> statusEffects;
+    public boolean isSpriteWhite;
+    public long lastWhitingUpdate;
 
     /**
      * Each Player instance starts at level 1, holds no item, and has 
@@ -124,7 +126,7 @@ public abstract class Player extends Entity implements Effectable{
 
     @Override
     public void setMaxHealth(int hP){
-        if (maxHealth < 18) maxHealth = hP;
+        if (hP <= 18) maxHealth = hP;
     }
     
     /**
@@ -303,7 +305,7 @@ public abstract class Player extends Entity implements Effectable{
         .append(next.getRoomId()).append(NetworkProtocol.SUB_DELIMITER)
         .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
         .append(getZIndex()).append(NetworkProtocol.SUB_DELIMITER)
-        .append(getIsInvincible());
+        .append(isSpriteWhite);
 
         return sb.toString();
     }
@@ -403,7 +405,7 @@ public abstract class Player extends Entity implements Effectable{
             .append(currentRoom.getRoomId()).append(NetworkProtocol.SUB_DELIMITER)
             .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
             .append(getZIndex()).append(NetworkProtocol.SUB_DELIMITER)
-            .append(getIsInvincible()).append(NetworkProtocol.DELIMITER);
+            .append(isSpriteWhite).append(NetworkProtocol.DELIMITER);
         }
 
         return sb.toString();
@@ -411,13 +413,23 @@ public abstract class Player extends Entity implements Effectable{
     
     @Override
     public void updateEntity(ServerMaster gsm) {
-
+        long now = System.currentTimeMillis();
         
         //Do regen mechanics if player is holding a thick sweater
         if(heldItem instanceof ThickSweater ts && !isDown){
             ts.triggerRegenSystem();
         } 
         updateStatusEffects();
+
+        if (getIsInvincible() && (now - lastWhitingUpdate > SPRITE_FRAME_DURATION/2)){
+            isSpriteWhite = !(isSpriteWhite);
+            lastWhitingUpdate = now;
+            // System.out.println("CHANGED");
+        } 
+        
+        if(!getIsInvincible()){
+            isSpriteWhite = false;
+        }
     }
 
     /**
@@ -474,6 +486,14 @@ public abstract class Player extends Entity implements Effectable{
      */
     public ArrayList<StatusEffect> getStatusEffects() {
         return statusEffects;
+    }
+
+    public void setIsSpriteWhite(boolean b){
+        isSpriteWhite = b;
+    }
+
+    public boolean getIsSpriteWhite(){
+        return isSpriteWhite;
     }
 
 }

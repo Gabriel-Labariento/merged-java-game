@@ -86,15 +86,6 @@ public class HeavyCat extends Player{
     @Override
     public void draw(Graphics2D g2d, int xOffset, int yOffset){
         BufferedImage spriteImage = sprites[currSprite];
-        long now = System.currentTimeMillis();
-        
-        boolean isSpriteWhite = false;
-
-        if (getIsInvincible() && (now - lastSpriteUpdate > (SPRITE_FRAME_DURATION*5))){
-            isSpriteWhite = !(isSpriteWhite);
-            lastSpriteUpdate = now;
-        } 
-
 
         if (isSpriteWhite){
             BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
