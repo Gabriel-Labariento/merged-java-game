@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 
 /**     
         The GameFrame class extends JFrame. It serves as the main game window.
@@ -34,7 +35,8 @@ public class GameFrame extends JFrame{
     private int serverPort;
     private String playerType;
     private final JLayeredPane lp;
-    private final JPanel cp;  
+    private final JPanel cp;
+    private final JPanel warningPanel;
     private ImageIcon btnBG;
     private final GameCanvas gameCanvas;
     private final GameClient gameClient;
@@ -45,6 +47,7 @@ public class GameFrame extends JFrame{
     private final JLabel portLabel;
     private final JLabel catNameLabel;
     private final JLabel carouselLabel;
+    private final JLabel[] warningPanelLabel;
     private final JTextField ipTextField;
     private final JTextField portTextField;
     private int fishSlideNum;
@@ -52,12 +55,15 @@ public class GameFrame extends JFrame{
     private static CatCarousel catCarousel;
 
     private static Font gameFont;
-    private static Font gameFont35;
     private static Font gameFont6;
+    private static Font gameFont11;
+    private static Font gameFont12;
+    private static Font gameFont14;
     private static Font gameFont15;
     private static Font gameFont16;
     private static Font gameFont20;
-
+    private static Font gameFont35;
+    
     // Set sprites and font on class
     static {
         setFont();
@@ -69,11 +75,15 @@ public class GameFrame extends JFrame{
     private static void setFont(){
         try {
             gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
-            gameFont35 = gameFont.deriveFont(35f);
             gameFont6 = gameFont.deriveFont(6f);
+            gameFont11 = gameFont.deriveFont(11f);
+            gameFont12 = gameFont.deriveFont(12f);
+            gameFont14 = gameFont.deriveFont(14f);
             gameFont15 = gameFont.deriveFont(15f);
             gameFont16 = gameFont.deriveFont(16f);
             gameFont20 = gameFont.deriveFont(20f);
+            gameFont35 = gameFont.deriveFont(35f);
+            
         } catch (FontFormatException | IOException ex) { 
             System.out.println("Exception in setFont for GameFrame");
         }
@@ -91,7 +101,10 @@ public class GameFrame extends JFrame{
         this.width = width;
         this.height = height;
         this.title = title;
+        
         cp = (JPanel) this.getContentPane();
+        warningPanel = new JPanel();
+
         // btnBG = new ImageIcon("/UI Assets/btnBG");
         gameCanvas = new GameCanvas(width, height);
         gameClient = gameCanvas.getGameClient();
@@ -103,21 +116,25 @@ public class GameFrame extends JFrame{
 
         // UI Elements
         btns = new ArrayList<>();
-        btns.add(new JButton("START"));
-        btns.add(new JButton("QUIT"));
-        btns.add(new JButton("CONNECT"));
-        btns.add(new JButton("BACK"));
-        btns.add(new JButton("HOST SERVER"));
-        btns.add(new JButton("ENTER GAME"));
-        btns.add(new JButton("<"));
-        btns.add(new JButton(">"));
+        btns.add(new JButton("START"));         //  0
+        btns.add(new JButton("QUIT"));          //  1
+        btns.add(new JButton("CONNECT"));       //  2
+        btns.add(new JButton("BACK"));          //  3
+        btns.add(new JButton("HOST SERVER"));   //  4
+        btns.add(new JButton("ENTER GAME"));    //  5
+        btns.add(new JButton("<"));             //  6
+        btns.add(new JButton(">"));             //  7
+        btns.add(new JButton("CONTINUE"));      //  8
+        btns.add(new JButton("MULTIPLAYER"));   //  9
+        btns.add(new JButton("YES"));           //  10
+        btns.add(new JButton("NO"));            //  11
 
         gameTitle = new JLabel("BITING ON FISH", SwingConstants.CENTER);
         ipLabel = new JLabel();
         portLabel = new JLabel();
         catNameLabel = new JLabel();
         carouselLabel = new JLabel("CHOOSE A FISH:");
-
+        warningPanelLabel = new JLabel[3];
         ipTextField = new JTextField(10);
         portTextField = new JTextField(10);
         lp = new JLayeredPane();
@@ -157,52 +174,148 @@ public class GameFrame extends JFrame{
 
         gameFont = gameFont.deriveFont(15f);
 
+        JButton continueButton = btns.get(8);
+        continueButton.setBackground(Color.white);
+        continueButton.setForeground(Color.black);
+        continueButton.setBounds(280, 240, 240, 43);
+        continueButton.setFont(gameFont14);
+        lp.add(continueButton, Integer.valueOf(1));
+
         JButton startButton = btns.get(0);
         startButton.setBackground(Color.white);
         startButton.setForeground(Color.black);
-        startButton.setBounds(285, 309, 226, 43);
-        startButton.setFont(gameFont15);
+        startButton.setBounds(280, 312, 240, 43);
+        startButton.setFont(gameFont14);
         lp.add(startButton, Integer.valueOf(1));
 
-        startButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                startButton.setBackground(Color.black);
-                startButton.setForeground(Color.white);
-                startButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            }
-        
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                startButton.setBackground(Color.white);
-                startButton.setForeground(Color.black);
-                startButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-        });
+        JButton multiplayerButton = btns.get(9);
+        multiplayerButton.setBackground(Color.white);
+        multiplayerButton.setForeground(Color.black);
+        multiplayerButton.setBounds(280, 387, 240, 43);
+        multiplayerButton.setFont(gameFont14);
+        lp.add(multiplayerButton, Integer.valueOf(1));
 
         JButton quitButton = btns.get(1);
         quitButton.setBackground(Color.white);
         quitButton.setForeground(Color.black);
-        quitButton.setBounds(285, 382, 226, 43);
-        quitButton.setFont(gameFont15);
+        quitButton.setBounds(280, 458, 240, 43);
+        quitButton.setFont(gameFont14);
         lp.add(quitButton, Integer.valueOf(1));
 
-        quitButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        setUpButtonHoverEffects();
+    }
+
+    public void loadWarningPanel(){
+        warningPanel.setBounds(166, 212, 467, 188);
+        warningPanel.setBackground(Color.BLACK);
+        warningPanel.setForeground(Color.white);
+        warningPanel.setBorder(new LineBorder(Color.white, 3));
+
+        // Add warning text
+        warningPanelLabel[0] = new JLabel("WARNING!");
+        warningPanelLabel[0].setBounds(329, 230, 141, 19);
+
+        warningPanelLabel[1] = new JLabel("Your previous progress will be lost.");
+        warningPanelLabel[1].setBounds(183, 253, 434, 41);
+
+        warningPanelLabel[2] = new JLabel("Continue anyway?");
+        warningPanelLabel[2].setBounds(276, 318, 248, 19);
+
+        for (JLabel wpl : warningPanelLabel) {
+            wpl.setForeground(Color.WHITE);
+            wpl.setFont(gameFont12);
+            wpl.setHorizontalAlignment(SwingConstants.CENTER);
+            lp.add(wpl, Integer.valueOf(3));
+        }
+
+        // Set up Yes button
+        JButton yesQuitButton = btns.get(10);
+        yesQuitButton.setBackground(Color.white);
+        yesQuitButton.setForeground(Color.black);
+        yesQuitButton.setBounds(255, 348, 126, 36);
+        yesQuitButton.setFont(gameFont11);
+        lp.add(yesQuitButton, Integer.valueOf(3));
+
+        // Set up No button
+        JButton noQuitButton = btns.get(11);
+        noQuitButton.setBackground(Color.white);
+        noQuitButton.setForeground(Color.black);
+        noQuitButton.setBounds(422, 348, 126, 36);
+        noQuitButton.setFont(gameFont11);
+        lp.add(noQuitButton, Integer.valueOf(3));
+
+        lp.add(warningPanel, Integer.valueOf(2));
+    }
+    
+    /**
+     * Sets up hover effect mouse listeners for different GUI screens
+     */
+    private void setUpButtonHoverEffects(){
+
+        addColorHoverEffect(btns.get(0)); // Start button
+        addColorHoverEffect(btns.get(1)); // Quit button
+        addColorHoverEffect(btns.get(4)); // Host Server
+        addColorHoverEffect(btns.get(8)); // Continue button
+        addColorHoverEffect(btns.get(9)); // Multiplayer button
+        addColorHoverEffect(btns.get(10)); // Warning - Yes
+        addColorHoverEffect(btns.get(11)); // Warning - No
+        
+        addLineEffect(btns.get(2)); // Connect Button
+        addLineEffect(btns.get(3)); // Back Button
+
+    }
+    
+
+    /**
+     * Adds hover effects to a button
+     * @param button the button to add hover effects to
+     */
+    private void addColorHoverEffect(JButton button) {
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                quitButton.setBackground(Color.black);
-                quitButton.setForeground(Color.white);
-                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                button.setBackground(Color.black);
+                button.setForeground(Color.white);
+                button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             }
         
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                quitButton.setBackground(Color.white);
-                quitButton.setForeground(Color.black);
-                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                button.setBackground(Color.white);
+                button.setForeground(Color.black);
+                button.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         });
+    }
+    
+    private void addLineEffect(JButton button){
+        // Add white line below connect button
+        Rectangle buttonBounds = button.getBounds();
+        
+        int x = (int) (buttonBounds.getX() + 10);
+        int y = (int) (buttonBounds.getY() + buttonBounds.getHeight() + 5);
+        int width = (int) (buttonBounds.getWidth() - 10);
+        int height = 5;
 
+
+        JPanel linePanel = new JPanel();
+        linePanel.setBackground(Color.WHITE);
+        linePanel.setBounds(x, y, width, height);
+        lp.add(linePanel, Integer.valueOf(1));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                linePanel.setBounds(x - 15, y, width + 15, 5);
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                linePanel.setBounds(x, y, width, height);
+            }
+        });
     }
 
     /**
@@ -216,7 +329,6 @@ public class GameFrame extends JFrame{
         ipLabel.setFont(gameFont16);
         lp.add(ipLabel, Integer.valueOf(1));
 
-        
         portLabel.setForeground(Color.WHITE);
         portLabel.setText("PORT NUMBER:");
         portLabel.setBounds(85, 196, 244, 25);
@@ -244,53 +356,13 @@ public class GameFrame extends JFrame{
         connectButton.setBounds(105, 334, 189, 31);
         lp.add(connectButton, Integer.valueOf(1));
 
-        // Add white line below connect button
-        JPanel connectLinePanel = new JPanel();
-        connectLinePanel.setBackground(Color.WHITE);
-        connectLinePanel.setBounds(130, 365, 130, 5);
-        lp.add(connectLinePanel, Integer.valueOf(1));
-
-        connectButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                connectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                connectLinePanel.setBounds(114, 365, 165, 5);
-            }
-        
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                connectButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                connectLinePanel.setBounds(130, 365, 130, 5);
-            }
-        });
-
-        JButton quitButton = btns.get(3);
-        quitButton.setBackground(Color.black);
-        quitButton.setForeground(Color.white);
-        quitButton.setBorderPainted(false);
-        quitButton.setFont(gameFont20);
-        quitButton.setBounds(561, 334, 118, 31);
-        lp.add(quitButton, Integer.valueOf(1));
-
-        // Add white line below connect button
-        JPanel quitLinePanel = new JPanel();
-        quitLinePanel.setBackground(Color.WHITE);
-        quitLinePanel.setBounds(575, 365, 83, 5);
-        lp.add(quitLinePanel, Integer.valueOf(1));
-
-        quitButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                quitLinePanel.setBounds(561, 365, 118, 5);
-            }
-        
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                quitLinePanel.setBounds(575, 365, 83, 5);
-            }
-        });
+        JButton backButton = btns.get(3);
+        backButton.setBackground(Color.black);
+        backButton.setForeground(Color.white);
+        backButton.setBorderPainted(false);
+        backButton.setFont(gameFont20);
+        backButton.setBounds(561, 334, 118, 31);
+        lp.add(backButton, Integer.valueOf(1));
 
         JButton hostServerButton = btns.get(4);
         hostServerButton.setBackground(Color.white);
@@ -298,23 +370,9 @@ public class GameFrame extends JFrame{
         hostServerButton.setBounds(85, 426, 307, 58);
         hostServerButton.setFont(gameFont20);
 
-        hostServerButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                hostServerButton.setBackground(Color.black);
-                hostServerButton.setForeground(Color.white);
-                hostServerButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            }
-        
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                hostServerButton.setBackground(Color.white);
-                hostServerButton.setForeground(Color.black);
-                hostServerButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-        });
         lp.add(hostServerButton, Integer.valueOf(1));
-
+        
+        setUpButtonHoverEffects();
     }
 
     /**
@@ -497,14 +555,18 @@ public class GameFrame extends JFrame{
 
             Object o = ae.getSource();
             
-            if (o == btns.get(0)){
+            // START BUTTON
+            if (o == btns.get(0)){                  
                 clearGUI();
                 loadClientUI();
                 refreshFrame();
             }
+            // QUIT BUTTON
             else if (o == btns.get(1)){
-                System.exit(0);                
+                loadWarningPanel();
+                refreshFrame();                
             }
+            // CONNECT BUTTON
             else if (o == btns.get(2)){
                 serverIP = ipTextField.getText();
                 serverPort = Integer.parseInt(portTextField.getText());
@@ -512,11 +574,13 @@ public class GameFrame extends JFrame{
                 loadPrePlayUI();
                 refreshFrame();
             }
+            // BACK BUTTON
             else if (o == btns.get(3)){
                 clearGUI();
                 loadStartUI();
                 refreshFrame();
             }
+            // HOST SERVER
             else if (o == btns.get(4)){
                 gameClient.hostServer();
                 serverIP = gameClient.getServerIP();
@@ -524,27 +588,52 @@ public class GameFrame extends JFrame{
                 clearGUI();
                 loadPrePlayUI();
                 refreshFrame();
-                
             }
+            // ENTER GAME
             else if (o == btns.get(5)){
                 startPlay();
             }
+            // LEFT ARROW
             else if (o == btns.get(6)){
                 fishSlideNum--;
                 updateFishCarousel();
             }
+            // RIGHT ARROW
             else if (o == btns.get(7)){
                 fishSlideNum++;
                 updateFishCarousel();
             }
-
- 
+            // CONTINUE
+            else if (o == btns.get(8)){
+                // TODO: IMPLEMENT CONTINUE BUTTON
+            }
+            // MULTIPLAYER
+            else if (o == btns.get(9)){
+                // TODO: IMPLEMENT MULTIPLAYER BUTTON
+                clearGUI();
+                loadClientUI();
+                refreshFrame();
+            }
+            // QUIT WARNING -> YES
+            else if (o == btns.get(10)){
+                System.exit(0);
+            }
+            // QUIT WARNING -> NO
+            else if (o == btns.get(11)){
+                lp.remove(warningPanel);
+                lp.remove(btns.get(10));
+                lp.remove(btns.get(11));
+                for (JLabel wpl : warningPanelLabel) {
+                    lp.remove(wpl);
+                }
+                refreshFrame();
+            } 
         };
+
         //Assign an event handler for all of the btns
         for (JButton btn:btns){
             btn.addActionListener(btnListener);
         }
- 
     }
 
     /**
