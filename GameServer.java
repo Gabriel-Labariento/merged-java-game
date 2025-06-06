@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.sound.midi.SysexMessage;
 
 /**     
         The GameServer class handles the server-side networking logic.
@@ -36,6 +37,7 @@ public class GameServer {
     private int port;
     private Thread waitForConnectionsThread;
     private boolean hasPlayerDisconnected;
+    private boolean isSinglePlayer;
 
     // Game State
     private ServerMaster serverMaster;
@@ -47,13 +49,15 @@ public class GameServer {
      * Creates a GameServer instance, initializes server components, and 
      * looks for an available port for connection.
      */
-    public GameServer() {
+    public GameServer(boolean isSinglePlayer) {
         clientNum = 1;
         serverMaster = ServerMaster.getInstance();
         serverMaster.setGameValues();
+        serverMaster.setIsSinglePlayer(isSinglePlayer);
         sockets = new ArrayList<>();
         connectedPlayers = new ArrayList<>();
         gameLoopScheduler = Executors.newSingleThreadScheduledExecutor();
+        this.isSinglePlayer = isSinglePlayer;
 
         serverMaster.setConnectedPlayers(connectedPlayers);
         
@@ -123,7 +127,7 @@ public class GameServer {
         }
         
         //Close socketss
-        waitForConnectionsThread.interrupt();
+        if (!waitForConnectionsThread.isInterrupted()) waitForConnectionsThread.interrupt();
         try { 
             if (ss != null && !ss.isClosed()) ss.close();
         } catch(IOException e) {
@@ -165,7 +169,10 @@ public class GameServer {
                         clientNum++;
                         cp.loadPreGameData();
                         connectedPlayers.add(cp);
-                        cp.startThreads();   
+                        cp.startThreads();
+                        
+                        //Disable joining of other players for singleplayer mode
+                        if (isSinglePlayer) waitForConnectionsThread.interrupt();
                     }        
                     } catch (IOException ex) {
                         System.out.println("IOException from waitForConnection() method.");
@@ -206,6 +213,7 @@ public class GameServer {
         public ConnectedPlayer(Socket sck, int cid){
             clientSocket = sck;
             this.cid = cid;
+            System.out.println("CONNECTEDPLAYERCID:" + cid);
             sendQueue = new LinkedBlockingDeque<>();
             
     
@@ -252,24 +260,17 @@ public class GameServer {
                 dataIn.readFully(buffer);
                 String playerType = new String(buffer, "UTF-8");
 
-                Player chosenPlayer = null;
-       
-                switch (playerType) {
-                    case NetworkProtocol.HEAVYCAT:
-                        chosenPlayer = (new HeavyCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY()));
-                        break;
-                    case NetworkProtocol.FASTCAT:
-                        chosenPlayer = (new FastCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY()));
-                        break;
-                    case NetworkProtocol.GUNCAT:
-                        chosenPlayer = (new GunCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY()));
-                        break;
-                    default:
-                        break;
+                File saveFile = new File("save.dat");
+                
+                if (isSinglePlayer && saveFile.exists()){
+                    serverMaster.loadGameState();
                 }
-                                
-                serverMaster.addEntity(chosenPlayer);
-
+                else{
+                    //Set heavycat as default
+                    Player chosenPlayer = serverMaster.createPlayer(playerType, cid);
+                    Player player = (chosenPlayer != null) ? chosenPlayer : new HeavyCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY());  
+                    serverMaster.addEntity(player);
+                }
             } catch (IOException ex){
                 System.out.println("IOEception from receiveAssetsThread");
             }
@@ -427,7 +428,7 @@ public class GameServer {
      * @param args command line arguments provided
      */
     public static void main(String[] args) {
-        GameServer cs = new GameServer();
+        GameServer cs = new GameServer(false);
         cs.startGameLoop();
         cs.closeSocketsOnShutdown();
         cs.waitForConnections();

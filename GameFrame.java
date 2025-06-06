@@ -41,22 +41,28 @@ public class GameFrame extends JFrame{
     private ClientMaster clientMaster;
     private SpecialFrameHandler specialFrameHandler;
     private final ArrayList<JButton> btns;
+    private final ArrayList<JButton> blackWhiteBtns;
+    private final JLabel gameTitle;
+    private final JLabel ipLabel;
     private final JLabel portLabel;
-    private final JLabel IPLabel;
-    private final JLabel fishLabel;
+    private final JLabel catNameLabel;
+    private final JLabel carouselLabel;
+    private final JLabel startWarningLabel;
+    // private final JLabel fishLabel;
     private final JLabel pauseTitleLabel;
     private final JLabel volumeMainLabel;
     private final JLabel volumeSubLabel;
-    private final JTextField textField1;
-    private final JTextField textField2;
+    private final JTextField ipTextField;
+    private final JTextField portTextField;
     private final JSlider sfxVolumeSlider;
     private final JSlider musicVolumeSlider;
     private final JSlider masterVolumeSlider;
     private int fishSlideNum;
     private static Font gameFont;
-    public isGamePausedRef isGamePausedRef;
+    public boolean isGamePaused;
     private SoundManager soundManager;
     private static BufferedImage sliderThumb;
+    public boolean isSinglePlayer;
 
     static{
         try {
@@ -82,7 +88,7 @@ public class GameFrame extends JFrame{
         this.soundManager = SoundManager.getInstance();
         cp = (JPanel) this.getContentPane();
         gameCanvas = null;
-        isGamePausedRef = new isGamePausedRef(false);
+        isGamePaused = false;
 
         //Set default values
         playerType = NetworkProtocol.HEAVYCAT;
@@ -90,26 +96,48 @@ public class GameFrame extends JFrame{
 
         // UI Elements
         btns = new ArrayList<>();
-        btns.add(new JButton("Play")); // 0
-        btns.add(new JButton("Quit")); // 1
-        btns.add(new JButton("Connect")); // 2
+        btns.add(new JButton("MULTIPLAYER")); // 0
+        btns.add(new JButton("QUIT")); // 1
+        btns.add(new JButton("CONNECT")); // 2
         btns.add(new JButton("BACK")); // 3
-        btns.add(new JButton("Host Server")); // 4
-        btns.add(new JButton("Enter Game")); // 5
+        btns.add(new JButton("HOST SERVER")); // 4
+        btns.add(new JButton("ENTER GAME")); // 5
         btns.add(new JButton("<")); // 6
         btns.add(new JButton(">")); // 7
         btns.add(new JButton("DISCONNECT")); // 8
         btns.add(new JButton("BACK")); // 9
+        btns.add(new JButton("CONTINUE")); // 10
+        btns.add(new JButton("START")); // 11
+        btns.add(new JButton("YES")); // 12
+        btns.add(new JButton("NO")); // 13
 
-        IPLabel = new JLabel();
+        blackWhiteBtns = new ArrayList<>();
+        blackWhiteBtns.add(btns.get(0));
+        blackWhiteBtns.add(btns.get(1));
+        blackWhiteBtns.add(btns.get(4));
+        blackWhiteBtns.add(btns.get(5));
+        blackWhiteBtns.add(btns.get(6));
+        blackWhiteBtns.add(btns.get(7));
+        blackWhiteBtns.add(btns.get(8));
+        blackWhiteBtns.add(btns.get(9));
+        blackWhiteBtns.add(btns.get(10));
+        blackWhiteBtns.add(btns.get(11));
+        blackWhiteBtns.add(btns.get(12));
+        blackWhiteBtns.add(btns.get(13));
+
+        gameTitle = new JLabel("BITING ON FISH", SwingConstants.CENTER);
+        ipLabel = new JLabel();
         portLabel = new JLabel();
-        fishLabel = new JLabel();
-        pauseTitleLabel = new JLabel("--- PAUSED ---");
+        catNameLabel = new JLabel();
+        //Use html for custom text styling
+        startWarningLabel = new JLabel("<html><center>WARNING:<br>Your previous progress will be lost.<br><br><br>Continue anyway?</center></html>");
+        carouselLabel = new JLabel("CHOOSE A FISH:");
+        pauseTitleLabel = new JLabel("- PAUSED -");
         volumeMainLabel = new JLabel("MASTER VOLUME:");
         volumeSubLabel = new JLabel("<html>Sound Effects:<br><br>Music:</html>");
         
-        textField1 = new JTextField(10);
-        textField2 = new JTextField(10);
+        ipTextField = new JTextField(12);
+        portTextField = new JTextField(12);
 
         sfxVolumeSlider = new JSlider(0, 100, ((int)(soundManager.getSfxVolume()*100.0)));
         musicVolumeSlider = new JSlider(0, 100, ((int) (soundManager.getMusicVolume()*100.0)));
@@ -118,14 +146,6 @@ public class GameFrame extends JFrame{
         lp = new JLayeredPane();
 
         createClientClasses();
-    }
-
-    public class isGamePausedRef{
-        public boolean isGamePaused;
-
-        public isGamePausedRef(boolean b){
-            isGamePaused = b;
-        }
     }
 
     private void createClientClasses(){
@@ -137,7 +157,7 @@ public class GameFrame extends JFrame{
         }
 
         //Create classes
-        gameCanvas = new GameCanvas(width, height, gameFont, isGamePausedRef);
+        gameCanvas = new GameCanvas(width, height, gameFont, isSinglePlayer);
         clientMaster = gameCanvas.getClientMaster();
         gameClient = gameCanvas.getGameClient();
         specialFrameHandler = gameCanvas.getSpecialFrameHandler();
@@ -172,11 +192,41 @@ public class GameFrame extends JFrame{
      * Loads into the screen the Play and Quit buttons using absolute values
      */
     public void loadStartUI(){
-        btns.get(0).setBounds(54, 116, 158, 33);
-        lp.add(btns.get(0), Integer.valueOf(2));
+        gameTitle.setForeground(Color.WHITE);
+        gameTitle.setBounds(89, 115, 622, 56);
+        gameTitle.setFont(getSizedGameFont(43));
+        lp.add(gameTitle, Integer.valueOf(2));
 
-        btns.get(1).setBounds(54, 169, 158, 33);
-        lp.add(btns.get(1) , Integer.valueOf(2));
+        JButton continueBtn = btns.get(10);
+        continueBtn.setBackground(Color.white);
+        continueBtn.setForeground(Color.black);
+        continueBtn.setBounds(280, 240, 240, 43);
+        continueBtn.setFont(getSizedGameFont(15));
+        lp.add(continueBtn, Integer.valueOf(2));
+
+        if (doesSaveExist()) continueBtn.setEnabled(true);
+        else continueBtn.setEnabled(false);
+
+        JButton startBtn = btns.get(11);
+        startBtn.setBackground(Color.white);
+        startBtn.setForeground(Color.black);
+        startBtn.setBounds(280, 312, 240, 43);
+        startBtn.setFont(getSizedGameFont(15));
+        lp.add(startBtn, Integer.valueOf(2));
+
+        JButton multiPlayerBtn = btns.get(0);
+        multiPlayerBtn.setBackground(Color.white);
+        multiPlayerBtn.setForeground(Color.black);
+        multiPlayerBtn.setBounds(280, 387, 240, 43);
+        multiPlayerBtn.setFont(getSizedGameFont(15));
+        lp.add(multiPlayerBtn, Integer.valueOf(2));
+
+        JButton quitButton = btns.get(1);
+        quitButton.setBackground(Color.white);
+        quitButton.setForeground(Color.black);
+        quitButton.setBounds(280, 458, 240, 43);
+        quitButton.setFont(getSizedGameFont(15));
+        lp.add(quitButton, Integer.valueOf(2));
     }
 
     /**
@@ -184,69 +234,269 @@ public class GameFrame extends JFrame{
      */
     public void loadClientUI(){
 
-        IPLabel.setForeground(Color.WHITE);
-        IPLabel.setText("IP Address: ");
-        IPLabel.setBounds(17, 133, 232, 15);
-        lp.add(IPLabel, Integer.valueOf(2));
+        ipLabel.setForeground(Color.WHITE);
+        ipLabel.setText("IP ADDRESS:");
+        ipLabel.setBounds(85, 128, 244, 25);
+        ipLabel.setFont(getSizedGameFont(16));
+        lp.add(ipLabel, Integer.valueOf(2));
+
         
         portLabel.setForeground(Color.WHITE);
-        portLabel.setText("Port Number: ");
-        portLabel.setBounds(17, 194, 232, 15);
+        portLabel.setText("PORT NUMBER:");
+        portLabel.setBounds(85, 196, 244, 25);
+        portLabel.setFont(getSizedGameFont(16));
         lp.add(portLabel, Integer.valueOf(2));
 
-        textField1.setBounds(245, 131, 159,  28);
-        lp.add(textField1, Integer.valueOf(2));
+        ipTextField.setBounds(336, 128, 371, 26);
+        ipTextField.setBackground(Color.black);
+        ipTextField.setForeground(Color.white);
+        ipTextField.setFont(getSizedGameFont(16));
+        ipTextField.setFocusable(true);
+        lp.add(ipTextField, Integer.valueOf(2));
 
-        textField2.setBounds(245, 192, 159, 28);
-        lp.add(textField2, Integer.valueOf(2));
+        portTextField.setBounds(336, 196, 371, 26);
+        portTextField.setBackground(Color.black);
+        portTextField.setForeground(Color.white);
+        portTextField.setFont(getSizedGameFont(16));
+        lp.add(portTextField, Integer.valueOf(2));
+
+        JButton connectButton = btns.get(2);
+        connectButton.setBackground(Color.black);
+        connectButton.setForeground(Color.white);
+        connectButton.setBorderPainted(false);
+        connectButton.setFont(getSizedGameFont(25));
+        connectButton.setBounds(64, 274, 220, 31);
+        lp.add(connectButton, Integer.valueOf(2));
+
+        // Add white line below connect button
+        JPanel connectLinePanel = new JPanel();
+        connectLinePanel.setBackground(Color.WHITE);
+        connectLinePanel.setBounds(88, 306, 166, 5);
+        lp.add(connectLinePanel, Integer.valueOf(2));
+        connectButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                connectButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                connectLinePanel.setBounds(162, 306, 24, 5);
+            }
         
-        btns.get(2).setBounds(54, 280, 159, 35);
-        lp.add(btns.get(2), Integer.valueOf(2));
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                connectButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                connectLinePanel.setBounds(88, 306, 166, 5);
+            }
+        });
 
-        btns.get(3).setBounds(245, 280, 159, 35);
-        lp.add(btns.get(3), Integer.valueOf(2));
+        JButton backButton = btns.get(3);
+        backButton.setBackground(Color.black);
+        backButton.setForeground(Color.white);
+        backButton.setBorderPainted(false);
+        backButton.setFont(getSizedGameFont(25));
+        backButton.setBounds(561, 274, 200, 31);
+        lp.add(backButton, Integer.valueOf(2));
 
-        btns.get(4).setBounds(54, 385, 159, 35);
-        lp.add(btns.get(4), Integer.valueOf(2));
+        // Add white line below connect button
+        JPanel backLinePanel = new JPanel();
+        backLinePanel.setBackground(Color.WHITE);
+        backLinePanel.setBounds(610, 306, 97, 5);
+        lp.add(backLinePanel, Integer.valueOf(2));
+
+        backButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                backLinePanel.setBounds(645, 306, 24, 5);
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                backButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                backLinePanel.setBounds(610, 306, 97, 5);
+            }
+        });
+
+        JButton hostServerButton = btns.get(4);
+        hostServerButton.setBackground(Color.white);
+        hostServerButton.setForeground(Color.black);
+        hostServerButton.setBounds(85, 396, 307, 58);
+        hostServerButton.setFont(getSizedGameFont(20));
+        lp.add(hostServerButton, Integer.valueOf(2));
+    }
+
+    public void loadSinglePrePlayUI(){
+        JButton enterGameButton = btns.get(5);
+        enterGameButton.setBackground(Color.white);
+        enterGameButton.setForeground(Color.black);
+        enterGameButton.setBounds(447, 253, 287, 56);
+        enterGameButton.setFont(getSizedGameFont(20));
+        lp.add(enterGameButton, Integer.valueOf(2));
+
+         // QUIT BUTTON
+        JButton backBtn = btns.get(3);
+        backBtn.setBackground(Color.black);
+        backBtn.setForeground(Color.white);
+        backBtn.setBorderPainted(false);
+        backBtn.setFont(getSizedGameFont(25));
+        backBtn.setHorizontalAlignment(SwingConstants.CENTER);
+        backBtn.setBounds(495, 338, 200, 31);
+    
+        // Add white line below connect button
+        JPanel backLinePanel = new JPanel();
+        backLinePanel.setBackground(Color.WHITE);
+        backLinePanel.setOpaque(true);
+        backLinePanel.setBounds(546, 369, 97, 5);
+        lp.add(backLinePanel, Integer.valueOf(2));
+
+        backBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                backLinePanel.setBounds(583, 369, 24, 5);
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                backLinePanel.setBounds(546, 369, 97, 5);
+            }
+        });
+
+        lp.add(backBtn, Integer.valueOf(2));
+        
+        
+        updateFishCarousel();
+        catNameLabel.setForeground(Color.WHITE);
+        catNameLabel.setBounds(127, 381, 217, 12);
+        catNameLabel.setFont(getSizedGameFont(11));
+        catNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lp.add(catNameLabel, Integer.valueOf(2));
+
+        carouselLabel.setBackground(Color.black);
+        carouselLabel.setForeground(Color.white);
+        carouselLabel.setBounds(73, 171, 349, 30);
+        carouselLabel.setFont(getSizedGameFont(24));
+        carouselLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lp.add(carouselLabel, Integer.valueOf(2));
+
+        // LEFT BUTTON
+        JButton leftButton = btns.get(6);
+        leftButton.setBounds(170, 415, 61, 38);
+        leftButton.setHorizontalAlignment(SwingConstants.CENTER);
+        leftButton.setBackground(Color.black);
+        leftButton.setForeground(Color.white);
+        leftButton.setBorderPainted(false);
+        leftButton.setFont(getSizedGameFont(19));
+        lp.add(leftButton, Integer.valueOf(2));
+
+        // RIGHT BUTTON
+        JButton rightButton = btns.get(7);
+        rightButton.setBounds(235, 415, 61, 38);
+        rightButton.setHorizontalAlignment(SwingConstants.CENTER);
+        rightButton.setBackground(Color.black);
+        rightButton.setForeground(Color.white);
+        rightButton.setBorderPainted(false);
+        rightButton.setFont(getSizedGameFont(19));
+        lp.add(rightButton, Integer.valueOf(2));
+
     }
 
     /**
      * Loads the pre-game UI displaying the serverIP address, the port number,
      * and allows the user to select a player type.
      */
-    public void loadPrePlayUI(){
-        IPLabel.setForeground(Color.WHITE);
-        IPLabel.setText("IP Address: " + serverIP);
-        IPLabel.setBounds(17, 133, 232, 15);
-        lp.add(IPLabel, Integer.valueOf(2));
+    public void loadMultiPrePlayUI(){
+        ipLabel.setForeground(Color.WHITE);
+        ipLabel.setText("IP ADDRESS:     " + serverIP);
+        ipLabel.setBounds(85, 128, 558, 25);
+        lp.add(ipLabel, Integer.valueOf(2));
         
+        // PORT NUMBER
         portLabel.setForeground(Color.WHITE);
-        portLabel.setText("Port: " + serverPort);
-        portLabel.setBounds(17, 194, 232, 15);
+        portLabel.setText("PORT NUMBER:    " + serverPort);
+        portLabel.setBounds(85, 196, 558, 25);
         lp.add(portLabel, Integer.valueOf(2));
 
+        // ENTER GAME BUTTON
+        JButton enterGameButton = btns.get(5);
+        enterGameButton.setBackground(Color.white);
+        enterGameButton.setForeground(Color.black);
+        enterGameButton.setBounds(447, 391, 287, 56);
+        enterGameButton.setFont(getSizedGameFont(20));
+        lp.add(enterGameButton, Integer.valueOf(2));
+
+
         updateFishCarousel();
-        fishLabel.setForeground(Color.WHITE);
-        fishLabel.setBounds(460, 255, 227, 15);
-        lp.add(fishLabel, Integer.valueOf(2));
+        catNameLabel.setForeground(Color.WHITE);
+        catNameLabel.setBounds(130, 504, 179, 10);
+        catNameLabel.setFont(getSizedGameFont(9));
+        catNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lp.add(catNameLabel, Integer.valueOf(2));
 
-        btns.get(3).setBounds(245, 280, 159, 35);
-        lp.add(btns.get(3), Integer.valueOf(2));
+        carouselLabel.setBackground(Color.black);
+        carouselLabel.setForeground(Color.white);
+        carouselLabel.setBounds(80, 323, 288, 25);
+        carouselLabel.setFont(getSizedGameFont(20));
+        carouselLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lp.add(carouselLabel, Integer.valueOf(2));
 
-        btns.get(5).setBounds(54, 280, 159, 35);
-        lp.add(btns.get(5), Integer.valueOf(2));
+        // LEFT BUTTON
+        JButton leftButton = btns.get(6);
+        leftButton.setBounds(168, 528, 50, 31);
+        leftButton.setHorizontalAlignment(SwingConstants.CENTER);
+        leftButton.setBackground(Color.black);
+        leftButton.setForeground(Color.white);
+        leftButton.setBorderPainted(false);
+        leftButton.setFont(getSizedGameFont(16));
+        lp.add(leftButton, Integer.valueOf(2));
 
-        btns.get(6).setBounds(517, 280, 48, 35);
-        lp.add(btns.get(6), Integer.valueOf(2));
+        // RIGHT BUTTON
+        JButton rightButton = btns.get(7);
+        rightButton.setBounds(222, 528, 50, 31);
+        rightButton.setHorizontalAlignment(SwingConstants.CENTER);
+        rightButton.setBackground(Color.black);
+        rightButton.setForeground(Color.white);
+        rightButton.setBorderPainted(false);
+        rightButton.setFont(getSizedGameFont(16));
+        lp.add(rightButton, Integer.valueOf(2));
 
-        btns.get(7).setBounds(582, 280, 48, 35);
-        lp.add(btns.get(7), Integer.valueOf(2));
+        // QUIT BUTTON
+        JButton backBtn = btns.get(3);
+        backBtn.setBackground(Color.black);
+        backBtn.setForeground(Color.white);
+        backBtn.setBorderPainted(false);
+        backBtn.setFont(getSizedGameFont(25));
+        backBtn.setHorizontalAlignment(SwingConstants.CENTER);
+        backBtn.setBounds(495, 477, 200, 31);
+        
+
+        // Add white line below connect button
+        JPanel backLinePanel = new JPanel();
+        backLinePanel.setBackground(Color.WHITE);
+        backLinePanel.setOpaque(true);
+        backLinePanel.setBounds(546, 508, 97, 5);
+        lp.add(backLinePanel, Integer.valueOf(2));
+
+        backBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                backLinePanel.setBounds(583, 508, 24, 5);
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                backLinePanel.setBounds(546, 508, 97, 5);
+            }
+        });
+
+        lp.add(backBtn, Integer.valueOf(2));
     }
 
     public void loadPauseUI(){
 
         pauseTitleLabel.setForeground(Color.WHITE);
-        pauseTitleLabel.setBounds(235, 190, 350, 40);
+        pauseTitleLabel.setBounds(285, 188, 350, 40);
         pauseTitleLabel.setFont(getSizedGameFont(24f));
         lp.add(pauseTitleLabel, Integer.valueOf(2));
 
@@ -268,7 +518,6 @@ public class GameFrame extends JFrame{
         JButton pauseDisconnectBtn = btns.get(8);
         pauseDisconnectBtn.setBackground(Color.white);
         pauseDisconnectBtn.setForeground(Color.black);
-        pauseDisconnectBtn.setBorderPainted(false);
         pauseDisconnectBtn.setBounds(217, 400, 192, 41);
         pauseDisconnectBtn.setFont(getSizedGameFont(15f));
         lp.add(pauseDisconnectBtn, Integer.valueOf(2));        
@@ -276,7 +525,6 @@ public class GameFrame extends JFrame{
         JButton pauseBackButton = btns.get(9);
         pauseBackButton.setBackground(Color.white);
         pauseBackButton.setForeground(Color.black);
-        pauseBackButton.setBorderPainted(false);
         pauseBackButton.setFont(getSizedGameFont(15f));
         pauseBackButton.setBounds(482, 400, 96, 41);
         lp.add(pauseBackButton, Integer.valueOf(2)); 
@@ -462,21 +710,21 @@ public class GameFrame extends JFrame{
         if (fishSlideNum > 3) fishSlideNum = 1; 
         else if (fishSlideNum < 1) fishSlideNum = 3;
 
-
         switch(fishSlideNum){
             case 1:
-                fishLabel.setText("Pufferfish (Heavy)");
+                catNameLabel.setText("TUNA (HEAVY)");
                 playerType = NetworkProtocol.HEAVYCAT;
                 break;
             case 2:
-                fishLabel.setText("Anchovy (Light)");
+                catNameLabel.setText("ANCHOVY (LIGHT)");
                 playerType = NetworkProtocol.FASTCAT;
                 break;
             case 3:
-                fishLabel.setText("Archerfish (Ranged)");
+                catNameLabel.setText("ARCHERFISH (RANGED)");
                 playerType = NetworkProtocol.GUNCAT;
                 break;
         }
+        
         refreshFrame();
     }
 
@@ -489,21 +737,25 @@ public class GameFrame extends JFrame{
         ActionListener btnListener = (ActionEvent ae) -> {
             Object o = ae.getSource();
             
+            //multiplayer
             if (o == btns.get(0)){
                 clearGUI();
                 loadClientUI();
                 refreshFrame();
             }
+            //quit
             else if (o == btns.get(1)){
                 System.exit(0);                
             }
+            //connect
             else if (o == btns.get(2)){
-                serverIP = textField1.getText();
-                serverPort = Integer.parseInt(textField2.getText());
+                serverIP = ipTextField.getText();
+                serverPort = Integer.parseInt(portTextField.getText());
                 clearGUI();
-                loadPrePlayUI();
+                loadMultiPrePlayUI();
                 refreshFrame();
             }
+            //back
             else if (o == btns.get(3)){
                 clearGUI();
                 loadStartUI();
@@ -512,46 +764,108 @@ public class GameFrame extends JFrame{
                 GameServer gs = gameClient.getGameServer();
                 if (gs != null) gs.shutDownServer();
             }
+            //host server
             else if (o == btns.get(4)){
-                gameClient.hostServer();
+                isSinglePlayer = false;
+                gameClient.hostServer(isSinglePlayer);
                 serverIP = gameClient.getServerIP();
                 serverPort = gameClient.getServerPort();
                 clearGUI();
-                loadPrePlayUI();
+                loadMultiPrePlayUI();
                 refreshFrame();
                 
             }
+            //enter game
             else if (o == btns.get(5)){
                 startPlay();
             }
+            // <
             else if (o == btns.get(6)){
                 fishSlideNum--;
                 updateFishCarousel();
             }
+            // >
             else if (o == btns.get(7)){
                 fishSlideNum++;
                 updateFishCarousel();
             }
+            //disconnect
             else if (o == btns.get(8)){
                 //Return to main menu 
                 gameCanvas.setIsOnMenu(true);
                 gameClient.setWantsDisconnect(true);
                 SoundManager.getInstance().stopAllSounds();
-                isGamePausedRef.isGamePaused = false;
+                isGamePaused = false;
 
                 clearGUI();
                 loadStartUI();
                 refreshFrame();
                 
                 cp.requestFocusInWindow();
-                // isGamePaused = false;
             }
+            //pause tab back
             else if (o == btns.get(9)){
                 
                 clearGUI();
                 refreshFrame();
                 cp.requestFocusInWindow();
-                isGamePausedRef.isGamePaused = false;
+                isGamePaused = false;
+            }
+            //continue
+            else if (o == btns.get(10)){
+                if (doesSaveExist()) {
+                    isSinglePlayer = true;
+                    gameClient.hostServer(isSinglePlayer);
+                    serverIP = gameClient.getServerIP();
+                    serverPort = gameClient.getServerPort();
+                    startPlay();
+                }
+            }
+            //start
+            else if (o == btns.get(11)){
+                if (doesSaveExist()) {
+                    loadStartWarningUI();
+                    //Disable start ui buttons
+                    switchAbleStartUIBtns();
+                }
+                else {
+                    isSinglePlayer = true;
+                    gameClient.hostServer(true);
+                    serverIP = gameClient.getServerIP();
+                    serverPort = gameClient.getServerPort();
+                    clearGUI();
+                    loadSinglePrePlayUI();
+                    refreshFrame();
+                }   
+            }
+            //yes
+            else if (o == btns.get(12)){
+
+                closeStartWarningUI();
+
+                //Enable start ui btns
+                switchAbleStartUIBtns();
+
+                //Delete save file
+                File saveFile = new File("save.dat");
+                saveFile.delete();
+
+                isSinglePlayer = true;
+                gameClient.hostServer(isSinglePlayer);
+                serverIP = gameClient.getServerIP();
+                serverPort = gameClient.getServerPort();
+                clearGUI();
+                loadSinglePrePlayUI();
+                refreshFrame();
+            }
+            //no
+            else if (o == btns.get(13)){
+                //Enable start ui btns
+                closeStartWarningUI();
+                switchAbleStartUIBtns();
+                clearGUI();
+                loadStartUI();
+                refreshFrame();
             }
 
  
@@ -561,6 +875,62 @@ public class GameFrame extends JFrame{
             btn.addActionListener(btnListener);
         }
  
+    }
+
+
+
+    public boolean doesSaveExist(){
+        File saveFile = new File("save.dat");
+        return (saveFile.exists());
+    }
+     
+
+    // if start ui button is enabled, disable it; otherwise enable it
+    private void switchAbleStartUIBtns(){
+        if (btns.get(0).isEnabled()) btns.get(0).setEnabled(false);
+        else btns.get(0).setEnabled(true);
+
+        if (btns.get(1).isEnabled()) btns.get(1).setEnabled(false);
+        else btns.get(1).setEnabled(true);
+        
+        if (btns.get(10).isEnabled()) btns.get(10).setEnabled(false);
+        else btns.get(10).setEnabled(true);
+
+        if (btns.get(11).isEnabled()) btns.get(11).setEnabled(false);
+        else btns.get(11).setEnabled(true);
+    }
+
+    private void loadStartWarningUI(){
+        JButton yesBtn = btns.get(12);
+        yesBtn.setBackground(Color.white);
+        yesBtn.setForeground(Color.black);
+        yesBtn.setBounds(256, 348, 126, 36);
+        yesBtn.setFont(getSizedGameFont(16));
+        lp.add(yesBtn, Integer.valueOf(3));
+
+        JButton noBtn = btns.get(13);
+        noBtn.setBackground(Color.white);
+        noBtn.setForeground(Color.black);
+        noBtn.setBounds(422, 348, 126, 36);
+        noBtn.setFont(getSizedGameFont(16));
+        lp.add(noBtn, Integer.valueOf(3));
+
+        startWarningLabel.setForeground(Color.WHITE);
+        startWarningLabel.setBounds(200, 228, 410, 107);
+        startWarningLabel.setFont(getSizedGameFont(17));
+        lp.add(startWarningLabel, Integer.valueOf(3));
+
+        JPanel warningTabBG2 = new JPanel();
+        warningTabBG2.setBackground(Color.BLACK);
+        warningTabBG2.setOpaque(true);
+        warningTabBG2.setBounds(166, 212, 467, 188);
+        lp.add(warningTabBG2, Integer.valueOf(3));
+
+        JPanel warningTabBG1 = new JPanel();
+        warningTabBG1.setBackground(Color.WHITE);
+        warningTabBG1.setOpaque(true);
+        warningTabBG1.setBounds(161, 208, 477, 195);
+        lp.add(warningTabBG1, Integer.valueOf(3));
     }
 
     /**
@@ -574,7 +944,6 @@ public class GameFrame extends JFrame{
         gameClient.connectToServer(serverIP, serverPort, playerType);
         clearGUI();
         addKeyBindings();
-        addMouseListeners();
         refreshFrame();
 
         //Force reload
@@ -594,6 +963,11 @@ public class GameFrame extends JFrame{
         for (Component c:components) lp.remove(c);
     }
 
+    public void closeStartWarningUI(){
+        Component[] components = lp.getComponentsInLayer(3);
+        for (Component c:components) lp.remove(c);
+    }
+
     /**
      * Calls revalidate and repaint on the Frame
      */
@@ -610,28 +984,28 @@ public class GameFrame extends JFrame{
             @Override
             public void mousePressed(MouseEvent e){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleClickInput();
-                else if (!(isGamePausedRef.isGamePaused || gameCanvas.getIsOnMenu())) {
+                else if (!(isGamePaused || gameCanvas.getIsOnMenu())) {
                     gameClient.clickInput(e.getX(), e.getY());
                 }
             }
         });
 
         // LOOP DATA PRIVY TO CHANGE (FOR SCALABILITY WITH OTHER BUTTONS)
-        for (int i = 8; i < 10; i++){
-            JButton btnWithMouseHover = btns.get(i);
-            btnWithMouseHover.addMouseListener(new java.awt.event.MouseAdapter() {
+        for (JButton blackWhiteBtn : blackWhiteBtns){
+            blackWhiteBtn.setBorderPainted(false);
+            blackWhiteBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                invertBasicBtnColors(btnWithMouseHover);
-                btnWithMouseHover.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                invertBasicBtnColors(blackWhiteBtn);
+                blackWhiteBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             }
         
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                invertBasicBtnColors(btnWithMouseHover);
-                btnWithMouseHover.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                invertBasicBtnColors(blackWhiteBtn);
+                blackWhiteBtn.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
-        });
+            });
         }
     }
 
@@ -676,7 +1050,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("Q");
-                else if (!isGamePausedRef.isGamePaused) gameClient.keyInput("Q", true);
+                else if (!isGamePaused) gameClient.keyInput("Q", true);
                 
             }
         };
@@ -688,17 +1062,17 @@ public class GameFrame extends JFrame{
                 if (!specialFrameHandler.getIsScenePlaying() && !gameCanvas.getIsOnMenu() 
                 && !clientMaster.getIsGameOver()){
                     // System.out.println("ESC REGISTERED");
-                    if (isGamePausedRef.isGamePaused){
+                    if (isGamePaused){
                         // System.out.println("unpaused");
                         clearGUI();
                         refreshFrame();
                         cp.requestFocusInWindow();
-                        isGamePausedRef.isGamePaused = false;
+                        isGamePaused = false;
                     }
                     else {
                         loadPauseUI();
                         refreshFrame();
-                        isGamePausedRef.isGamePaused = true;
+                        isGamePaused = true;
                         // System.out.println("paused");
                     }
                 }
@@ -726,7 +1100,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("W");
-                else if (isGamePausedRef.isGamePaused) gameClient.keyInput("W", false);
+                else if (isGamePaused) gameClient.keyInput("W", false);
                 else gameClient.keyInput("W", true);
             }
         };
@@ -735,7 +1109,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("S");
-                else if (isGamePausedRef.isGamePaused) gameClient.keyInput("S", false);
+                else if (isGamePaused) gameClient.keyInput("S", false);
                 else gameClient.keyInput("S", true);
             }
         };
@@ -744,7 +1118,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("A");
-                else if (isGamePausedRef.isGamePaused) gameClient.keyInput("A", false);
+                else if (isGamePaused) gameClient.keyInput("A", false);
                 else gameClient.keyInput("A", true);
             }
         };
@@ -753,7 +1127,7 @@ public class GameFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent ae){
                 if (specialFrameHandler.getIsScenePlaying()) specialFrameHandler.handleKeyInput("D");
-                else if (isGamePausedRef.isGamePaused) gameClient.keyInput("D", false);
+                else if (isGamePaused) gameClient.keyInput("D", false);
                 else gameClient.keyInput("D", true);
             }
         };

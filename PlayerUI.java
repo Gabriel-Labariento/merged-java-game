@@ -65,18 +65,9 @@ public class PlayerUI extends GameObject{
     public void matchHitBoxBounds() {}
 
     public void drawStartWarningTab(Graphics2D g2d){
-        g2d.setColor(Color.WHITE);
-        g2d.fillRect(161, 208, 477, 195);
-        g2d.setColor(Color.BLACK);
-        g2d.fillRect(166, 212, 467, 188);
+        
     }
 
-    public void drawPauseTab(Graphics2D g2d, int sf){
-        // g2d.setColor(Color.WHITE);
-        // g2d.fillRect(161/sf, 163/sf, 477/sf, 316/sf);
-        // g2d.setColor(Color.BLACK);
-        // g2d.fillRect(165/sf, 167/sf, 468/sf, 308/sf);
-    }
 
     /**
      * Draws all of the UI elements

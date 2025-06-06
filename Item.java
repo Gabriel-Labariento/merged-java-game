@@ -1,3 +1,6 @@
+
+import java.io.Serializable;
+
 /**     
         The Item class is an abstract class that extends Entity.
         It supports item expiration handling, item to player interaction,
@@ -18,7 +21,7 @@
         of our program.
 **/
 
-public abstract class Item extends Entity{
+public abstract class Item extends Entity implements Serializable{
     public long despawnTime;
     public long pickUpCDTime;
     public static final int DROPDURATION = 60000;

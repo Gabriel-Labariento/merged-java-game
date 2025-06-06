@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -22,7 +23,7 @@ import java.util.Iterator;
         of our program.
 **/
 
-public abstract class Player extends Entity implements Effectable{
+public abstract class Player extends Entity implements Effectable, Serializable{
     public static final int INVINCIBILITY_DURATION = 1200;
     public static final int REVIVAL_DURATION = 5000;
     public long invincibilityEnd;
@@ -121,7 +122,7 @@ public abstract class Player extends Entity implements Effectable{
         // if(hP > maxHealth && !isMaxHealthSet) hP = maxHealth; 
 
         if (hP > maxHealth) hP = maxHealth; 
-        if (hP <= 18) hitPoints = hP;
+        hitPoints = hP;
     }
 
     @Override
@@ -134,10 +135,7 @@ public abstract class Player extends Entity implements Effectable{
      * Adds 1 to damage as well.
      */
     public void levelUpStats(){
-        if (hitPoints < 18 || maxHealth < 18){
-            hitPoints += 1;
-            maxHealth += 1;
-        }
+        if (maxHealth < 18) maxHealth += 1;
         damage += 1;
     }
 
@@ -147,6 +145,14 @@ public abstract class Player extends Entity implements Effectable{
      */
     public int getCurrentLvl(){
         return currentLvl;
+    }
+
+    public void setCurrentLvl(int i){
+        currentLvl = i;       
+    }
+
+    public void setCurrentXPCap(int i){
+        currentXPCap = i;
     }
 
     /**
@@ -494,6 +500,14 @@ public abstract class Player extends Entity implements Effectable{
 
     public boolean getIsSpriteWhite(){
         return isSpriteWhite;
+    }
+
+    public void setCurrentXP(int i){
+        currentXP = i;
+    }
+
+    public int getCurrentXP(){
+        return currentXP;
     }
 
 }

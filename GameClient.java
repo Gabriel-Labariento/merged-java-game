@@ -43,6 +43,7 @@ public class GameClient {
     private Thread receiveAssetsThread;
     private GameServer gs;
     private boolean wantsDisconnect;
+    public boolean isSinglePlayer;
 
     /**
      * Creates a GameClient and binds it to a clientMaster instance that handles
@@ -51,7 +52,8 @@ public class GameClient {
      * a keyMap to assign keys Q, W, A, S, and D to false (not pressed)
      * @param clientMaster
      */
-    public GameClient(ClientMaster clientMaster){
+    public GameClient(ClientMaster clientMaster, boolean isSinglePlayer){
+        this.isSinglePlayer = isSinglePlayer;
         this.clientMaster = clientMaster;
         keyMap = new HashMap<>();
         keyMap.put("Q", false);
@@ -189,8 +191,9 @@ public class GameClient {
     /**
      * This method allows a client to host the game
      */
-    public void hostServer(){
-        gs = new GameServer();
+    public void hostServer(boolean isSinglePlayer){
+        //PRIVY TO CHANGE
+        gs = new GameServer(isSinglePlayer);
         gs.waitForConnections();   
         gs.startGameLoop();
         gs.closeSocketsOnShutdown();
@@ -279,10 +282,13 @@ public class GameClient {
                             parseBossKilledData(receivedMessage);
                         } else if (receivedMessage.startsWith(NetworkProtocol.GAME_OVER)) {
                             clientMaster.setIsGameOver(true);
+                            deleteSaveFile();
                         } else if (receivedMessage.startsWith(NetworkProtocol.FINAL_BOSS_KILLED)){
                             clientMaster.setIsFinalBossDead(true);
+                            deleteSaveFile();
                         } else if (receivedMessage.startsWith(NetworkProtocol.YES_TO_SCENE5_END)){
                             clientMaster.setHasChosenScene5End(true);
+                            deleteSaveFile();
                             // System.out.println("YES RECEIVED");
                         } else if (receivedMessage.startsWith(NetworkProtocol.NO_TO_SCENE5_END)){
                             clientMaster.setHasChosenScene5End(false);
@@ -306,6 +312,13 @@ public class GameClient {
         receiveAssetsThread.start();
     }
 
+    private void deleteSaveFile(){
+        if (isSinglePlayer){
+            File saveFile = new File("save.dat");
+            saveFile.delete();
+        }
+    }
+
     /**
      * Parses a serialized string expected to be in the form:
      * ClientId|XPBarPercent|UserLvl|heldItemIdentifier|BossHPBarPercent|
@@ -319,7 +332,8 @@ public class GameClient {
         String[] messageParts = message.split("\\" + NetworkProtocol.DELIMITER); // Have to use \\ to escape. Turns out "|" is special for java
         this.clientId = Integer.parseInt(messageParts[0]);
         clientMaster.setXPBarPercent(Integer.parseInt(messageParts[1]));
-        clientMaster.setUserLvl(Integer.parseInt(messageParts[2]));
+        int userPlayerLvl = Integer.parseInt(messageParts[2]);
+        clientMaster.setUserLvl(userPlayerLvl);
         clientMaster.setHeldItemIdentifier(messageParts[3]);
         clientMaster.setBossHPBarPercent(Integer.parseInt(messageParts[4]));
 
@@ -350,6 +364,7 @@ public class GameClient {
                     player.setCurrSprite(currsprite);
                     player.setzIndex(playerZIndex);
                     player.setIsSpriteWhite(isSpriteWhite);
+                    player.setCurrentLvl(userPlayerLvl);
                     clientMaster.setUserPlayer(player);
                     clientMaster.setCurrentRoom(currentRoom);
                         
@@ -380,8 +395,8 @@ public class GameClient {
                     Player other = (Player) clientMaster.getEntity(identifier, otherId, x, y);
                     other.setCurrentRoom(clientMaster.getRoomById(otherRoomId));
                     // other.setIsMaxHealthSet(true);
-                    other.setHitPoints(hp);
                     other.setMaxHealth(maxHp);
+                    other.setHitPoints(hp);
                     other.setCurrSprite(currsprite);
                     other.setzIndex(zIndex);
                     other.setIsSpriteWhite(isSpriteWhite);

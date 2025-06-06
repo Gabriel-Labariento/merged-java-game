@@ -26,17 +26,17 @@ public class ItemsHandler{
 
     static {
         //Use static initializer block to make hashmap of ITEM - DROPCHANCE
-        AVAILABLEITEMS.put("None", 60);
-        AVAILABLEITEMS.put("Redfish", 15);
-        AVAILABLEITEMS.put("Cat Treat", 15);
-        AVAILABLEITEMS.put("Milk", 4);
-        AVAILABLEITEMS.put("Premium Cat Food++", 4);
-        AVAILABLEITEMS.put("Goldfish", 2);
-        AVAILABLEITEMS.put("Light Scarf", 2);
-        AVAILABLEITEMS.put("Thick Sweater", 2);
-        AVAILABLEITEMS.put("Bag of Catnip", 2);
-        AVAILABLEITEMS.put("Loud Bell", 2);
-        AVAILABLEITEMS.put("Pringles Can", 2);
+        AVAILABLEITEMS.put("NONE", 60);
+        AVAILABLEITEMS.put(NetworkProtocol.REDFISH, 15);
+        AVAILABLEITEMS.put(NetworkProtocol.CATTREAT, 15);
+        AVAILABLEITEMS.put(NetworkProtocol.MILK, 4);
+        AVAILABLEITEMS.put(NetworkProtocol.PREMIUMCATFOOD, 4);
+        AVAILABLEITEMS.put(NetworkProtocol.GOLDFISH, 2);
+        AVAILABLEITEMS.put(NetworkProtocol.LIGHTSCARF, 2);
+        AVAILABLEITEMS.put(NetworkProtocol.THICKSWEATER, 2);
+        AVAILABLEITEMS.put(NetworkProtocol.BAGOFCATNIP, 2);
+        AVAILABLEITEMS.put(NetworkProtocol.LOUDBELL, 2);
+        AVAILABLEITEMS.put(NetworkProtocol.PRINGLESCAN, 2);
 
         // AVAILABLEITEMS.put("None", 0);
         // AVAILABLEITEMS.put("Redfish", 0);
@@ -74,44 +74,27 @@ public class ItemsHandler{
             if (roll < cumulativeChance) {
                 //Create a new item from the middle of the enemy
                 // System.out.print("SELECTED FROM SERVER: ");
-                switch(entry.getKey()){
-                    case "None":
-                        // System.out.println("0");
-                        return null;
-                    case "Redfish":
-                        // System.out.println("1");
-                        return new RedFish(enemy.getWorldX(), enemy.getWorldY());
-                    case "Cat Treat":
-                        // System.out.println("2");
-                        return new CatTreat(enemy.getWorldX(), enemy.getWorldY());
-                    case "Milk":
-                        // System.out.println("3");
-                        return new Milk(enemy.getWorldX(), enemy.getWorldY());
-                    case "Premium Cat Food++":
-                        // System.out.println("4");    
-                        return new PremiumCatFood(enemy.getWorldX(), enemy.getWorldY());
-                    case "Goldfish":
-                        // System.out.println("5");
-                        return new Goldfish(enemy.getWorldX(), enemy.getWorldY());
-                    case "Light Scarf":
-                        // System.out.println("6");
-                        return new LightScarf(enemy.getWorldX(), enemy.getWorldY());
-                    case "Thick Sweater":
-                        // System.out.println("7");
-                        return new ThickSweater(enemy.getWorldX(), enemy.getWorldY());
-                    case "Bag of Catnip":
-                        // System.out.println("8");
-                        return new BagOfCatnip(enemy.getWorldX(), enemy.getWorldY());
-                    case "Loud Bell":
-                        // System.out.println("9");
-                        return new LoudBell(enemy.getWorldX(), enemy.getWorldY());
-                    case "Pringles Can":
-                        // System.out.println("10");
-                        return new PringlesCan(enemy.getWorldX(), enemy.getWorldY());
-                }
+                String heldItemIdentifier = entry.getKey();
+                if (heldItemIdentifier.equals("NONE")) return null;
+                else return createItem(heldItemIdentifier, enemy.getWorldX(), enemy.getWorldY());
+
             }
         }
         return null;
+    }
+
+    public Item createItem(String identifier, int x, int y){
+        if (identifier.equals( NetworkProtocol.REDFISH)) return new RedFish(x, y);
+        else if (identifier.equals( NetworkProtocol.CATTREAT)) return new CatTreat(x, y);
+        else if (identifier.equals( NetworkProtocol.MILK)) return new Milk(x, y);
+        else if (identifier.equals( NetworkProtocol.PREMIUMCATFOOD)) return new PremiumCatFood(x, y);
+        else if (identifier.equals( NetworkProtocol.GOLDFISH)) return new Goldfish(x, y);
+        else if (identifier.equals( NetworkProtocol.LIGHTSCARF)) return new LightScarf(x, y);
+        else if (identifier.equals( NetworkProtocol.THICKSWEATER)) return new ThickSweater(x, y);
+        else if (identifier.equals( NetworkProtocol.BAGOFCATNIP)) return new BagOfCatnip(x, y);
+        else if (identifier.equals( NetworkProtocol.LOUDBELL)) return new LoudBell(x, y);
+        else if (identifier.equals( NetworkProtocol.PRINGLESCAN)) return new PringlesCan(x,y);
+        else return null;
     }
 
 }

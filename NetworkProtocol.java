@@ -83,6 +83,7 @@ public class NetworkProtocol {
     public static final String YES_TO_SCENE5_END = "END:Y";
     public static final String NO_TO_SCENE5_END = "END:N";
     public static final String FINAL_BOSS_KILLED = "FBK:";
+    public static final String PROMPT_SAVE = "SAVE:";
     public static final String HP = "*";
     public static final String ATTACK = "ATK:";
     public static final String KEYS = "K:";

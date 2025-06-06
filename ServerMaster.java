@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -36,6 +37,7 @@ public class ServerMaster {
     private boolean isGameOver;
     private boolean isFinalBossKilled;
     private boolean hasChosenScene5End;
+    private boolean isSinglePlayer;
 
     private static int gameLevel;
     private static final int MAX_LEVEL = 7;
@@ -88,6 +90,7 @@ public class ServerMaster {
     }
 
     public void setGameValues() {
+        isSinglePlayer = false;
         playerNum = 0;
         downedPlayersNum = 0;
         userPlayerIndex = -1;
@@ -217,7 +220,7 @@ public class ServerMaster {
             }
 
             //If no players are left, activate end game sequence
-            System.out.println(downedPlayersNum + " - " + playerNum);
+            // System.out.println(downedPlayersNum + " - " + playerNum);
             if (downedPlayersNum == playerNum){
                 isGameOver = true;
                 sendMessageToClients(NetworkProtocol.GAME_OVER);
@@ -380,6 +383,13 @@ public class ServerMaster {
         sendMessageToClients(mapData.toString());
 
         for (Player player : players) {
+            //Reset item after reloading
+            Item heldItem = player.getHeldItem();
+            if (heldItem != null){
+                heldItem.removeEffects();
+                heldItem.applyEffects();
+            }
+            
             player.setCurrentRoom(currentRoom);
             player.setWorldX(currentRoom.getCenterX());
             player.setWorldY(currentRoom.getCenterY());
@@ -388,6 +398,105 @@ public class ServerMaster {
 
         for (GameServer.ConnectedPlayer cp : connectedPlayers) {
             cp.promptAssetsThread(getAssetsData(cp.getCid()));
+        }
+
+        if (isSinglePlayer) saveGameState();
+    }
+
+    public void saveGameState(){
+        try{
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File("save.dat")));
+
+            SaveState saveState = new SaveState();
+        
+            // ServerMaster values
+            saveState.gameLevel = gameLevel;
+            saveState.isGameOver = isGameOver;
+            saveState.isFinalBossKilled = isFinalBossKilled;
+            saveState.hasChosenScene5End = hasChosenScene5End;
+            saveState.playerNum = this.playerNum;
+            
+            for (Entity entity : entities) {
+                if (entity instanceof Player player) {
+                    // Save player data
+                    Item heldItem = player.getHeldItem();
+                    if (heldItem != null){
+                        heldItem.removeEffects();
+                        saveState.heldItemIdentifier = heldItem.getIdentifier();
+                    }
+                    else saveState.heldItemIdentifier =  null;
+
+                    saveState.clientId = player.getClientId();
+                    saveState.playerType = player.getIdentifier();
+                    saveState.hitPoints = player.getHitPoints();
+                    saveState.maxHealth = player.getMaxHealth();
+                    saveState.damage = player.getDamage();
+                    saveState.defense = player.getDefense();
+                    saveState.currentLvl = player.getCurrentLvl();
+                    saveState.currentXP = player.getCurrentXP();
+                    saveState.currentXPCap = player.getCurrentXPCap();
+                    
+                    break;
+                }
+            }
+            
+            oos.writeObject(saveState);
+            
+        } catch (Exception e) {
+            System.err.println("exception in servermaster class' savegamemethod(): " + e);
+        }
+        
+    }
+
+    public void loadGameState(){
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File("save.dat")));
+            SaveState ss = (SaveState) ois.readObject();
+
+            // Restore game state
+            gameLevel = ss.gameLevel;
+            this.isGameOver = ss.isGameOver;
+            this.isFinalBossKilled = ss.isFinalBossKilled;
+            this.hasChosenScene5End = ss.hasChosenScene5End;
+            this.playerNum = ss.playerNum;
+            
+            // Clear current entities and recreate players
+            entities.clear();
+            
+            // Recreate dungeon for current level
+            dungeonMap = new DungeonMap(gameLevel);
+            dungeonMap.generateRooms();
+            currentRoom = dungeonMap.getStartRoom();
+
+            int worldX = currentRoom.getCenterX();
+            int worldY = currentRoom.getCenterY();
+            Player userPlayer = createPlayer(ss.playerType, ss.clientId);
+            userPlayer.setMaxHealth(ss.maxHealth);
+            userPlayer.setHitPoints(ss.hitPoints);  
+            userPlayer.setDamage(ss.damage);
+            userPlayer.setDefense(ss.defense);
+            userPlayer.setCurrentLvl(ss.currentLvl);
+            userPlayer.setCurrentXP(ss.currentXP);
+            userPlayer.setCurrentXPCap(ss.currentXPCap);
+            String heldItemIdentifier = ss.heldItemIdentifier;
+            
+            Item heldItem = null;
+            if(heldItemIdentifier != null){
+                heldItem = itemsHandler.createItem(heldItemIdentifier, worldX, worldY);
+                heldItem.setOwner(userPlayer);
+                heldItem.applyEffects();
+                heldItem.setIsHeld(true);
+            }
+            
+            userPlayer.setHeldItem(heldItem);
+            userPlayer.setCurrentRoom(currentRoom);
+            userPlayer.setWorldX(worldX);
+            userPlayer.setWorldY(worldY);
+            // System.out.println("cid:" + userPlayer.clientId + " - maxhp:" + userPlayer.maxHealth + " - hp:" + userPlayer.hitPoints);
+
+            entities.add(userPlayer);
+        } catch (Exception e) {
+            System.out.println("serverMaster exception at savegamestate() method: " + e);
         }
     }
     
@@ -399,6 +508,17 @@ public class ServerMaster {
     private void sendMessageToClients(String message){
         for (GameServer.ConnectedPlayer cp : connectedPlayers) {
             cp.promptAssetsThread(message);
+        }
+    }
+
+    public Player createPlayer(String identifer, int cid){
+        switch (identifer) {
+            case NetworkProtocol.FASTCAT:
+                return new FastCat(cid, getCurrentRoom().getCenterX(), getCurrentRoom().getCenterY());
+            case NetworkProtocol.GUNCAT:
+                return new GunCat(cid, getCurrentRoom().getCenterX(), getCurrentRoom().getCenterY());
+            default:
+                return new HeavyCat(cid, getCurrentRoom().getCenterX(), getCurrentRoom().getCenterY());
         }
     }
 
@@ -1200,5 +1320,13 @@ public class ServerMaster {
 
     public void setPlayerNum(int i){
         playerNum = i;
+    }
+
+    public boolean getIsSinglePlayerum(){
+        return isSinglePlayer;
+    }
+
+    public void setIsSinglePlayer(boolean b){
+        isSinglePlayer = b;
     }
 }

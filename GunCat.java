@@ -41,9 +41,10 @@ public class GunCat extends Player{
      * @param y the y-coordinate
      */
     public GunCat(int cid, int x, int y){
+        // GUN CAT USED AS TEST DUMMY: CHANGE STATS PLEASE
         this.clientId = cid;
         identifier = NetworkProtocol.GUNCAT;
-        baseSpeed = 2;
+        baseSpeed = 4;
         speed = baseSpeed;
         height = 16;
         width = 16;

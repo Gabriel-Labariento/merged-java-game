@@ -37,8 +37,6 @@ public class GameCanvas extends JComponent {
     private float screenOpacity;
     private int currentStage;
     private boolean isOnMenu;
-    public GameFrame.isGamePausedRef isGamePausedRef;
-    
     
     /**
      * Creates a GameCanvas instance with width and height. Insantiates a gameClient,
@@ -46,13 +44,12 @@ public class GameCanvas extends JComponent {
      * @param width the canvas' width
      * @param height the canvas' height
      */
-    public GameCanvas(int width, int height, Font gameFont, GameFrame.isGamePausedRef isGamePausedRef){
+    public GameCanvas(int width, int height, Font gameFont, boolean isSinglePlayer){
         this.width = width;
         this.height = height;
-        this.isGamePausedRef = isGamePausedRef;
         renderLoopScheduler = Executors.newSingleThreadScheduledExecutor();
         clientMaster = new ClientMaster();
-        gameClient = new GameClient(clientMaster);
+        gameClient = new GameClient(clientMaster, isSinglePlayer);
         setPreferredSize(new Dimension(width, height));
         playerUI = new PlayerUI(gameFont);
         specialFrameHandler = new SpecialFrameHandler(gameFont);
@@ -136,8 +133,6 @@ public class GameCanvas extends JComponent {
 
             //Draw UI elements
             playerUI.drawPlayerUI(g2d, clientMaster, scaleFactor);
-            if(isGamePausedRef.isGamePaused) playerUI.drawPauseTab(g2d, scaleFactor);
-
         }
     }
 
