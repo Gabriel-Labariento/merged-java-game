@@ -128,7 +128,10 @@ public class GameFrame extends JFrame{
         btns.add(new JButton("MULTIPLAYER"));   //  9
         btns.add(new JButton("YES"));           //  10
         btns.add(new JButton("NO"));            //  11
-
+        for (JButton jButton : btns) {
+            jButton.setHorizontalAlignment(SwingConstants.CENTER);
+        }
+        
         gameTitle = new JLabel("BITING ON FISH", SwingConstants.CENTER);
         ipLabel = new JLabel();
         portLabel = new JLabel();
@@ -202,7 +205,7 @@ public class GameFrame extends JFrame{
         quitButton.setFont(gameFont14);
         lp.add(quitButton, Integer.valueOf(1));
 
-        setUpButtonHoverEffects();
+        setUpButtonHoverEffects(0);
     }
 
     public void loadWarningPanel(){
@@ -249,75 +252,34 @@ public class GameFrame extends JFrame{
     
     /**
      * Sets up hover effect mouse listeners for different GUI screens
+     * @param sourceMethod 0: loadStartUI, 1: loadClientUI, 2: loadPrePlayUI
      */
-    private void setUpButtonHoverEffects(){
-
-        addColorHoverEffect(btns.get(0)); // Start button
-        addColorHoverEffect(btns.get(1)); // Quit button
-        addColorHoverEffect(btns.get(4)); // Host Server
-        addColorHoverEffect(btns.get(8)); // Continue button
-        addColorHoverEffect(btns.get(9)); // Multiplayer button
-        addColorHoverEffect(btns.get(10)); // Warning - Yes
-        addColorHoverEffect(btns.get(11)); // Warning - No
-        
-        addLineEffect(btns.get(2)); // Connect Button
-        addLineEffect(btns.get(3)); // Back Button
-
+    private void setUpButtonHoverEffects(int sourceMethod){
+        switch (sourceMethod) {
+            case 0: // Start UI
+                addColorHoverEffect(btns.get(0)); // Start button
+                addColorHoverEffect(btns.get(1)); // Quit button
+                addColorHoverEffect(btns.get(8)); // Continue button
+                addColorHoverEffect(btns.get(9)); // Multiplayer button
+                addColorHoverEffect(btns.get(10)); // Warning - Yes
+                addColorHoverEffect(btns.get(11)); // Warning - No
+                break;
+            case 1: // Client UI
+                addLineEffect(btns.get(2)); // Connect Button
+                addLineEffect(btns.get(3)); // Back Button
+                addColorHoverEffect(btns.get(4)); // Host Server
+                break;
+            case 2: // Pre-play UI
+                addLineEffect(btns.get(3)); // Back Button
+                addColorHoverEffect(btns.get(5)); // Enter Game Button
+                addColorHoverEffect(btns.get(6)); // < Button
+                addColorHoverEffect(btns.get(7)); // > Button
+                break;
+            default:
+                throw new AssertionError("Assertion in setUpButtonHoverEffects()");
+        }
     }
     
-
-    /**
-     * Adds hover effects to a button
-     * @param button the button to add hover effects to
-     */
-    private void addColorHoverEffect(JButton button) {
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(Color.black);
-                button.setForeground(Color.white);
-                button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            }
-        
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(Color.white);
-                button.setForeground(Color.black);
-                button.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-        });
-    }
-    
-    private void addLineEffect(JButton button){
-        // Add white line below connect button
-        Rectangle buttonBounds = button.getBounds();
-        
-        int x = (int) (buttonBounds.getX() + 10);
-        int y = (int) (buttonBounds.getY() + buttonBounds.getHeight() + 5);
-        int width = (int) (buttonBounds.getWidth() - 10);
-        int height = 5;
-
-
-        JPanel linePanel = new JPanel();
-        linePanel.setBackground(Color.WHITE);
-        linePanel.setBounds(x, y, width, height);
-        lp.add(linePanel, Integer.valueOf(1));
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                linePanel.setBounds(x - 15, y, width + 15, 5);
-            }
-        
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                linePanel.setBounds(x, y, width, height);
-            }
-        });
-    }
-
     /**
      * Loads the pre-game screen needed for client-server connection
      */
@@ -371,8 +333,8 @@ public class GameFrame extends JFrame{
         hostServerButton.setFont(gameFont20);
 
         lp.add(hostServerButton, Integer.valueOf(1));
-        
-        setUpButtonHoverEffects();
+
+        setUpButtonHoverEffects(1);
     }
 
     /**
@@ -392,57 +354,21 @@ public class GameFrame extends JFrame{
         portLabel.setBounds(85, 196, 558, 25);
         lp.add(portLabel, Integer.valueOf(1));
 
-        // QUIT BUTTON
-        JButton quitButton = btns.get(3);
-        quitButton.setBackground(Color.black);
-        quitButton.setForeground(Color.white);
-        quitButton.setBorderPainted(false);
-        quitButton.setFont(gameFont20);
-        quitButton.setBounds(167, 474, 123, 31);
-        lp.add(quitButton, Integer.valueOf(1));
-
-        // Add white line below connect button
-        JPanel quitLinePanel = new JPanel();
-        quitLinePanel.setBackground(Color.WHITE);
-        quitLinePanel.setBounds(175, 505, 106, 5);
-        lp.add(quitLinePanel, Integer.valueOf(1));
-
-        quitButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                quitLinePanel.setBounds(163, 505, 127, 5);
-            }
-        
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                quitButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                quitLinePanel.setBounds(175, 505, 106, 5);
-            }
-        });
+        // BACK BUTTON
+        JButton backButton = btns.get(3);
+        backButton.setBackground(Color.black);
+        backButton.setForeground(Color.white);
+        backButton.setBorderPainted(false);
+        backButton.setFont(gameFont20);
+        backButton.setBounds(536, 477, 118, 31);
+        lp.add(backButton, Integer.valueOf(1));
 
         // ENTER GAME BUTTON
         JButton enterGameButton = btns.get(5);
         enterGameButton.setBackground(Color.white);
         enterGameButton.setForeground(Color.black);
-        enterGameButton.setBounds(85, 390, 287, 56);
+        enterGameButton.setBounds(447, 392, 287, 56);
         enterGameButton.setFont(gameFont20);
-
-        enterGameButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                enterGameButton.setBackground(Color.black);
-                enterGameButton.setForeground(Color.white);
-                enterGameButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            }
-        
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                enterGameButton.setBackground(Color.white);
-                enterGameButton.setForeground(Color.black);
-                enterGameButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-        });
         lp.add(enterGameButton, Integer.valueOf(1));
 
         // CAROUSEL TEXT
@@ -451,21 +377,21 @@ public class GameFrame extends JFrame{
 
         carouselLabel.setBackground(Color.black);
         carouselLabel.setForeground(Color.white);
-        carouselLabel.setBounds(447, 262, 288, 25);
+        carouselLabel.setBounds(85, 323, 288, 25);
         carouselLabel.setFont(gameFont16);
         carouselLabel.setHorizontalAlignment(SwingConstants.CENTER);
         lp.add(carouselLabel, Integer.valueOf(1));
 
         updateFishCarousel();
         catNameLabel.setForeground(Color.WHITE);
-        catNameLabel.setBounds(501, 459, 179, 10);
+        catNameLabel.setBounds(135, 504, 179, 10);
         catNameLabel.setFont(gameFont6);
         catNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         lp.add(catNameLabel, Integer.valueOf(1));
 
         // LEFT BUTTON
         JButton leftButton = btns.get(6);
-        leftButton.setBounds(540, 490, 50, 31);
+        leftButton.setBounds(168, 528, 50, 31);
         leftButton.setHorizontalAlignment(SwingConstants.CENTER);
         leftButton.setBackground(Color.black);
         leftButton.setForeground(Color.white);
@@ -473,25 +399,9 @@ public class GameFrame extends JFrame{
         leftButton.setFont(gameFont16);
         lp.add(leftButton, Integer.valueOf(1));
 
-        leftButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                leftButton.setBackground(Color.white);
-                leftButton.setForeground(Color.black);
-                leftButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            }
-        
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                leftButton.setBackground(Color.black);
-                leftButton.setForeground(Color.white);
-                leftButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-        });
-
         // RIGHT BUTTON
         JButton rightButton = btns.get(7);
-        rightButton.setBounds(590, 490, 50, 31);
+        rightButton.setBounds(222, 528, 50, 31);
         rightButton.setHorizontalAlignment(SwingConstants.CENTER);
         rightButton.setBackground(Color.black);
         rightButton.setForeground(Color.white);
@@ -499,22 +409,69 @@ public class GameFrame extends JFrame{
         rightButton.setFont(gameFont16);
         lp.add(rightButton, Integer.valueOf(1));
 
-        rightButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                rightButton.setBackground(Color.white);
-                rightButton.setForeground(Color.black);
-                rightButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            }
-        
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                rightButton.setBackground(Color.black);
-                rightButton.setForeground(Color.white);
-                rightButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-        });
+        setUpButtonHoverEffects(2);
     }
+
+    public void loadSoloPlayUI(){
+        // BACK BUTTON
+        JButton backButton = btns.get(3);
+        backButton.setBackground(Color.black);
+        backButton.setForeground(Color.white);
+        backButton.setBorderPainted(false);
+        backButton.setFont(gameFont20);
+        backButton.setBounds(536, 338, 118, 31);
+        lp.add(backButton, Integer.valueOf(1));
+
+        // ENTER GAME BUTTON
+        JButton enterGameButton = btns.get(5);
+        enterGameButton.setBackground(Color.white);
+        enterGameButton.setForeground(Color.black);
+        enterGameButton.setBounds(447, 253, 287, 56);
+        enterGameButton.setFont(gameFont20);
+        lp.add(enterGameButton, Integer.valueOf(1));
+
+        // CAROUSEL TEXT
+        catCarousel = new CatCarousel();
+        catCarousel.setBounds(171, 242, 125, 117);
+        lp.add(catCarousel, Integer.valueOf(1));
+
+        carouselLabel.setBackground(Color.black);
+        carouselLabel.setForeground(Color.white);
+        carouselLabel.setBounds(73, 171, 349, 31);
+        carouselLabel.setFont(gameFont20);
+        carouselLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lp.add(carouselLabel, Integer.valueOf(1));
+
+        updateFishCarousel();
+        catNameLabel.setForeground(Color.WHITE);
+        catNameLabel.setBounds(127, 381, 217, 12);
+        catNameLabel.setFont(gameFont6);
+        catNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lp.add(catNameLabel, Integer.valueOf(1));
+
+        // LEFT BUTTON
+        JButton leftButton = btns.get(6);
+        leftButton.setBounds(170, 415, 61, 38);
+        leftButton.setHorizontalAlignment(SwingConstants.CENTER);
+        leftButton.setBackground(Color.black);
+        leftButton.setForeground(Color.white);
+        leftButton.setBorderPainted(false);
+        leftButton.setFont(gameFont16);
+        lp.add(leftButton, Integer.valueOf(1));
+
+        // RIGHT BUTTON
+        JButton rightButton = btns.get(7);
+        rightButton.setBounds(235, 415, 61, 38);
+        rightButton.setHorizontalAlignment(SwingConstants.CENTER);
+        rightButton.setBackground(Color.black);
+        rightButton.setForeground(Color.white);
+        rightButton.setBorderPainted(false);
+        rightButton.setFont(gameFont16);
+        lp.add(rightButton, Integer.valueOf(1));
+
+        setUpButtonHoverEffects(2);
+    }
+
 
     /**
      * Updates the selected player display based on user input
@@ -558,7 +515,7 @@ public class GameFrame extends JFrame{
             // START BUTTON
             if (o == btns.get(0)){                  
                 clearGUI();
-                loadClientUI();
+                loadSoloPlayUI();
                 refreshFrame();
             }
             // QUIT BUTTON
@@ -579,6 +536,7 @@ public class GameFrame extends JFrame{
                 clearGUI();
                 loadStartUI();
                 refreshFrame();
+                catCarousel.stopCarouselRenderLoop();
             }
             // HOST SERVER
             else if (o == btns.get(4)){
@@ -606,10 +564,10 @@ public class GameFrame extends JFrame{
             // CONTINUE
             else if (o == btns.get(8)){
                 // TODO: IMPLEMENT CONTINUE BUTTON
+                System.out.println("GameFrame.java: 567. Save system not yet supported. Please come back soon.");
             }
             // MULTIPLAYER
             else if (o == btns.get(9)){
-                // TODO: IMPLEMENT MULTIPLAYER BUTTON
                 clearGUI();
                 loadClientUI();
                 refreshFrame();
@@ -807,6 +765,61 @@ public class GameFrame extends JFrame{
     }
 
     /**
+     * Adds hover effects to a button
+     * @param button the button to add hover effects to
+     */
+    private void addColorHoverEffect(JButton button) {
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            Color originalBG = button.getBackground();
+            Color alternateBG = (originalBG == Color.BLACK) ? Color.WHITE : Color.BLACK;
+
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(alternateBG);
+                button.setForeground(originalBG);
+                button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(originalBG);
+                button.setForeground(alternateBG);
+                button.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
+    }
+    
+    private void addLineEffect(JButton button){
+        // Add white line below connect button
+        Rectangle buttonBounds = button.getBounds();
+        
+        int x = (int) (buttonBounds.getX() + 45);
+        int y = (int) (buttonBounds.getY() + buttonBounds.getHeight() + 5);
+        int width = (int) (buttonBounds.getWidth() - 100);
+        int height = 5;
+
+
+        JPanel linePanel = new JPanel();
+        linePanel.setBackground(Color.WHITE);
+        linePanel.setBounds(x, y, width, height);
+        lp.add(linePanel, Integer.valueOf(1));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                linePanel.setBounds(button.getX(), button.getY() + button.getHeight() + 5, button.getWidth(), 5);
+            }
+        
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                linePanel.setBounds(x, y, width, height);
+            }
+        });
+    }
+
+    /**
      * Gets the GameCanvas stored in the GameCanvas field
      * @return the GameCanvas object in this class
      */
@@ -815,18 +828,18 @@ public class GameFrame extends JFrame{
     }
 
     private class CatCarousel extends JComponent {
-        private static final int WIDTH = 191;
-        private static final int HEIGHT = 138;
+        private static final int WIDTH = 125;
+        private static final int HEIGHT = 117;
         private Player player;
         private Thread animationThread;
         private volatile boolean isRunning;
         private static final int ATTACK_INTERVAL = 2000; // 2 seconds between attacks
         private final ScheduledExecutorService renderLoopScheduler;
-        private ArrayList<Attack> activeAttacks;
+        private final ArrayList<Attack> activeAttacks;
         private long lastAttackTime = 0;
 
         public CatCarousel(){
-            setBounds(489, 300, WIDTH, HEIGHT);
+            setBounds(157, 372, WIDTH, HEIGHT);
             setOpaque(true);
             setBackground(Color.decode("#7a7979"));
             activeAttacks = new ArrayList<>();
