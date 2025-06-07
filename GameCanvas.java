@@ -160,7 +160,9 @@ public class GameCanvas extends JComponent{
             
             // Draw room doors
             for (Door door : currentRoom.getDoorsArrayList()) {
-                door.draw(g2d, cameraX, cameraY);
+                if (door.isOpen() && door.getRoomB() != null) {
+                    door.draw(g2d, cameraX, cameraY);
+                }
             }
 
             // Draw enemies, projectiles, other players

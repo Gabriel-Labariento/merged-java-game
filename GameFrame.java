@@ -52,6 +52,8 @@ public class GameFrame extends JFrame{
     private final JTextField portTextField;
     private int fishSlideNum;
 
+    private boolean isMultiPlayerMode;
+
     private static CatCarousel catCarousel;
 
     private static Font gameFont;
@@ -141,6 +143,8 @@ public class GameFrame extends JFrame{
         ipTextField = new JTextField(10);
         portTextField = new JTextField(10);
         lp = new JLayeredPane();
+
+        isMultiPlayerMode = false;
     }
 
     /**
@@ -284,6 +288,7 @@ public class GameFrame extends JFrame{
      * Loads the pre-game screen needed for client-server connection
      */
     public void loadClientUI(){
+        isMultiPlayerMode = true;
 
         ipLabel.setForeground(Color.WHITE);
         ipLabel.setText("IP ADDRESS:");
@@ -413,6 +418,8 @@ public class GameFrame extends JFrame{
     }
 
     public void loadSoloPlayUI(){
+        isMultiPlayerMode = false;
+
         // BACK BUTTON
         JButton backButton = btns.get(3);
         backButton.setBackground(Color.black);
@@ -549,6 +556,13 @@ public class GameFrame extends JFrame{
             }
             // ENTER GAME
             else if (o == btns.get(5)){
+                // TODO: CHANGE FOR PROPER SINGLE/MULTI PLAYER SYSTEM
+                if (!isMultiPlayerMode) {
+                    gameClient.hostServer();
+                    serverIP = gameClient.getServerIP();
+                    serverPort = gameClient.getServerPort();
+                    clearGUI();
+                }
                 startPlay();
             }
             // LEFT ARROW

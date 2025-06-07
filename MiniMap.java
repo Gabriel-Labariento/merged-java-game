@@ -17,6 +17,7 @@ public class MiniMap extends JComponent {
     public static final int COLS = 11;
     public static final Color CURRENT_ROOM_COLOR = new Color(255, 255, 255);
     public static final Color CONNECTED_ROOM_COLOR = new Color(100, 100, 100);
+    public static final Color CLEARED_ROOM_COLOR = new Color(0, 255, 0, 150); // Semi-transparent green
     public static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 150);
     public static final Color BORDER_COLOR = new Color(255, 255, 255, 100);
     public static final int CENTER_CELL_X = X + COLS / 2 * ROOM_SIZE;
@@ -76,7 +77,15 @@ public class MiniMap extends JComponent {
             int drawX = CENTER_CELL_X + pos.x * ROOM_SIZE;
             int drawY = CENTER_CELL_Y + pos.y * ROOM_SIZE;
             
-            g2d.setColor((room == currentRoom) ? CURRENT_ROOM_COLOR : CONNECTED_ROOM_COLOR);
+            // Choose color based on room state
+            if (room == currentRoom) {
+                g2d.setColor(CURRENT_ROOM_COLOR);
+            } else if (ServerMaster.getInstance().getDungeonMap().getRoomFromId(room.getRoomId()).isCleared()) {
+                g2d.setColor(CLEARED_ROOM_COLOR);
+            } else {
+                g2d.setColor(CONNECTED_ROOM_COLOR);
+            }
+            
             g2d.fillRect(drawX, drawY, ROOM_SIZE, ROOM_SIZE);
         }
     }
