@@ -626,6 +626,7 @@ public class GameFrame extends JFrame{
         // Start the level music after the scene is done playing
         if (!sceneHandler.getIsScenePlaying()) {
             SoundManager.getInstance().playLevelMusic(0);
+            SoundManager.getInstance().playMusic("mainGameBGMusic");
         }
     }
 
