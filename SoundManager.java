@@ -34,7 +34,7 @@ public class SoundManager {
     soundPools = new HashMap<>();
     masterVolume = 0.7f;
     musicVolume = 0.5f;
-    sfxVolume = 0.5f;
+    sfxVolume = 0.7f;
     audioExecutor = Executors.newSingleThreadExecutor();
   }
 
@@ -141,12 +141,12 @@ public class SoundManager {
    * @param name the name of the sound effect
    * @param poolSize the size of the sound pool
    */
-  private void initializeSoundPool(String name, int poolSize) {
+  private void initializeSoundPool(String name, String path, int poolSize) {
     List<Clip> pool = new ArrayList<>();
     for (int i = 0; i < poolSize; i++) {
       try {
         AudioInputStream audioIn = AudioSystem.getAudioInputStream(
-          getClass().getResource("/resources/Sounds/sfx/" + name));
+          getClass().getResource("/resources/Sounds/sfx/" + path));
         Clip clip = AudioSystem.getClip();
         clip.open(audioIn);
         pool.add(clip);
@@ -182,14 +182,16 @@ public class SoundManager {
 
   public void setUpAudio(){
     // ATTACKS
-    initializeSoundPool("playerSlash.wav", 5);
-    initializeSoundPool("playerBullet.wav", 5); 
-    initializeSoundPool("playerSmash.wav", 5);   
-    initializeSoundPool("spiderBullet.wav", 10);
-    initializeSoundPool("snakeBullet.wav", 10);
-    initializeSoundPool("enemyBite.wav", 10);
-    initializeSoundPool("enemySlash.wav", 10);
-    initializeSoundPool("laserBullet.wav", 30);
+    initializeSoundPool("playerSlash.wav", "playerSlash.wav", 5);
+    initializeSoundPool("playerBullet.wav", "playerBullet.wav", 5); 
+    initializeSoundPool("playerSmash.wav", "playerSmash.wav", 5);   
+    initializeSoundPool("spiderBullet.wav", "spiderBullet.wav", 10);
+    initializeSoundPool("snakeBullet.wav", "snakeBullet.wav", 10);
+    initializeSoundPool("enemyBite.wav", "enemyBite.wav", 10);
+    initializeSoundPool("enemySlash.wav", "enemySlash.wav", 10);
+    initializeSoundPool("laserBullet.wav", "laserBullet.wav", 30);
+
+    initializeSoundPool("click", "click.wav", 5);
 
 
     // GAME OVER

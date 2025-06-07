@@ -101,7 +101,7 @@ public abstract class Enemy extends Entity {
      * @return the closestPlayer to the enemy within the scanRadius
      */
     public Player scanForPlayer(ServerMaster gsm){
-        final int scanRadius = GameCanvas.TILESIZE * 16;
+        final int scanRadius = GameCanvas.TILESIZE * 25;
         Player closestPlayer = null;
         double minDistance = Integer.MAX_VALUE; // Random large number
 

@@ -240,7 +240,7 @@ public class FishMonster extends Enemy{
         int centerX = getCenterX();
         int centerY = getCenterY();
         
-        // Create 8 bullets around robot in a circle
+        // Create 12 bullets around robot in a circle
         for (int i = 0; i < 12; i++) {
             double angle = i * Math.PI / 6;
             

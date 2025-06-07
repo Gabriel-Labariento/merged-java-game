@@ -1,5 +1,4 @@
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**     
         The ClientMaster serves as a client side game state manager.
@@ -26,7 +25,7 @@ public class ClientMaster {
     private Player userPlayer;
     private HashMap <Integer, Room> allRooms;
     private Room currentRoom;
-    private CopyOnWriteArrayList<Entity> entities; 
+    private List<Entity> entities; 
     private int xpBarPercent;
     private int userLvl;
     private String heldItemIdentifier;
@@ -51,7 +50,7 @@ public class ClientMaster {
         scene5Choice = "";
         hasChosenScene5End = null;
         isWaitingForChoice = false;
-        entities = new CopyOnWriteArrayList<>();
+        entities = Collections.synchronizedList(new ArrayList<>());
     }
 
     /**
@@ -262,7 +261,7 @@ public class ClientMaster {
      * Gets the list of entities the client holds
      * @return a CopyOnWriteArrayList that holds the entities the client knows about.
      */
-    public CopyOnWriteArrayList<Entity> getEntities() {
+    public List<Entity> getEntities() {
         return entities;
     }
 
@@ -270,7 +269,7 @@ public class ClientMaster {
      * Sets the entities field of the client to the provided value
      * @param entities a CopyOnWriteArrayList to set the entities field to.
      */
-    public void setEntities(CopyOnWriteArrayList<Entity> entities) {
+    public void setEntities(List<Entity> entities) {
         this.entities = entities;
     }
     

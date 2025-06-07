@@ -92,9 +92,9 @@ public class PlayerBullet extends Attack{
      * Moves the bullet based on its speed and the value of the vector components
      * normalizedX and normalizedY
      */
-    private void moveBullet(){
-        worldX += speed*normalizedX;
-        worldY += speed*normalizedY;
+    private void moveBullet(double scaleFactor){
+        worldX += (speed*scaleFactor)*normalizedX;
+        worldY += (speed*scaleFactor)*normalizedY;
         matchHitBoxBounds();
     }
 
@@ -104,7 +104,16 @@ public class PlayerBullet extends Attack{
             SoundManager.getInstance().playPooledSound("playerBullet.wav");
             hasPlayedSound = true;
         }
-        moveBullet();
+        moveBullet(1);
+    }
+
+    @Override
+    public void updateCarousel() {
+        if (!hasPlayedSound) {
+            SoundManager.getInstance().playPooledSound("playerBullet.wav");
+            hasPlayedSound = true;
+        }
+        moveBullet(0.4);
     }
 
 }

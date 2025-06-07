@@ -130,7 +130,7 @@ public class Spider extends Enemy{
         double normalizedX = vectorX / normalizedVector;
         double normalizedY = vectorY / normalizedVector;
 
-        SpiderBullet sb = new SpiderBullet(this, this.worldX-SpiderBullet.WIDTH/2, this.worldY-SpiderBullet.HEIGHT/2, normalizedX, normalizedY);
+        SpiderBullet sb = new SpiderBullet(this, getCenterX()-SpiderBullet.WIDTH/2, getCenterY()-SpiderBullet.HEIGHT/2, normalizedX, normalizedY);
         gsm.addEntity(sb);
     }
 }

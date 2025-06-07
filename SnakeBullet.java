@@ -102,5 +102,11 @@ public class SnakeBullet extends Attack {
             worldY += speed * normalizedY;
             matchHitBoxBounds();
         }
+
+        @Override
+        public void updateCarousel() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'updateCarousel'");
+        }
         
     }

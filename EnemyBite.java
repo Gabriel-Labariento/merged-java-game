@@ -87,4 +87,10 @@ public class EnemyBite extends Attack{
         }
         attachToOwner();
     }
+
+    @Override
+    public void updateCarousel() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateCarousel'");
+    }
 }

@@ -138,7 +138,7 @@ public class SecurityBot extends Enemy{
         double normalizedX = vectorX / normalizedVector;
         double normalizedY = vectorY / normalizedVector;
 
-        LaserBullet bullet = new LaserBullet(this, this.worldX-LaserBullet.WIDTH/2, this.worldY-LaserBullet.HEIGHT/2, normalizedX, normalizedY);
+        LaserBullet bullet = new LaserBullet(this, getCenterX()-LaserBullet.WIDTH/2, getCenterY()-LaserBullet.HEIGHT/2, normalizedX, normalizedY);
         gsm.addEntity(bullet);
     }
 }

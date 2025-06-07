@@ -127,4 +127,6 @@ public abstract class Attack extends Entity{
         return 0;
     }
 
+    public abstract void updateCarousel();
+
 }

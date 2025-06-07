@@ -2,7 +2,13 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -57,6 +63,7 @@ public class GameFrame extends JFrame{
     private final JSlider sfxVolumeSlider;
     private final JSlider musicVolumeSlider;
     private final JSlider masterVolumeSlider;
+    private static CatCarousel catCarousel;
     private int fishSlideNum;
     private static Font gameFont;
     public boolean isGamePaused;
@@ -104,7 +111,7 @@ public class GameFrame extends JFrame{
         btns.add(new JButton("ENTER GAME")); // 5
         btns.add(new JButton("<")); // 6
         btns.add(new JButton(">")); // 7
-        btns.add(new JButton("DISCONNECT")); // 8
+        btns.add(new JButton()); // 8
         btns.add(new JButton("BACK")); // 9
         btns.add(new JButton("CONTINUE")); // 10
         btns.add(new JButton("START")); // 11
@@ -132,7 +139,7 @@ public class GameFrame extends JFrame{
         //Use html for custom text styling
         startWarningLabel = new JLabel("<html><center>WARNING:<br>Your previous progress will be lost.<br><br><br>Continue anyway?</center></html>");
         carouselLabel = new JLabel("CHOOSE A FISH:");
-        pauseTitleLabel = new JLabel("- PAUSED -");
+        pauseTitleLabel = new JLabel("--- PAUSED ---", SwingConstants.CENTER);
         volumeMainLabel = new JLabel("MASTER VOLUME:");
         volumeSubLabel = new JLabel("<html>Sound Effects:<br><br>Music:</html>");
         
@@ -362,6 +369,14 @@ public class GameFrame extends JFrame{
         });
 
         lp.add(backBtn, Integer.valueOf(2));
+
+        
+
+        catCarousel = new CatCarousel();
+        catCarousel.setBounds(171, 242, 125, 117);
+        lp.add(catCarousel, Integer.valueOf(2));
+        
+        
         
         
         updateFishCarousel();
@@ -377,6 +392,12 @@ public class GameFrame extends JFrame{
         carouselLabel.setFont(getSizedGameFont(24));
         carouselLabel.setHorizontalAlignment(SwingConstants.CENTER);
         lp.add(carouselLabel, Integer.valueOf(2));
+
+        JPanel carouselBorder = new JPanel();
+        carouselBorder.setBackground(Color.WHITE);
+        carouselBorder.setOpaque(true);
+        carouselBorder.setBounds(167, 238, 133, 124);
+        lp.add(carouselBorder, Integer.valueOf(2));
 
         // LEFT BUTTON
         JButton leftButton = btns.get(6);
@@ -425,6 +446,9 @@ public class GameFrame extends JFrame{
         lp.add(enterGameButton, Integer.valueOf(2));
 
 
+        catCarousel = new CatCarousel();
+        lp.add(catCarousel, Integer.valueOf(2));
+
         updateFishCarousel();
         catNameLabel.setForeground(Color.WHITE);
         catNameLabel.setBounds(130, 504, 179, 10);
@@ -438,6 +462,12 @@ public class GameFrame extends JFrame{
         carouselLabel.setFont(getSizedGameFont(20));
         carouselLabel.setHorizontalAlignment(SwingConstants.CENTER);
         lp.add(carouselLabel, Integer.valueOf(2));
+
+        JPanel carouselBorder = new JPanel();
+        carouselBorder.setBackground(Color.WHITE);
+        carouselBorder.setOpaque(true);
+        carouselBorder.setBounds(153, 369, 133, 124);
+        lp.add(carouselBorder, Integer.valueOf(2));
 
         // LEFT BUTTON
         JButton leftButton = btns.get(6);
@@ -495,9 +525,9 @@ public class GameFrame extends JFrame{
 
     public void loadPauseUI(){
 
-        pauseTitleLabel.setForeground(Color.WHITE);
-        pauseTitleLabel.setBounds(285, 188, 350, 40);
-        pauseTitleLabel.setFont(getSizedGameFont(24f));
+        pauseTitleLabel.setForeground(Color.WHITE); 
+        pauseTitleLabel.setBounds(187, 194, 426, 35);
+        pauseTitleLabel.setFont(getSizedGameFont(28f));
         lp.add(pauseTitleLabel, Integer.valueOf(2));
 
         volumeMainLabel.setForeground(Color.WHITE);
@@ -516,6 +546,9 @@ public class GameFrame extends JFrame{
         lp.add(masterVolumeSlider, Integer.valueOf(2));
 
         JButton pauseDisconnectBtn = btns.get(8);
+        if(isSinglePlayer) pauseDisconnectBtn.setText("MAIN MENU");
+        else pauseDisconnectBtn.setText("DISCONNECT");
+
         pauseDisconnectBtn.setBackground(Color.white);
         pauseDisconnectBtn.setForeground(Color.black);
         pauseDisconnectBtn.setBounds(217, 400, 192, 41);
@@ -712,7 +745,7 @@ public class GameFrame extends JFrame{
 
         switch(fishSlideNum){
             case 1:
-                catNameLabel.setText("TUNA (HEAVY)");
+                catNameLabel.setText("PUFFERFISH (HEAVY)");
                 playerType = NetworkProtocol.HEAVYCAT;
                 break;
             case 2:
@@ -725,6 +758,9 @@ public class GameFrame extends JFrame{
                 break;
         }
         
+        if (catCarousel != null) {
+            catCarousel.updatePlayer(fishSlideNum);
+        }
         refreshFrame();
     }
 
@@ -735,6 +771,8 @@ public class GameFrame extends JFrame{
      */
     public void setUpButtons(){
         ActionListener btnListener = (ActionEvent ae) -> {
+            SoundManager.getInstance().playPooledSound("click");
+
             Object o = ae.getSource();
             
             //multiplayer
@@ -757,10 +795,10 @@ public class GameFrame extends JFrame{
             }
             //back
             else if (o == btns.get(3)){
+                if (catCarousel != null) catCarousel.stopCarouselRenderLoop();
                 clearGUI();
                 loadStartUI();
                 refreshFrame();
-
                 GameServer gs = gameClient.getGameServer();
                 if (gs != null) gs.shutDownServer();
             }
@@ -948,6 +986,8 @@ public class GameFrame extends JFrame{
 
         //Force reload
         cp.requestFocusInWindow();
+        catCarousel.stopCarouselRenderLoop();
+        
 
         // Start the level music after the scene is done playing
         if (!specialFrameHandler.getIsScenePlaying()) {
@@ -1207,5 +1247,173 @@ public class GameFrame extends JFrame{
         // size *= 1.2;
         return gameFont.deriveFont(size);
     }
-    
+
+    private class CatCarousel extends JComponent {
+        private static final int WIDTH = 125;
+        private static final int HEIGHT = 117;
+        private Player player;
+        private Thread animationThread;
+        private volatile boolean isRunning;
+        private static final int ATTACK_INTERVAL = 2000; // 2 seconds between attacks
+        private final ScheduledExecutorService renderLoopScheduler;
+        private final List<Attack> activeAttacks;
+        private long lastAttackTime = 0;
+
+        public CatCarousel(){
+            setBounds(157, 372, WIDTH, HEIGHT);
+            setOpaque(true);
+            setBackground(Color.decode("#7a7979"));
+            activeAttacks = Collections.synchronizedList(new ArrayList<>());
+            renderLoopScheduler = Executors.newSingleThreadScheduledExecutor();
+
+            // Default player
+            player = new HeavyCat(0, (WIDTH / 2) - 16, (HEIGHT / 2) - 8);
+            
+            // Start animation thread
+            startRenderLoop();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g){
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            
+            // Enable antialiasing
+            RenderingHints rh = new RenderingHints(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHints(rh);
+
+            // Draw background
+            g2d.setColor(getBackground());
+            g2d.fillRect(0, 0, WIDTH, HEIGHT);
+
+            // Create defensive copy to avoid concurrent modification
+            List<Attack> attacksCopy;
+            synchronized(activeAttacks) {
+                attacksCopy = new ArrayList<>(activeAttacks);
+            }
+            
+            // Draw active attacks
+            for (Attack attack : attacksCopy) {
+                attack.draw(g2d, attack.getWorldX(), attack.getWorldY());
+            }
+            
+            // Draw player
+            if (player != null) {
+                player.draw(g2d, player.getWorldX(), player.getWorldY());
+            }
+        }
+
+        private void spawnAttack() {
+            long now = System.currentTimeMillis();
+            if (now - lastAttackTime < ATTACK_INTERVAL) {
+                return;
+            }
+            lastAttackTime = now;
+
+            // Calculate attack position (center of carousel)
+            int centerX = WIDTH / 2;
+            int centerY = HEIGHT / 2;
+
+            // Create attack based on player type
+            Attack attack = null;
+            if (player instanceof HeavyCat) {
+                attack = new PlayerSmash(0, player, centerX - PlayerSmash.WIDTH/2, centerY - PlayerSmash.HEIGHT/2, player.getDamage(), true);
+            } else if (player instanceof FastCat) {
+                attack = new PlayerSlash(0, player, centerX, centerY - PlayerSlash.HEIGHT/2, player.getDamage(), true);
+            } else if (player instanceof GunCat) {
+                // Calculate direction vector (shoot towards right side of carousel)
+                double normalizedX = 1.0;
+                double normalizedY = 0.0;
+                attack = new PlayerBullet(0, player, centerX, centerY - PlayerBullet.HEIGHT/2, normalizedX, normalizedY, player.getDamage(), true);
+            }
+
+            if (attack != null) {
+                synchronized(activeAttacks) {
+                    activeAttacks.clear(); // Clear previous attacks
+                    activeAttacks.add(attack);
+                }
+            }
+        }
+
+        public void updatePlayer(int fishSlideNum) {
+            // Clear active attacks
+            synchronized(activeAttacks) {
+                activeAttacks.clear();
+            }
+            
+            // Create new player
+            switch(fishSlideNum) {
+                case 1:
+                    player = new HeavyCat(0, (WIDTH / 2) - 8, (HEIGHT / 2) - 8);
+                    break;
+                case 2:
+                    player = new FastCat(0, (WIDTH / 2) - 8, (HEIGHT / 2) - 8);
+                    break;
+                case 3:
+                    player = new GunCat(0, (WIDTH / 2) - 8, (HEIGHT / 2) - 8);
+                    break;
+            }
+            
+            // Reset attack timing
+            lastAttackTime = 0;
+        }
+
+        /**
+         * Calls repaint on this GameCanvas every REFRESHINTERVAL milliseconds
+         * Also handles attack spawning and animation
+         */
+        private void startRenderLoop(){
+            isRunning = true;
+            
+            Runnable renderLoop = new Runnable() {
+                @Override
+                public void run() {
+                    if (!isRunning) return;
+                    
+                    // Handle attack spawning and animation
+                    if (player != null && System.currentTimeMillis() - lastAttackTime > ATTACK_INTERVAL) {
+                        player.runAttackFrames();
+                        spawnAttack();
+                    }
+                    
+                    // Create defensive copy for safe iteration
+                    List<Attack> attacksCopy;
+                    synchronized(activeAttacks) {
+                        attacksCopy = new ArrayList<>(activeAttacks);
+                    }
+                    
+                    // Update attacks
+                    for (Attack attack : attacksCopy) {
+                        attack.updateCarousel();
+                    }
+                    
+                    // Remove expired attacks (this modifies the original list safely)
+                    synchronized(activeAttacks) {
+                        activeAttacks.removeIf(attack -> attack.getIsExpired());
+                    }
+                    
+                    repaint();
+                }
+            };
+            
+            renderLoopScheduler.scheduleAtFixedRate(renderLoop, 0, 16, TimeUnit.MILLISECONDS);
+        }
+
+        public void stopCarouselRenderLoop(){
+            isRunning = false;
+            if (renderLoopScheduler != null && !renderLoopScheduler.isShutdown()) {
+                renderLoopScheduler.shutdown();
+                try {
+                    if (!renderLoopScheduler.awaitTermination(1, TimeUnit.SECONDS)) {
+                        renderLoopScheduler.shutdownNow();
+                    }
+                } catch (InterruptedException e) {
+                    renderLoopScheduler.shutdownNow();
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    } 
 }
