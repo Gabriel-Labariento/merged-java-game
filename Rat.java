@@ -46,10 +46,10 @@ public class Rat extends Enemy{
         width = 16;
         worldX = x;
         worldY = y;
-        maxHealth = 10;
+        maxHealth = 20;
         hitPoints = maxHealth;
         damage = 1;
-        rewardXP = 50;
+        rewardXP = 40;
         currentRoom = null;
         currSprite = 0;
         

@@ -44,7 +44,7 @@ public class GunCat extends Player{
         // GUN CAT USED AS TEST DUMMY: CHANGE STATS PLEASE
         this.clientId = cid;
         identifier = NetworkProtocol.GUNCAT;
-        baseSpeed = 4;
+        baseSpeed = 2;
         speed = baseSpeed;
         height = 16;
         width = 16;
@@ -52,9 +52,9 @@ public class GunCat extends Player{
         screenY = 600/2 - height/2;
         worldX = x;
         worldY = y;
-        maxHealth = 17;
+        maxHealth = 2;
         hitPoints = maxHealth;
-        damage = 500;
+        damage = 5;
         isDown = false;
         attackCDDuration = 800;
         attackFrameDuration = 75;

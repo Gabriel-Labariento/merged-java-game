@@ -51,7 +51,7 @@ public class Spider extends Enemy{
         maxHealth = 10;
         hitPoints = maxHealth;
         damage = 1;
-        rewardXP = 50;
+        rewardXP = 25;
         currentRoom = null;
         currSprite = 0;
         

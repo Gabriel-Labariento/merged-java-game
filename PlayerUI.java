@@ -149,7 +149,7 @@ public class PlayerUI extends GameObject{
         }
         g2d.setColor(Color.WHITE);
         g2d.setFont(stageFont);
-        g2d.drawString(currentStageName, 637/sf, 34/sf);
+        g2d.drawString(currentStageName, 627/sf, 34/sf);
         //TODO: Map display
 
         //Empty Health

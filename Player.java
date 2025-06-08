@@ -50,7 +50,7 @@ public abstract class Player extends Entity implements Effectable, Serializable{
     public Player(){
         invincibilityEnd = 0;
         currentLvl = 1;
-        currentXPCap = 100;
+        currentXPCap = 300;
         heldItem = null;
         statusEffects = new ArrayList<>();
     }
@@ -80,7 +80,7 @@ public abstract class Player extends Entity implements Effectable, Serializable{
             //Exponential function for scaling required experience points properly
             pastXPCap = currentXPCap;
             double exponentForScaling = 1.5;
-            int baseXP = 100;
+            int baseXP = 150;
             currentXPCap = (int) Math.floor(baseXP * (Math.pow(currentLvl, exponentForScaling)));
         }
     }

@@ -30,6 +30,7 @@ public abstract class Enemy extends Entity {
     public boolean isBoss;
     public long now;
     protected boolean isBuffed;
+    public boolean isSummon;
     
     /**
      * All Enemy instances have default values: an empty 
@@ -332,6 +333,8 @@ public abstract class Enemy extends Entity {
     public void spawnMinions(){
         if (currentRoom != null && currentRoom.getMobSpawner() != null) {
         Enemy newSpawn = currentRoom.getMobSpawner().createNormalEnemy(currentRoom.getGameLevel());
+        newSpawn.setRewardXP(0);
+        newSpawn.setIsSummon(true);
         currentRoom.getMobSpawner().spawnEnemy(newSpawn);
         }
     }
@@ -347,4 +350,13 @@ public abstract class Enemy extends Entity {
         }
         isBuffed = true;
     }
+
+    public void setIsSummon (boolean b){
+        isSummon= b;
+    }
+
+    public boolean getIsSummon(){
+        return isSummon;
+    }
+
 }

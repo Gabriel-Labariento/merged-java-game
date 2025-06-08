@@ -46,10 +46,10 @@ public class MutatedAnchovy extends Enemy{
         width = 48;
         worldX = x;
         worldY = y;
-        maxHealth = 10;
+        maxHealth = 80;
         hitPoints = maxHealth;
         damage = 1;
-        rewardXP = 50;
+        rewardXP = 150;
         currentRoom = null;
         currSprite = 0;
         attackCDDuration = 700;
@@ -62,8 +62,12 @@ public class MutatedAnchovy extends Enemy{
     private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(MutatedAnchovy.class.getResourceAsStream("resources/Sprites/MutatedAnchovy/left0.png"));
+            BufferedImage left1 = ImageIO.read(MutatedAnchovy.class.getResourceAsStream("resources/Sprites/MutatedAnchovy/left1.png"));
+            BufferedImage left2 = ImageIO.read(MutatedAnchovy.class.getResourceAsStream("resources/Sprites/MutatedAnchovy/left2.png"));
             BufferedImage right0 = ImageIO.read(MutatedAnchovy.class.getResourceAsStream("resources/Sprites/MutatedAnchovy/right0.png"));
-            sprites = new BufferedImage[] {left0, right0};
+            BufferedImage right1 = ImageIO.read(MutatedAnchovy.class.getResourceAsStream("resources/Sprites/MutatedAnchovy/right1.png"));
+            BufferedImage right2 = ImageIO.read(MutatedAnchovy.class.getResourceAsStream("resources/Sprites/MutatedAnchovy/right2.png"));
+            sprites = new BufferedImage[] {left0, left1, left2, right0, right1, right2};
 
         } catch (IOException e) {
             System.out.println("Exception in MutatedAnchovy setSprites()" + e);
@@ -106,9 +110,11 @@ public class MutatedAnchovy extends Enemy{
         // Sprite walk update
         if (now - lastSpriteUpdate > SPRITE_FRAME_DURATION) {
             if (worldX > pursued.getWorldX()) {
-                currSprite = 0;
+                currSprite++;
+                if (currSprite > 2) currSprite = 0;
             } else {
-                currSprite = 1;
+                currSprite++;
+                if (currSprite < 3 || currSprite > 5) currSprite = 3;
             }
             lastSpriteUpdate = now;
         }

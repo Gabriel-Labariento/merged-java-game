@@ -52,10 +52,10 @@ public class Bee extends Enemy{
         width = 20;
         worldX = x;
         worldY = y;
-        maxHealth = 10;
+        maxHealth = 20;
         hitPoints = maxHealth;
         damage = 1;
-        rewardXP = 50;
+        rewardXP = 75;
         currentRoom = null;
         currSprite = 0;
         currentState = State.IDLE;

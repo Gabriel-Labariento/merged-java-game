@@ -55,7 +55,7 @@ public class ConjoinedRats extends Enemy{
         maxHealth = 600;
         hitPoints = maxHealth;
         damage = 3;
-        rewardXP = 50;
+        rewardXP = 500;
         currentRoom = null;
         currSprite = 0;
         attackCDDuration = 1200;
@@ -142,6 +142,7 @@ public class ConjoinedRats extends Enemy{
 
         //Make sure players cant farm
         summon.setRewardXP(0);
+        summon.setIsSummon(true);
         gsm.addEntity(summon);
     }
 

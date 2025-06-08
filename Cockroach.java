@@ -52,10 +52,10 @@ public class Cockroach extends Enemy{
         width = 16;
         worldX = x;
         worldY = y;
-        maxHealth = 10;
+        maxHealth = 15;
         hitPoints = maxHealth;
         damage = 1;
-        rewardXP = 50;
+        rewardXP = 25;
         currentRoom = null;
         currSprite = 0;
         currentState = State.IDLE;

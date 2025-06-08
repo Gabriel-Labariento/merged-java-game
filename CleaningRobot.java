@@ -49,10 +49,10 @@ public class CleaningRobot extends Enemy{
         width = 24;
         worldX = x;
         worldY = y;
-        maxHealth = 10;
+        maxHealth = 50;
         hitPoints = maxHealth;
         damage = 1;
-        rewardXP = 50;
+        rewardXP = 90;
         currentRoom = null;
         currSprite = 0;
         attackCDDuration = 1300;

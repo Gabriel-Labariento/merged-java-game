@@ -45,13 +45,13 @@ public class SecurityBot extends Enemy{
         width = 24;
         worldX = x;
         worldY = y;
-        maxHealth = 10;
+        maxHealth = 30;
         hitPoints = maxHealth;
         damage = 1;
-        rewardXP = 50;
+        rewardXP = 60;
         currentRoom = null;
         currSprite = 0;
-        attackCDDuration = 2000;
+        attackCDDuration = 1800;
     }
 
     /**

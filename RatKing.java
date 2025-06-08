@@ -115,6 +115,7 @@ public class RatKing extends Enemy {
                     if (now - lastSpawnTime > SPAWN_COOLDOWN) {
                         if (currentRoom != null && currentRoom.getMobSpawner() != null) {
                             Enemy newSpawn = currentRoom.getMobSpawner().createNormalEnemy(currentRoom.getGameLevel());
+                            newSpawn.setRewardXP(0);
                             currentRoom.getMobSpawner().spawnEnemy(newSpawn);
                             lastSpawnTime = now;
                         }

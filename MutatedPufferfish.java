@@ -48,10 +48,10 @@ public class MutatedPufferfish extends Enemy{
         width = 56;
         worldX = x;
         worldY = y;
-        maxHealth = 10;
+        maxHealth = 100;
         hitPoints = maxHealth;
         damage = 2;
-        rewardXP = 100;
+        rewardXP = 150;
         currentRoom = null;
         currSprite = 0;
         attackCDDuration = 3500;
@@ -64,8 +64,13 @@ public class MutatedPufferfish extends Enemy{
     private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(MutatedPufferfish.class.getResourceAsStream("resources/Sprites/MutatedPufferfish/left0.png"));
+            BufferedImage left1 = ImageIO.read(MutatedPufferfish.class.getResourceAsStream("resources/Sprites/MutatedPufferfish/left1.png"));
+            BufferedImage left2 = ImageIO.read(MutatedPufferfish.class.getResourceAsStream("resources/Sprites/MutatedPufferfish/left2.png"));
             BufferedImage right0 = ImageIO.read(MutatedPufferfish.class.getResourceAsStream("resources/Sprites/MutatedPufferfish/right0.png"));
-            sprites = new BufferedImage[] {left0, right0};
+            BufferedImage right1 = ImageIO.read(MutatedPufferfish.class.getResourceAsStream("resources/Sprites/MutatedPufferfish/right1.png"));
+            BufferedImage right2 = ImageIO.read(MutatedPufferfish.class.getResourceAsStream("resources/Sprites/MutatedPufferfish/right2.png"));
+           
+            sprites = new BufferedImage[] {left0, left1, left2, right0, right1, right2};
 
         } catch (IOException e) {
             System.out.println("Exception in MutatedPufferfish setSprites()" + e);
@@ -108,9 +113,11 @@ public class MutatedPufferfish extends Enemy{
         // Sprite walk update
         if (now - lastSpriteUpdate > SPRITE_FRAME_DURATION) {
             if (worldX > pursued.getWorldX()) {
-                currSprite = 0;
+                currSprite++;
+                if (currSprite > 2) currSprite = 0;
             } else {
-                currSprite = 1;
+                currSprite++;
+                if (currSprite < 3 || currSprite > 5) currSprite = 3;
             }
             lastSpriteUpdate = now;
         }

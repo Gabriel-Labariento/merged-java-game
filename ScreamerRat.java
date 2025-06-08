@@ -47,10 +47,10 @@ public class ScreamerRat extends Enemy{
         width = 32;
         worldX = x;
         worldY = y;
-        maxHealth = 10;
+        maxHealth = 80;
         hitPoints = maxHealth;
         damage = 1;
-        rewardXP = 50;
+        rewardXP = 150;
         currentRoom = null;
         currSprite = 1;
         attackCDDuration = 10000;

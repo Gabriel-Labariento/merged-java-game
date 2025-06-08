@@ -49,10 +49,10 @@ public class FeralRat extends Enemy{
         width = 32;
         worldX = x;
         worldY = y;
-        maxHealth = 10;
+        maxHealth = 20;
         hitPoints = maxHealth;
-        damage = 1;
-        rewardXP = 50;
+        damage = 2;
+        rewardXP = 90;
         currentRoom = null;
         currSprite = 0;
         attackCDDuration = 500;
@@ -65,8 +65,12 @@ public class FeralRat extends Enemy{
     private static void setSprites() {
         try {
             BufferedImage left0 = ImageIO.read(FeralRat.class.getResourceAsStream("resources/Sprites/FeralRat/left0.png"));
+            BufferedImage left1 = ImageIO.read(FeralRat.class.getResourceAsStream("resources/Sprites/FeralRat/left1.png"));
+            BufferedImage left2 = ImageIO.read(FeralRat.class.getResourceAsStream("resources/Sprites/FeralRat/left2.png"));
             BufferedImage right0 = ImageIO.read(FeralRat.class.getResourceAsStream("resources/Sprites/FeralRat/right0.png"));
-            sprites = new BufferedImage[] {left0, right0};
+            BufferedImage right1 = ImageIO.read(FeralRat.class.getResourceAsStream("resources/Sprites/FeralRat/right1.png"));
+            BufferedImage right2 = ImageIO.read(FeralRat.class.getResourceAsStream("resources/Sprites/FeralRat/right2.png"));
+            sprites = new BufferedImage[] {left0, left1, left2, right0, right1, right2};
 
         } catch (IOException e) {
             System.out.println("Exception in FeralRat setSprites()" + e);
@@ -111,12 +115,16 @@ public class FeralRat extends Enemy{
         // Sprite walk update
         if (now - lastSpriteUpdate > SPRITE_FRAME_DURATION) {
             if (worldX > pursued.getWorldX()) {
-                currSprite = 0;
+                currSprite++;
+                if (currSprite > 2) currSprite = 0;
             } else {
-                currSprite = 1;
+                currSprite++;
+                if (currSprite < 3 || currSprite > 5) currSprite = 3;
             }
             lastSpriteUpdate = now;
         }
+
+        matchHitBoxBounds();
 
         matchHitBoxBounds();
     }

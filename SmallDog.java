@@ -46,10 +46,10 @@ public class SmallDog extends Enemy{
         width = 20;
         worldX = x;
         worldY = y;
-        maxHealth = 20;
+        maxHealth = 28;
         hitPoints = maxHealth;
-        damage = 2;
-        rewardXP = 75;
+        damage = 1;
+        rewardXP = 60;
         currentRoom = null;
         currSprite = 0;
         

@@ -50,10 +50,10 @@ public class Bunny extends Enemy{
         width = 20;
         worldX = x;
         worldY = y;
-        maxHealth = 10;
+        maxHealth = 28;
         hitPoints = maxHealth;
         damage = 1;
-        rewardXP = 50;
+        rewardXP = 60;
         currentRoom = null;
         currSprite = 0;
     }

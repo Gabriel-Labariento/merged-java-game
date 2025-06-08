@@ -62,7 +62,7 @@ public class FishMonster extends Enemy{
         maxHealth = 700;
         hitPoints = maxHealth;
         damage = 2;
-        rewardXP = 50;
+        rewardXP = 0;
         currentRoom = null;
         currSprite = 0;
         currentForm = State.PHASE1;
@@ -155,7 +155,7 @@ public class FishMonster extends Enemy{
             // BULLETS
             case PHASE3:
                 attackCDDuration = 400;
-                actionDistance = (GameCanvas.TILESIZE*16) * (GameCanvas.TILESIZE*16);
+                actionDistance = (GameCanvas.TILESIZE*225) * (GameCanvas.TILESIZE*25);
                    
                 if (now - lastAttackTime > attackCDDuration && distanceSquared <= actionDistance){
                     double attackRoll = Math.random();
@@ -227,6 +227,7 @@ public class FishMonster extends Enemy{
 
         //Make sure players cant farm
         summon.setRewardXP(0);
+        summon.setIsSummon(true);
         gsm.addEntity(summon);
     }
 

@@ -71,7 +71,7 @@ public class Snake extends Enemy {
         worldY = y;
         maxHealth = 500;
         hitPoints = maxHealth;
-        damage = 2;
+        damage = 3;
         rewardXP = 200;
         currentRoom = null;
         currSprite = 0;

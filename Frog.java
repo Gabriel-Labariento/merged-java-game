@@ -53,10 +53,10 @@ public class Frog extends Enemy{
         width = 16;
         worldX = x;
         worldY = y;
-        maxHealth = 20;
+        maxHealth = 30;
         hitPoints = maxHealth;
         damage = 1;
-        rewardXP = 50;
+        rewardXP = 60;
         currentRoom = null;
         currSprite = 0;
         currentState = State.IDLE;

@@ -183,7 +183,7 @@ public class ServerMaster {
                     }
                 
                     
-                    Entity rolledItem = itemsHandler.rollItem(enemy);
+                    Entity rolledItem = (enemy.getIsSummon() == false) ? itemsHandler.rollItem(enemy) : null;
                     if (rolledItem != null) addEntity(rolledItem);
                     entities.remove(enemy);
                 }   
@@ -383,17 +383,19 @@ public class ServerMaster {
         sendMessageToClients(mapData.toString());
 
         for (Player player : players) {
-            //Reset item after reloading
-            Item heldItem = player.getHeldItem();
-            if (heldItem != null){
-                heldItem.removeEffects();
-                heldItem.applyEffects();
-            }
             
             player.setCurrentRoom(currentRoom);
             player.setWorldX(currentRoom.getCenterX());
             player.setWorldY(currentRoom.getCenterY());
             entities.add(player);
+
+            //Reset item after reloadin
+            Item heldItem = player.getHeldItem();
+            if (heldItem != null){
+                heldItem.setOwner(player);
+                heldItem.removeEffects();
+                heldItem.applyEffects();
+            }
         }
 
         for (GameServer.ConnectedPlayer cp : connectedPlayers) {
@@ -1322,7 +1324,7 @@ public class ServerMaster {
         playerNum = i;
     }
 
-    public boolean getIsSinglePlayerum(){
+    public boolean getIsSinglePlayer(){
         return isSinglePlayer;
     }
 

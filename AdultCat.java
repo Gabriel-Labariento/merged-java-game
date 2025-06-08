@@ -63,10 +63,10 @@ public class AdultCat extends Enemy{
         width = 32;
         worldX = x;
         worldY = y;
-        maxHealth = 400;
+        maxHealth = 500;
         hitPoints = maxHealth;
-        damage = 2;
-        rewardXP = 50;
+        damage = 3;
+        rewardXP = 300;
         currentRoom = null;
         currSprite = 0;
         attackCDDuration = 1000;

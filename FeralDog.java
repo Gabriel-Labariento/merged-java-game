@@ -135,7 +135,7 @@ public class FeralDog extends Enemy {
                 
                 // Shorten cooldowns
                 ATTACK_COOLDOWN = 2000;
-                SPAWN_COOLDOWN = 3000;
+                SPAWN_COOLDOWN = 4500;
                     
                 // Spawning new enemies more frequently
                 if (now - lastSpawnTime > SPAWN_COOLDOWN){
