@@ -37,6 +37,7 @@ public class GameCanvas extends JComponent{
     public SceneHandler sceneHandler;
     public PlayerUI playerUI;
     private MiniMap minimap;
+    private TutorialManager tutorialManager;
     private float screenOpacity;
     private int currentStage;
     private int mouseX, mouseY;
@@ -78,6 +79,7 @@ public class GameCanvas extends JComponent{
         setPreferredSize(new Dimension(width, height));
         playerUI = new PlayerUI();
         sceneHandler = new SceneHandler();
+        tutorialManager = new TutorialManager(this);
         currentStage = -1;
         minimap = clientMaster.getMiniMap();
         add(minimap);
@@ -115,7 +117,6 @@ public class GameCanvas extends JComponent{
     
     @Override
     protected void paintComponent(Graphics g){
-
         Graphics2D g2d = (Graphics2D) g;
         RenderingHints rh = new RenderingHints(
             RenderingHints.KEY_ANTIALIASING,
@@ -132,16 +133,13 @@ public class GameCanvas extends JComponent{
                 screenOpacity += 0.005f;
             } 
             g2d.drawImage(sprites[0], 0, 0, width, height, null);
-
         }
         else if ( (userPlayer == null) || (clientMaster.getCurrentRoom() == null) ){
             //Temporary Background
             g2d.setColor(Color.BLACK);
             g2d.fillRect(0, 0, width, height);
-
         } 
-        else{
-            
+        else {
             // Set the background/outside of the room
             g2d.setColor(Color.BLACK);
             g2d.fillRect(0, 0, width, height);
@@ -166,9 +164,7 @@ public class GameCanvas extends JComponent{
             }
 
             // Draw enemies, projectiles, other players
-
             synchronized (clientMaster.getEntities()) {
-                // Sort by z index for proper rendering
                 ArrayList<Entity> sortedEntitiesByZ = new ArrayList<>(clientMaster.getEntities());
                 sortedEntitiesByZ.sort(Comparator.comparingInt(Entity::getZIndex));
 
@@ -180,7 +176,7 @@ public class GameCanvas extends JComponent{
             }
             
             //Draw current user's player
-            userPlayer.draw(g2d, screenX, screenY); //CHANGE 50 BY ACTUAL ASSET SIZE
+            userPlayer.draw(g2d, screenX, screenY);
 
             //Draw UI elements
             playerUI.drawPlayerUI(g2d, clientMaster, scaleFactor);
@@ -230,11 +226,9 @@ public class GameCanvas extends JComponent{
      * Calls repaint on this GameCanvas every REFRESHINTERVAL milliseconds
      */
     public void startRenderLoop(){
-        //Since putting Thread.sleep in a loop as necessary for this Loop is bad, use ScheduledExecutorService instead
-        final Runnable renderLoop = () -> {
+        renderLoopScheduler.scheduleAtFixedRate(() -> {
             repaint();
-        };
-        renderLoopScheduler.scheduleAtFixedRate(renderLoop, 0, REFRESHINTERVAL, TimeUnit.MILLISECONDS);
+        }, 0, REFRESHINTERVAL, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -253,5 +247,73 @@ public class GameCanvas extends JComponent{
         int worldY = (int)(clickY / (double) scaleFactor) + cameraY;
 
         return new Point(worldX, worldY);
+    }
+
+    public void handleTutorialProgression() {
+        if (tutorialManager.isActive()) {
+            tutorialManager.showNextStep();
+            SoundManager.getInstance().playPooledSound("click");
+        }
+    }
+
+    // public void checkTutorialProgression() {
+    //     if (!tutorialManager.isActive()) return;
+        
+    //     int currentStep = tutorialManager.getCurrentStepNumber();
+    //     Player userPlayer = clientMaster.getUserPlayer();
+        
+    //     // Auto-advance tutorial based on game state
+    //     switch (currentStep) {
+    //         case 0: // Movement tutorial
+    //             // Check if player has moved significantly
+    //             if (userPlayer.hasMovedSignificantly()) {
+    //                 handleTutorialProgression();
+    //             }
+    //             break;
+    //         case 1: // Attack tutorial
+    //             // Check if player has attacked
+    //             if (userPlayer.hasAttacked()) {
+    //                 handleTutorialProgression();
+    //             }
+    //             break;
+    //         case 2: // Kill enemies tutorial
+    //             // Check if all enemies in room are defeated
+    //             if (clientMaster.getCurrentRoom().areAllEnemiesDefeated()) {
+    //                 handleTutorialProgression();
+    //             }
+    //             break;
+    //         case 3: // Item pickup tutorial
+    //             // Check if player has picked up an item
+    //             if (userPlayer.hasPickedUpItem()) {
+    //                 handleTutorialProgression();
+    //             }
+    //             break;
+    //         case 4: // Inventory tutorial
+    //             // Check if player opened inventory
+    //             if (playerUI.isInventoryOpen()) {
+    //                 handleTutorialProgression();
+    //             }
+    //             break;
+    //         case 5: // Door tutorial
+    //             // Check if player has cleared a room
+    //             if (clientMaster.getCurrentRoom().isCleared()) {
+    //                 handleTutorialProgression();
+    //             }
+    //             break;
+    //         case 6: // Final message
+    //             // Auto-advance after a few seconds
+    //             Timer timer = new Timer(3000, e -> handleTutorialProgression());
+    //             timer.setRepeats(false);
+    //             timer.start();
+    //             break;
+    //     }
+    // }
+
+    /**
+     * Gets the tutorial manager instance.
+     * @return the TutorialManager instance
+     */
+    public TutorialManager getTutorialManager() {
+        return tutorialManager;
     }
 }

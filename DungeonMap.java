@@ -49,7 +49,6 @@ public class DungeonMap {
      * @param numRooms number of rooms to be made, minimum of 3.
      */
     public void generateRooms() {
-
         // Algorithm will not work for when rooms < 3. So ensure 3 is the minumum
         int numRooms = 3 + gameLevel;
 
@@ -91,8 +90,6 @@ public class DungeonMap {
                         randomRoom = chooseRandomRoom();
                         if (room.isConnectable(direction, randomRoom) && (randomRoom.canAddMoreDoors())) {
                             room.connectRooms(direction, randomRoom);
-                            // System.out.println("Successfully connected Room " + room.getRoomId() + " to Room "
-                            //         + randomRoom.getRoomId());
                             break;
                         } 
                     }
@@ -109,6 +106,7 @@ public class DungeonMap {
         }
     }
 
+    
     /**
      * Assigns a room's "difficulty" (in terms of the enemies) depending on the current gameLevel
      * and its "distance" (how many connections away) it is from the starting room.

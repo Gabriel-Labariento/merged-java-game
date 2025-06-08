@@ -76,7 +76,8 @@ public class GameFrame extends JFrame{
      */
     private static void setFont(){
         try {
-            gameFont = Font.createFont(Font.TRUETYPE_FONT, new File("resources/Fonts/PressStart2P-Regular.ttf"));
+            gameFont = Font.createFont(Font.TRUETYPE_FONT, 
+                GameFrame.class.getResourceAsStream("/resources/Fonts/PressStart2P-Regular.ttf"));
             gameFont6 = gameFont.deriveFont(6f);
             gameFont11 = gameFont.deriveFont(11f);
             gameFont12 = gameFont.deriveFont(12f);
@@ -86,7 +87,7 @@ public class GameFrame extends JFrame{
             gameFont20 = gameFont.deriveFont(20f);
             gameFont35 = gameFont.deriveFont(35f);
             
-        } catch (FontFormatException | IOException ex) { 
+        } catch (Exception ex) { 
             System.out.println("Exception in setFont for GameFrame");
         }
     }
@@ -111,7 +112,7 @@ public class GameFrame extends JFrame{
         gameCanvas = new GameCanvas(width, height);
         gameClient = gameCanvas.getGameClient();
         sceneHandler = gameCanvas.getSceneHandler();
-
+        
         //Set default values
         playerType = NetworkProtocol.HEAVYCAT;
         fishSlideNum = 1;
@@ -564,6 +565,7 @@ public class GameFrame extends JFrame{
                     clearGUI();
                 }
                 startPlay();
+                gameCanvas.getTutorialManager().startTutorial();
             }
             // LEFT ARROW
             else if (o == btns.get(6)){

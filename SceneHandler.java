@@ -79,7 +79,7 @@ public class SceneHandler{
             };
 
         } catch (IOException e) {
-            System.out.println("Exception in Rat setSprites()" + e);
+            System.out.println("Exception in SceneHandler setSprites()" + e);
         }
     }
 

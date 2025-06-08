@@ -38,6 +38,7 @@ public class ServerMaster {
 
     private static int gameLevel;
     private static final int MAX_LEVEL = 7;
+    private boolean isTutorialComplete = false;
 
     private final ConcurrentHashMap<Character, Integer> keyInputQueue;
     private final ConcurrentHashMap<Integer, Integer> availableRevives;
@@ -901,10 +902,8 @@ public class ServerMaster {
      * in the new starting room.
      */
     public DungeonMap generateNewDungeon(){
-
         dungeonMap = new DungeonMap(gameLevel);
         dungeonMap.generateRooms();
-        
         return dungeonMap;
     }
 

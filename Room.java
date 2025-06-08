@@ -109,7 +109,6 @@ public class Room extends GameObject{
 
         loadBackgroundImage();
         g2d.drawImage(backgroundImage, worldX - cameraX, worldY - cameraY, null);
-        
     }
 
     /**
