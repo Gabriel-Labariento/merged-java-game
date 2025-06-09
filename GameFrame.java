@@ -565,7 +565,6 @@ public class GameFrame extends JFrame{
                     clearGUI();
                 }
                 startPlay();
-                gameCanvas.getTutorialManager().startTutorial();
             }
             // LEFT ARROW
             else if (o == btns.get(6)){

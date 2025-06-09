@@ -45,6 +45,10 @@ public abstract class Player extends Entity implements Effectable{
     private long lastStepSoundTime = 0;
     protected boolean hasPlayedLevelUpSound = false;
 
+    //  TUTORIAL VARIABLES
+    protected int movementCount = 0;
+    private static final int SIGNIFICANT_MOVEMENT = 35;
+
     /**
      * Each Player instance starts at level 1, holds no item, and has 
      * an empty statusEffects ArrayList
@@ -270,6 +274,7 @@ public abstract class Player extends Entity implements Effectable{
 
         if (changeX != 0 || changeY != 0){
             playStepSound();
+            movementCount++;
         }
 
         matchHitBoxBounds();
@@ -511,5 +516,9 @@ public abstract class Player extends Entity implements Effectable{
      */
     public ArrayList<StatusEffect> getStatusEffects() {
         return statusEffects;
+    }
+
+    public boolean hasMovedSignificantly(){
+        return movementCount > SIGNIFICANT_MOVEMENT;
     }
 }

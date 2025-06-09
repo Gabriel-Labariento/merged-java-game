@@ -37,7 +37,11 @@ public class GameCanvas extends JComponent{
     public SceneHandler sceneHandler;
     public PlayerUI playerUI;
     private MiniMap minimap;
+
     private TutorialManager tutorialManager;
+    private boolean hasTutorialStarted = false;
+    private boolean startPlayCalled = false;
+
     private float screenOpacity;
     private int currentStage;
     private int mouseX, mouseY;
@@ -228,6 +232,11 @@ public class GameCanvas extends JComponent{
     public void startRenderLoop(){
         renderLoopScheduler.scheduleAtFixedRate(() -> {
             repaint();
+            // Start tutorial after first scene is done
+            if (sceneHandler.lastFinishedScene != -1 && !tutorialManager.isActive() && !hasTutorialStarted) {
+                tutorialManager.startTutorial();
+                hasTutorialStarted = true;
+            }
         }, 0, REFRESHINTERVAL, TimeUnit.MILLISECONDS);
     }
 
