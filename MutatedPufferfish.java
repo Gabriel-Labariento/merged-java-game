@@ -120,7 +120,7 @@ public class MutatedPufferfish extends Enemy{
         matchHitBoxBounds();
 
         if (now - lastMoanTime > MOAN_DURATION){
-            SoundManager.getInstance().playSound("mutatedPufferfish");
+            SoundManager.getInstance().playPooledSound("mutatedPufferfish");
             lastMoanTime = now;
         }
     }

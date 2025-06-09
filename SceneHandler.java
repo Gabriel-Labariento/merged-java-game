@@ -31,6 +31,7 @@ public class SceneHandler{
     private long lastFrameUpdate;
     private boolean isScenePlaying;
     private boolean isOnChoice;
+    public int lastFinishedScene = -1;
     
     /**
      * Set sprites on class initialization
@@ -79,7 +80,7 @@ public class SceneHandler{
             };
 
         } catch (IOException e) {
-            System.out.println("Exception in Rat setSprites()" + e);
+            System.out.println("Exception in SceneHandler setSprites()" + e);
         }
     }
 
@@ -101,7 +102,6 @@ public class SceneHandler{
                 currentScene = currentStage - 1;
                 break;
             default:
-                isScenePlaying = false;
                 return;
         }
 
@@ -110,6 +110,7 @@ public class SceneHandler{
             currentFrame = 0;
             lastFrameUpdate = 0;
             isOnChoice = false;
+            lastFinishedScene = currentScene;
             return;
         }
     
@@ -130,6 +131,7 @@ public class SceneHandler{
                 isScenePlaying = false;
                 currentFrame = 0;
                 lastFrameUpdate = 0;
+                lastFinishedScene = currentScene;
                 return;
             }
             currentFrame++;
@@ -148,6 +150,7 @@ public class SceneHandler{
                 isScenePlaying = false;
                 currentFrame = 0;
                 lastFrameUpdate = 0;
+                lastFinishedScene = currentScene;
             }
         }
         else{

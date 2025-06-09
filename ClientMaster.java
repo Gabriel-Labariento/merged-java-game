@@ -1,4 +1,3 @@
-import java.time.InstantSource;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -34,6 +33,10 @@ public class ClientMaster {
     private boolean isGameOver;
     private int bossHPPercent;
     private int currentStage;
+    private MiniMap minimap;
+    private final Map<Integer, Boolean> tooltipStates;
+    private Entity cachedUIItem;  // Add this field to cache the UI item
+    private Item activeTooltipItem;
     
     /**
      * Creates a ClientMaster instance with the following fields as null:
@@ -45,6 +48,9 @@ public class ClientMaster {
         allRooms = null;
         currentRoom = null;
         entities = new CopyOnWriteArrayList<>();
+        minimap = new MiniMap();
+        tooltipStates = new HashMap<>();
+        activeTooltipItem = null;
     }
 
     /**
@@ -147,6 +153,9 @@ public class ClientMaster {
         else if (identifier.equals( NetworkProtocol.PRINGLESCAN)) return new PringlesCan(x,y);
 
         //Enemy entities
+        else if (identifier.equals(NetworkProtocol.SPAWN_INDICATOR))
+             return new SpawnIndicator(x, y);
+             
         //Normal 
         else if (identifier.equals( NetworkProtocol.SPIDER)) return new Spider(x, y);
         else if (identifier.equals( NetworkProtocol.COCKROACH)) return new Cockroach(x, y);
@@ -174,7 +183,7 @@ public class ClientMaster {
         else if (identifier.equals( NetworkProtocol.FISHMONSTER)) return new FishMonster(x, y);
 
         //Attack entities
-        else if (identifier.equals( NetworkProtocol.PLAYERSMASH)) 
+        else if (identifier.equals(NetworkProtocol.PLAYERSMASH)) 
             return new PlayerSmash(id, null, x, y, 0, false);
         else if (identifier.equals( NetworkProtocol.PLAYERSLASH)) 
             return new PlayerSlash(id, null, x, y, 0, false);
@@ -205,18 +214,39 @@ public class ClientMaster {
      * @param sprite the current sprite of the entity to render
      * @param zIndex a number that corresponds to which layer should the entity be rendered relative to other entities and gameObjects
      */
-    public void loadEntity(String identifier, int id, int x, int y, int roomId, int sprite, int zIndex){
-        // System.out.println("Loading entity " + identifier + " " + name + "at " + x + ", " + y);
-        // if (name == null) System.out.println("Warning: unknown identity identifier " + identifier);
-        Entity e = getEntity(identifier, id, x, y);
-        if (e != null) {
-            e.setId(id);
-            e.setCurrSprite(sprite);
-            e.matchHitBoxBounds();
-            e.setCurrentRoom(getRoomById(roomId));
-            e.setzIndex(zIndex);
-            entities.add(e);
-        }    
+    public void loadEntity(String identifier, int id, int x, int y, int roomId, int sprite, int zIndex) {
+        // First check if we already have this entity
+        for (Entity e : entities) {
+            if (e.getId() == id && e.getIdentifier().equals(identifier)) {
+                // Update existing entity
+                e.setPosition(x, y);
+                e.setCurrSprite(sprite);
+                e.setzIndex(zIndex);
+                if (e.getCurrentRoom() == null) {
+                    e.setCurrentRoom(getRoomById(roomId));
+                }
+                return;
+            }
+        }
+        
+        // If we don't have this entity, create a new one
+        Entity entity = getEntity(identifier, id, x, y);
+        entity.setCurrSprite(sprite);
+        entity.setzIndex(zIndex);
+        entity.setCurrentRoom(getRoomById(roomId));
+        addEntity(entity);
+    }
+
+    /**
+     * Gets an instance of an Item corresponding to the value of heldItemIdentifier
+     * @return an instance of an Item corresponding to heldItemIdentifier
+     */
+    public Entity generateUIItem(){
+        // Only create a new item if we don't have one cached or if the held item changed
+        if (cachedUIItem == null || !cachedUIItem.getIdentifier().equals(heldItemIdentifier)) {
+            cachedUIItem = getEntity(heldItemIdentifier, 0, 0, 0);
+        }
+        return cachedUIItem;
     }
 
     /**
@@ -224,15 +254,10 @@ public class ClientMaster {
      * @param identifier the identifier to set the heldItemIdentifier to
      */
     public void setHeldItemIdentifier(String identifier){
-        heldItemIdentifier = identifier;
-    }
-    
-    /**
-     * Gets an instance of an Item corresponding to the value of heldItemIdentifier
-     * @return an instance of an Item corresponding to heldItemIdentifier
-     */
-    public Entity generateUIItem(){
-        return getEntity(heldItemIdentifier, 0, 0, 0);
+        if (!identifier.equals(heldItemIdentifier)) {
+            heldItemIdentifier = identifier;
+            cachedUIItem = null;  // Clear cache when held item changes
+        }
     }
 
     /**
@@ -310,5 +335,46 @@ public class ClientMaster {
      */
     public void setCurrentStage(int i){
         currentStage = i;
+    }
+
+    /**
+     * Gets the HashMap of all rooms
+     * @return the allRooms HashMap
+     */
+    public HashMap<Integer, Room> getAllRooms() {
+        return allRooms;
+    }
+
+    /**
+     * Gets the minimap instance
+     * @return the minimap instance
+     */
+    public MiniMap getMiniMap() {
+        return minimap;
+    }
+
+    /**
+     * Gets the tooltip visibility state for an item
+     * @param itemId the ID of the item
+     * @return true if the tooltip should be shown, false otherwise
+     */
+    public boolean getTooltipState(int itemId) {
+        return tooltipStates.getOrDefault(itemId, false);
+    }
+
+    /**
+     * Toggles the tooltip visibility state for an item
+     * @param itemId the ID of the item
+     */
+    public void toggleTooltipState(int itemId) {
+        tooltipStates.put(itemId, !tooltipStates.getOrDefault(itemId, false));
+    }
+
+    public void setActiveTooltipItem(Item item) {
+        this.activeTooltipItem = item;
+    }
+    
+    public Item getActiveTooltipItem() {
+        return this.activeTooltipItem;
     }
 }

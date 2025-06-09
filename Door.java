@@ -59,7 +59,8 @@ public class Door extends GameObject {
      * @param offsetY camera y offset in GameCanvas
      */
     public void draw(Graphics2D g2d, int offsetX, int offsetY) {
-        g2d.setColor(Color.BLACK);
+        if (!ServerMaster.getInstance().getDungeonMap().getRoomFromId(roomA.getRoomId()).isCleared()) return;
+        g2d.setColor(Color.black);
         g2d.fillRect(worldX - offsetX, worldY - offsetY, width, height);
     }
 
@@ -84,10 +85,9 @@ public class Door extends GameObject {
     
     /**
      * Returns a string containing the door data
-     * @return a string with the format D:doorId,x,y,direction,roomAId,roomBId
+     * @return a string with the format D:doorId,x,y,direction,roomAId,roomBId,isOpen
      */
     public String serialize(){
-
         int roomAID = (roomA == null) ? -1 : roomA.getRoomId();
         int roomBID = (roomB == null) ? -1 : roomB.getRoomId();
 
@@ -98,7 +98,8 @@ public class Door extends GameObject {
         .append(worldY).append(NetworkProtocol.SUB_DELIMITER)
         .append(direction).append(NetworkProtocol.SUB_DELIMITER)
         .append(roomAID).append(NetworkProtocol.SUB_DELIMITER)
-        .append(roomBID);
+        .append(roomBID).append(NetworkProtocol.SUB_DELIMITER)
+        .append(isOpen);
 
         return sb.toString();
     }

@@ -49,6 +49,7 @@ public class CatTreat extends Item {
         isConsumable = true;
 
         matchHitBoxBounds();
+        initTooltip("Cat Treat", "Gives 15% of the player's current XP cap as XP", true);
     }
 
     @Override

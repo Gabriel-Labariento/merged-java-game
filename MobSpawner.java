@@ -42,6 +42,7 @@ public class MobSpawner {
     private static final int HIGHESTY = 28;
     private static final int LOWESTY = 5;
     private static final int INITIALSPAWNDELAY = 1;
+    private static final int SPAWN_INDICATOR_DELAY = 2000; // 2 seconds before spawn
     
     private static final String[][] spawnableEnemiesAtLevel = {
         {"Spider", "Cockroach"},
@@ -90,7 +91,6 @@ public class MobSpawner {
      * until the maximum number of spawnable enemies at that room has been reached.
      */
     public void spawn() {
-
         Runnable enemySpawnThread = new Runnable() {
             @Override
             public void run() {
@@ -98,19 +98,29 @@ public class MobSpawner {
                     // Stop spawning if maxSpawned has been reached.
                     if (spawnedCount >= maxSpawned) return;
 
-                    Enemy enemy = null;
-                    if (inBossRoom && spawnedCount == 0) {
+                    if (inBossRoom && spawnedCount == 0 && boss == null) {
                         boss = createBoss(level);
-                        // System.out.println("Boss is " + boss.getClass());
-                        spawnEnemy(boss);
-                        for (int i = 0; i < 0; i++) {
-                            enemy = createNormalEnemy(level);
-                            spawnEnemy(enemy);
-                        }
+                        // Create spawn indicator for boss
+                        SpawnIndicator indicator = new SpawnIndicator(spawnX, spawnY);
+                        ServerMaster.getInstance().addEntity(indicator);
+                        // Schedule boss spawn after indicator duration
+                        ScheduledExecutorService bossSpawnScheduler = Executors.newSingleThreadScheduledExecutor();
+                        bossSpawnScheduler.schedule(() -> {
+                            spawnEnemy(boss);
+                            bossSpawnScheduler.shutdown();
+                        }, SPAWN_INDICATOR_DELAY, TimeUnit.MILLISECONDS);
                     } else {
                         // Pick a random enemy to spawn out of the available in the list for the level
-                        enemy = createNormalEnemy(level);
-                        spawnEnemy(enemy);
+                        final Enemy enemyToSpawn = createNormalEnemy(level);
+                        // Create spawn indicator for normal enemy
+                        SpawnIndicator indicator = new SpawnIndicator(spawnX, spawnY);
+                        ServerMaster.getInstance().addEntity(indicator);
+                        // Schedule enemy spawn after indicator duration
+                        ScheduledExecutorService enemySpawnScheduler = Executors.newSingleThreadScheduledExecutor();
+                        enemySpawnScheduler.schedule(() -> {
+                            spawnEnemy(enemyToSpawn);
+                            enemySpawnScheduler.shutdown();
+                        }, SPAWN_INDICATOR_DELAY, TimeUnit.MILLISECONDS);
                     }
                 } catch (Exception e) {
                     System.out.println("Exception in spawn() method:" + e);
@@ -314,4 +324,7 @@ public class MobSpawner {
         return boss.getHitPoints() <= 0;
     }
 
+    public void setBoss(Enemy boss){
+        this.boss = boss;
+    }
 }

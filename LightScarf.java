@@ -44,6 +44,7 @@ public class LightScarf extends Item {
         currentRoom = null;
 
         matchHitBoxBounds();
+        initTooltip("Light Scarf", "Reduces attack cooldown by 50% but decreases health by 75%", false);
     }
 
     @Override

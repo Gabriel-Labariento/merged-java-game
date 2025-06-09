@@ -32,7 +32,7 @@ public class Room extends GameObject{
     private final int roomId;
     private final int gameLevel;
     private int difficulty; // 0 => 3, easiest to hardest
-    private boolean isStartRoom, isEndRoom, isClearedHandled, isCleared;
+    private boolean isStartRoom, isEndRoom, isClearedHandled, isCleared, isVisited;
     private MobSpawner mobSpawner;
   
     private final ArrayList<Room> connections;
@@ -59,6 +59,7 @@ public class Room extends GameObject{
         isEndRoom = false;
         isClearedHandled = false;
         isCleared = false;
+        isVisited = false;
 
         connections = new ArrayList<>();
         doors = new HashMap<>();
@@ -88,6 +89,14 @@ public class Room extends GameObject{
         return sb.toString();
     }
 
+    public boolean isVisited() {
+        return isVisited;
+    }
+
+    public void setVisited(boolean isVisited) {
+        this.isVisited = isVisited;
+    }
+
     /**
      * Draws the Room on the GameCanvas
      * @param g2d the graphics object used for drawing
@@ -100,7 +109,6 @@ public class Room extends GameObject{
 
         loadBackgroundImage();
         g2d.drawImage(backgroundImage, worldX - cameraX, worldY - cameraY, null);
-        
     }
 
     /**
@@ -513,6 +521,10 @@ public class Room extends GameObject{
      */
     public int getGameLevel() {
         return gameLevel;
+    }
+
+    public Room getConnectionAtDirection(String direction){
+        return doors.get(direction);
     }
     
 }

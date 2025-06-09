@@ -213,6 +213,9 @@ public class GameServer {
                 }
                                 
                 serverMaster.addEntity(chosenPlayer);
+                
+                // Add the new player to the minimap system
+                serverMaster.getMiniMapManager().addNewPlayer(cid, serverMaster.getCurrentRoom());
 
             } catch (IOException ex){
                 System.out.println("IOEception from receiveAssetsThread");
@@ -288,7 +291,6 @@ public class GameServer {
             try {
                 String mapDataString = serverMaster.getMapData();
                 byte[] mapDataBytes = mapDataString.getBytes("UTF-8");
-                // System.out.println("Sending Map Data...");
                 dataOut.writeInt(mapDataString.length());
                 dataOut.write(mapDataBytes);
             } catch (IOException ex) {
@@ -323,10 +325,10 @@ public class GameServer {
                             if (part.isEmpty()) continue;
                             else if (part.startsWith(NetworkProtocol.CLICK)){
                                 String[] coors = part.split(NetworkProtocol.SUB_DELIMITER);
-                                int x = Integer.parseInt(coors[0].substring(NetworkProtocol.CLICK.length()));
-                                int y = Integer.parseInt(coors[1]);
-                                // System.out.println("CLick at " + x + "," + y);
-                                serverMaster.loadClickInput(x, y, cid); 
+                                String mouseButton = coors[0].substring(NetworkProtocol.CLICK.length());
+                                int x = Integer.parseInt(coors[1]);
+                                int y = Integer.parseInt(coors[2]);
+                                serverMaster.loadClickInput(mouseButton, x, y, cid); 
                             } else {
                                 // System.out.println(part);
                                 int keyInputNum = 0;

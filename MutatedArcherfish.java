@@ -123,7 +123,7 @@ public class MutatedArcherfish extends Enemy{
         matchHitBoxBounds();
 
         if (now - lastMoanTime > MOAN_DURATION){
-            SoundManager.getInstance().playSound("mutatedArcherfish");
+            SoundManager.getInstance().playPooledSound("mutatedArcherfish");
             lastMoanTime = now;
         }
     }

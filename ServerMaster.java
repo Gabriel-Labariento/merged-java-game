@@ -1,3 +1,4 @@
+import java.awt.Point;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -31,11 +32,13 @@ public class ServerMaster {
     private CopyOnWriteArrayList<Entity> entities;
     private DungeonMap dungeonMap;
     private ItemsHandler itemsHandler;
+    private MiniMapManager miniMapManager;
     private int userPlayerIndex;
     private Room currentRoom;
 
     private static int gameLevel;
     private static final int MAX_LEVEL = 7;
+    private boolean isTutorialComplete = false;
 
     private final ConcurrentHashMap<Character, Integer> keyInputQueue;
     private final ConcurrentHashMap<Integer, Integer> availableRevives;
@@ -75,7 +78,11 @@ public class ServerMaster {
         // INPUTS
         keyInputQueue = new ConcurrentHashMap<>();
         clickInputQueue = new ArrayList<>();
-        
+
+        // MINIMAP
+        miniMapManager = new MiniMapManager();
+        miniMapManager.initializeMap(currentRoom);
+
         // ITEMS
         itemsHandler = new ItemsHandler();
 
@@ -218,7 +225,7 @@ public class ServerMaster {
                         player.triggerRevival();
                         player.setIsReviving(true);
                         if (!hasPlayedRevivingSound){
-                            SoundManager.getInstance().playSound("reviving");
+                            SoundManager.getInstance().playPooledSound("reviving");
                             hasPlayedReviveSuccessSound = true;
                         }
                         
@@ -247,7 +254,7 @@ public class ServerMaster {
                 player.setCurrSprite(3);
 
                 if (!hasPlayedReviveSuccessSound) {
-                    SoundManager.getInstance().playSound("reviveSuccess");
+                    SoundManager.getInstance().playPooledSound("reviveSuccess");
                     hasPlayedReviveSuccessSound = true;
                 }
                 
@@ -313,7 +320,7 @@ public class ServerMaster {
 
         // Stop boss music and play defeat sound
         SoundManager.getInstance().stopSound("bossMusic");
-        SoundManager.getInstance().playSound("bossDefeat");
+        SoundManager.getInstance().playPooledSound("bossDefeat");
         
         // Ensure the room is marked as cleared
         currentRoom.setCleared(true);
@@ -386,9 +393,13 @@ public class ServerMaster {
             entities.add(player);
         }
 
-        for (GameServer.ConnectedPlayer cp : connectedPlayers) {
-            cp.promptAssetsThread(getAssetsData(cp.getCid()));
+        // Clear and reinitialize the minimap
+        for (GameServer.ConnectedPlayer player : connectedPlayers) {
+            miniMapManager.clearDiscoveredRooms(player.getCid());
+            miniMapManager.addNewPlayer(player.getCid(), currentRoom);
         }
+
+        miniMapManager.initializeMap(dungeonMap.getStartRoom());
     }
     
     /**
@@ -396,7 +407,7 @@ public class ServerMaster {
      * specific game state updates and events.
      * @param message the message String to send to all the clients
      */
-    private void sendMessageToClients(String message){
+    public void sendMessageToClients(String message){
         for (GameServer.ConnectedPlayer cp : connectedPlayers) {
             cp.promptAssetsThread(message);
         }
@@ -538,7 +549,7 @@ public class ServerMaster {
         if (item.getIsConsumable()){
             item.applyEffects();
             entities.remove(item);
-            SoundManager.getInstance().playSound("equipItem"); // Play sound for consumable pickup
+            SoundManager.getInstance().playPooledSound("equipItem"); // Play sound for consumable pickup
         }
         else {
             if(item.getIsOnPickUpCD()) return;
@@ -550,7 +561,7 @@ public class ServerMaster {
                 item.applyEffects();
                 item.setIsHeld(true);
                 entities.remove(item);
-                SoundManager.getInstance().playSound("equipItem"); // Play sound for non-consumable pickup
+                SoundManager.getInstance().playPooledSound("equipItem"); // Play sound for non-consumable pickup
             } 
         }
         
@@ -732,7 +743,7 @@ public class ServerMaster {
         });
         keyInputQueue.clear();
 
-        clickInputQueue.forEach((clickInput) -> {processClickInput(clickInput.x, clickInput.y, clickInput.cid);});
+        clickInputQueue.forEach((clickInput) -> {processClickInput(clickInput.mouseButton, clickInput.x, clickInput.y, clickInput.cid);});
         clickInputQueue.clear();
     }
 
@@ -747,93 +758,98 @@ public class ServerMaster {
 
     /**
      * Adds a mouse click input to the queue for processing
+     * @param mouseButton "L" for left-click and "R" for right-click
      * @param x the x-coordinate of the click
      * @param y the y-coordinate of the click
      * @param cid the client ID of the Player sending the click
      */
-    public void loadClickInput(int x, int y, int cid){
-        clickInputQueue.add(new ClickInput(x, y, cid));
+    public void loadClickInput(String mouseButton, int x, int y, int cid){
+        clickInputQueue.add(new ClickInput(mouseButton, x, y, cid));
     }
 
     /**
      * Creates an Player Attack based on the direction of the click input
      * relative to the player and the type of player.
+     * @param mouseButton "L" if a left-click, "R" if a right-click
      * @param clickX the x-coordinate of the click
      * @param clickY the y-coordinate of the click
      * @param cid the client ID of the player who sent the click
      */
-    public void processClickInput(int clickX, int clickY, int cid){
+    public void processClickInput(String mouseButton, int clickX, int clickY, int cid){
+        if (mouseButton.equals("R")) return;
+
         Player originPlayer = (Player) getPlayerFromClientId(cid);
 
-        //Debouncing constraints
-        if(originPlayer.getIsOnCoolDown() || originPlayer.getIsDown()) return;
-        
-        // Only create a new attack if the player is not on cooldown
-        if (!originPlayer.getIsOnCoolDown()) {
-            Thread runAttack = new Thread(){
-                @Override
-                public void run(){
-                    originPlayer.triggerCoolDown();
-                    originPlayer.runAttackFrames();
+            //Debouncing constraints
+            if(originPlayer.getIsOnCoolDown() || originPlayer.getIsDown()) return;
+            
+            // Only create a new attack if the player is not on cooldown
+            if (!originPlayer.getIsOnCoolDown()) {
+                Thread runAttack = new Thread(){
+                    @Override
+                    public void run(){
+                        originPlayer.triggerCoolDown();
+                        originPlayer.runAttackFrames();
 
-                    int attackDamage = originPlayer.getDamage();
-                    int frameWidth = 800;
-                    int frameHeight = 600;
-                    int centerX = frameWidth/2;
-                    int centerY = frameHeight/2;
-                    
-                    //Get a point a set distance away from the center of the screen in the direction of the click
-                    int vectorX = clickX - centerX;
-                    int vectorY = clickY - centerY;  
-                    int distance = 20;
-                    double normalizedVector = Math.sqrt((vectorX*vectorX)+(vectorY*vectorY));
+                        int attackDamage = originPlayer.getDamage();
+                        int frameWidth = 800;
+                        int frameHeight = 600;
+                        int centerX = frameWidth/2;
+                        int centerY = frameHeight/2;
+                        
+                        //Get a point a set distance away from the center of the screen in the direction of the click
+                        int vectorX = clickX - centerX;
+                        int vectorY = clickY - centerY;  
+                        int distance = 20;
+                        double normalizedVector = Math.sqrt((vectorX*vectorX)+(vectorY*vectorY));
 
-                    //Avoids 0/0 division edge case
-                    if (normalizedVector == 0) normalizedVector = 1; 
-                    double normalizedX = vectorX/normalizedVector;
-                    double normalizedY = vectorY/normalizedVector;
-                    int attackScreenX = (int) (centerX + distance*normalizedX);
-                    int attackScreenY = (int) (centerY + distance*normalizedY);
+                        //Avoids 0/0 division edge case
+                        if (normalizedVector == 0) normalizedVector = 1; 
+                        double normalizedX = vectorX/normalizedVector;
+                        double normalizedY = vectorY/normalizedVector;
+                        int attackScreenX = (int) (centerX + distance*normalizedX);
+                        int attackScreenY = (int) (centerY + distance*normalizedY);
 
-                    int playerScreenX = frameWidth/2 - originPlayer.getWidth()/2;
-                    int playerScreenY = frameHeight/2 - originPlayer.getHeight()/2;
+                        int playerScreenX = frameWidth/2 - originPlayer.getWidth()/2;
+                        int playerScreenY = frameHeight/2 - originPlayer.getHeight()/2;
 
-                    int worldX = (originPlayer.getWorldX() - playerScreenX) + attackScreenX;
-                    int worldY = (originPlayer.getWorldY() - playerScreenY) + attackScreenY;
+                        int worldX = (originPlayer.getWorldX() - playerScreenX) + attackScreenX;
+                        int worldY = (originPlayer.getWorldY() - playerScreenY) + attackScreenY;
 
-                    Attack playerAttack = null;
-                    int attackHeight;
-                    int attackWidth;
+                        Attack playerAttack = null;
+                        int attackHeight;
+                        int attackWidth;
 
-                    if (originPlayer.getIdentifier().equals(NetworkProtocol.FASTCAT)){
-                        attackWidth = 40;
-                        attackHeight = 40;
-                        playerAttack = new PlayerSlash(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
-                        attackDamage, true);
-                    } 
-                    else if (originPlayer.getIdentifier().equals(NetworkProtocol.HEAVYCAT)){
-                        attackWidth = 80;
-                        attackHeight = 80;
-                        playerAttack = new PlayerSmash(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
-                        attackDamage, true);
+                        if (originPlayer.getIdentifier().equals(NetworkProtocol.FASTCAT)){
+                            attackWidth = 40;
+                            attackHeight = 40;
+                            playerAttack = new PlayerSlash(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
+                            attackDamage, true);
+                        } 
+                        else if (originPlayer.getIdentifier().equals(NetworkProtocol.HEAVYCAT)){
+                            attackWidth = 80;
+                            attackHeight = 80;
+                            playerAttack = new PlayerSmash(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
+                            attackDamage, true);
+                        }
+                        else if (originPlayer.getIdentifier().equals(NetworkProtocol.GUNCAT)){
+                            attackWidth = 16;
+                            attackHeight = 16;
+                            playerAttack = new PlayerBullet(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
+                            normalizedX, normalizedY, attackDamage, true);
+                        }
+                        
+                        if(playerAttack != null){
+                            playerAttack.setCurrentRoom(originPlayer.getCurrentRoom());
+                            addEntity(playerAttack); 
+                        }
                     }
-                    else if (originPlayer.getIdentifier().equals(NetworkProtocol.GUNCAT)){
-                        attackWidth = 16;
-                        attackHeight = 16;
-                        playerAttack = new PlayerBullet(cid, originPlayer, worldX-attackWidth/2, worldY - attackHeight/2, 
-                        normalizedX, normalizedY, attackDamage, true);
-                    }
-                    
-                    if(playerAttack != null){
-                        playerAttack.setCurrentRoom(originPlayer.getCurrentRoom());
-                        addEntity(playerAttack); 
-                    }
-                }
-            };
-            runAttack.start();
-        }
-    }
+                };
+                runAttack.start();
+            }
+        }        
 
+  
     /**
      * Gets the normal vector created from two vectors by subtracting their x and
      * y-components.
@@ -886,10 +902,8 @@ public class ServerMaster {
      * in the new starting room.
      */
     public DungeonMap generateNewDungeon(){
-
         dungeonMap = new DungeonMap(gameLevel);
         dungeonMap.generateRooms();
-        
         return dungeonMap;
     }
 
@@ -948,19 +962,17 @@ public class ServerMaster {
 
         // Loop through entities array
         for (Entity entity : entities) {
+            if (entity == null) continue;
             if ((entity instanceof Player) && (entity != userPlayer)) {
                 // Player String: P:clientId,playerX,playerY
                 sb.append(NetworkProtocol.PLAYER).append((entity.getAssetData(false)))
                 .append(NetworkProtocol.DELIMITER);
-            } else if (!(entity instanceof  Player)) {
+            } else if (!(entity instanceof Player)) {
                 // NPCs ex. G:B,id,x,y,currentRoomId| => Rat with id at currentRoomId (x,y)
-                if (entity == null) continue;
                 sb.append(NetworkProtocol.ENTITY)
                 .append(entity.getAssetData(false));  
             } 
-            
         }
-
         return sb.toString();
     }
 
@@ -1007,6 +1019,7 @@ public class ServerMaster {
                 userPlayer.setHitPoints(hp);
                 userPlayer.setzIndex(zIndex);
                 currentRoom = newRoom;
+                currentRoom.setVisited(true);
                 handleSpawnersOnRoomChange(newRoom);
                 
                 // Only play boss music if it's an end room AND not cleared
@@ -1030,8 +1043,27 @@ public class ServerMaster {
                 .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
                 .append(zIndex).append(NetworkProtocol.DELIMITER);
 
-                return sb.toString();
-            } catch (Exception e) {
+                // Update minimap for the player
+                miniMapManager.discoverRoom(clientId, newRoom);
+                
+                // Get visible rooms for the minimap update
+                HashMap<Room, Point> visibleRooms = miniMapManager.getVisibleRooms(clientId);
+                 
+                // Add minimap data to the response
+                StringBuilder minimapData = new StringBuilder();
+                minimapData.append(NetworkProtocol.MINIMAP_UPDATE);
+                for (Map.Entry<Room, Point> entry : visibleRooms.entrySet()) {
+                    minimapData.append(entry.getKey().getRoomId())
+                               .append(NetworkProtocol.SUB_DELIMITER)
+                               .append(entry.getValue().x)
+                               .append(NetworkProtocol.SUB_DELIMITER)
+                               .append(entry.getValue().y)
+                               .append(NetworkProtocol.MINIMAP_DELIMITER);
+                } minimapData.append(NetworkProtocol.DELIMITER);
+                
+                // System.out.println("String built in handleRoomTransition: " + sb.toString() + minimapData.toString());
+                return sb.toString() + minimapData.toString();
+            } catch (NumberFormatException e) {
                 // If any error occurs during room transition, keep player in current room
                 System.err.println("Error during room transition: " + e.getMessage());
                 return null;
@@ -1154,14 +1186,17 @@ public class ServerMaster {
      */
     private static class ClickInput{
         public int x, y, cid;
+        public String mouseButton;
 
         /**
          * Creates an instance of ClickInput with fields set to the parameters 
+         * @param mouseButton "L" for left-click and "R" for right-click
          * @param x the x-coordinate
          * @param y the y-coordinate
          * @param cid the client ID of the Player initiating the click
          */
-        public ClickInput(int x, int y, int cid){
+        public ClickInput(String mouseButton, int x, int y, int cid){
+            this.mouseButton = mouseButton;
             this.x = x;
             this.y = y;
             this.cid = cid;
@@ -1172,5 +1207,13 @@ public class ServerMaster {
         hasPlayedGameOverSound = false;
         hasPlayedRevivingSound = false;
         hasPlayedReviveSuccessSound = false;
+    }
+
+    /**
+     * Gets the MiniMapManager instance
+     * @return the MiniMapManager instance
+     */
+    public MiniMapManager getMiniMapManager() {
+        return miniMapManager;
     }
 }

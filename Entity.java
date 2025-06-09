@@ -42,6 +42,8 @@ public abstract class Entity extends GameObject {
     protected long lastAttackTime;
     protected int attackCDDuration;
 
+
+
     /**
      * Draws the object relative to the userPlayer with offsets defined in the
      * GameCanvas class

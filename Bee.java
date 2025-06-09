@@ -145,7 +145,7 @@ public class Bee extends Enemy{
         matchHitBoxBounds();
 
         if (now - lastBuzzTime > BUZZ_COOLDOWN){
-            SoundManager.getInstance().playSound("beeBuzz");
+            SoundManager.getInstance().playPooledSound("beeBuzz");
             lastBuzzTime = now;
         }
     }

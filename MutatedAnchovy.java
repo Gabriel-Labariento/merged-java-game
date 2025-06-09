@@ -118,7 +118,7 @@ public class MutatedAnchovy extends Enemy{
         matchHitBoxBounds();
 
         if (now - lastMoanTime > MOAN_DURATION){
-            SoundManager.getInstance().playSound("mutatedAnchovy");
+            SoundManager.getInstance().playPooledSound("mutatedAnchovy");
             lastMoanTime = now;
         }
 

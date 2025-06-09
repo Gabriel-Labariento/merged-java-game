@@ -160,7 +160,7 @@ public class AdultCat extends Enemy{
                     isAttacking = true;
 
                     if (now - lastGrowlTime > GROWL_COOLDOWN) {
-                        SoundManager.getInstance().playSound("angryCat");
+                        SoundManager.getInstance().playPooledSound("angryCat");
                         lastGrowlTime = now;
                     }
 

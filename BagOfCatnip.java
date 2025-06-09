@@ -49,6 +49,7 @@ public class BagOfCatnip extends Item {
         currentRoom = null;
 
         matchHitBoxBounds();
+        initTooltip("Bag of Catnip", "Multiplies damage by 2 but increases attack cooldown time by 1.5", true);
     }
 
     @Override
