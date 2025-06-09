@@ -407,7 +407,7 @@ public class ServerMaster {
      * specific game state updates and events.
      * @param message the message String to send to all the clients
      */
-    private void sendMessageToClients(String message){
+    public void sendMessageToClients(String message){
         for (GameServer.ConnectedPlayer cp : connectedPlayers) {
             cp.promptAssetsThread(message);
         }

@@ -200,7 +200,7 @@
         
                 g2d.dispose();
 
-                System.out.println("Painting tutorial step:" + message);
+                // System.out.println("Painting tutorial step:" + message);
             }
         }
     }
