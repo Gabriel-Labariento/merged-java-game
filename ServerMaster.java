@@ -39,6 +39,7 @@ public class ServerMaster {
     private static int gameLevel;
     private static final int MAX_LEVEL = 7;
     private boolean isTutorialComplete = false;
+    private boolean isItemCollisionAllowed = true;
 
     private final ConcurrentHashMap<Character, Integer> keyInputQueue;
     private final ConcurrentHashMap<Integer, Integer> availableRevives;
@@ -55,7 +56,6 @@ public class ServerMaster {
     private boolean hasPlayedRevivingSound = false;
     private boolean hasPlayedReviveSuccessSound = false;
 
-    
     /**
      * Private constructor used in the Singleton pattern. This 
      * initializes all required game systems including entity tracking,
@@ -544,6 +544,8 @@ public class ServerMaster {
      * @param player the player picking the item up
      */
     private void applyItem(Item item, Player player){
+        if (!isItemCollisionAllowed) return;
+
         item.setOwner(player);
         
         if (item.getIsConsumable()){
@@ -1145,6 +1147,10 @@ public class ServerMaster {
         this.currentRoom = currentRoom;
     }
 
+    public void setIsItemCollisionAllowed(boolean b){
+        isItemCollisionAllowed = b;
+    }
+
     /**
      * Adds an entity to the entities ArrayList. Sets its currentRoom
      * field value to the ServerMaster's currentRoom if it is not null
@@ -1180,6 +1186,10 @@ public class ServerMaster {
     public int getGameLevel() {
         return gameLevel;
     }   
+
+    public ItemsHandler getItemsHandler(){
+        return itemsHandler;
+    }
 
     /**
      * Stores the x and y coordinates, as well as the client id of the click input.

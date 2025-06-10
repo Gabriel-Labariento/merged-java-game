@@ -655,6 +655,9 @@ public class GameFrame extends JFrame{
             @Override
             public void mousePressed(MouseEvent e){
                 if (e.getButton() == MouseEvent.BUTTON1) {
+                    // Disable game attack clicks until the movement tutorial step is finished
+                    if (gameCanvas.getTutorialManager().getCurrentStep().getStep() < 1) return;
+
                     // Left click - send to server
                     gameClient.clickInput("L", e.getX(), e.getY());
                 } else if (e.getButton() == MouseEvent.BUTTON3) {

@@ -453,6 +453,10 @@ public class GameClient {
         }
     }
 
+    public int getClientId() {
+        return clientId;
+    }
+
     /**
      * Hold the x and y coordinate of a click input
      * @param x the x-coordinate

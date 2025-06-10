@@ -47,7 +47,10 @@ public abstract class Player extends Entity implements Effectable{
 
     //  TUTORIAL VARIABLES
     protected int movementCount = 0;
-    private static final int SIGNIFICANT_MOVEMENT = 35;
+    private static final int SIGNIFICANT_MOVEMENT = 50;
+
+    protected int attackCount = 0;
+    private static final int ATTACK_THRESHOLD = 4;
 
     /**
      * Each Player instance starts at level 1, holds no item, and has 
@@ -466,6 +469,7 @@ public abstract class Player extends Entity implements Effectable{
      * Cycles through the attack sprites to simulate attack animation
      */
     public void runAttackFrames(){
+        attackCount++;
         int frameCount = 0;
         while(frameCount < 4){
             long now = System.currentTimeMillis();
@@ -520,5 +524,9 @@ public abstract class Player extends Entity implements Effectable{
 
     public boolean hasMovedSignificantly(){
         return movementCount > SIGNIFICANT_MOVEMENT;
+    }
+
+    public boolean hasReachedAttackThreshold() {
+        return attackCount > ATTACK_THRESHOLD;
     }
 }

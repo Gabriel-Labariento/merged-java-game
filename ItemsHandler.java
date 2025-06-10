@@ -43,6 +43,13 @@ public class ItemsHandler{
         }
     }
     
+    public static void updateItemDropChance(String itemName, int newChance) {
+        Integer oldChance = AVAILABLEITEMS.get(itemName);
+        if (oldChance != null) {
+            AVAILABLEITEMS.put(itemName, newChance);
+            dropChanceSum += newChance - oldChance;
+        }
+    }
     /**
      * Generates a random item when an enemy is killed
      * @param enemy the enemy defeated that will cause the drop

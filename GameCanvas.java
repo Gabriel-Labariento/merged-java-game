@@ -40,12 +40,13 @@ public class GameCanvas extends JComponent{
 
     private TutorialManager tutorialManager;
     private boolean hasTutorialStarted = false;
-    private boolean startPlayCalled = false;
 
     private float screenOpacity;
     private int currentStage;
     private int mouseX, mouseY;
     private boolean showTooltips = false;
+    private boolean isRightClickAllowed = false;
+    private boolean hasClickedOnItem = false;
 
     private static BufferedImage[] sprites;
 
@@ -90,6 +91,8 @@ public class GameCanvas extends JComponent{
     }   
 
     public void handleRightClick(int clickX, int clickY){
+        if (!isRightClickAllowed) return;
+
         Player originPlayer = clientMaster.getUserPlayer();
         // Convert screen click to world click based on player position
         Point worldClick = convertScreenToWorld(clickX, clickY, originPlayer);
@@ -106,9 +109,19 @@ public class GameCanvas extends JComponent{
                     (worldClick.y >= itemBounds[0] - clickAllowance && worldClick.y <= itemBounds[1] + clickAllowance)) {
                     // System.out.println("Item " + item.getId() + " was clicked!");
                     toggleItemTooltip(item);
+                    hasClickedOnItem = true;
                 }
             }
         }
+    }
+
+    
+    public boolean getHasClickedOnItem() {
+        return hasClickedOnItem;
+    }
+
+    public void setRightClickAllowed(boolean isRightClickAllowed) {
+        this.isRightClickAllowed = isRightClickAllowed;
     }
 
     private void toggleItemTooltip(Item item){
@@ -231,12 +244,22 @@ public class GameCanvas extends JComponent{
      */
     public void startRenderLoop(){
         renderLoopScheduler.scheduleAtFixedRate(() -> {
-            repaint();
             // Start tutorial after first scene is done
             if (sceneHandler.lastFinishedScene != -1 && !tutorialManager.isActive() && !hasTutorialStarted) {
                 tutorialManager.startTutorial();
                 hasTutorialStarted = true;
             }
+
+            if (sceneHandler.lastFinishedScene != -1 
+                && tutorialManager != null 
+                && tutorialManager.isActive()
+                && !tutorialManager.isTutorialComplete())
+                {
+                    tutorialManager.checkTutorialProgression();
+                    System.out.println("hereeee");
+                } 
+
+            repaint();
         }, 0, REFRESHINTERVAL, TimeUnit.MILLISECONDS);
     }
 
@@ -258,71 +281,15 @@ public class GameCanvas extends JComponent{
         return new Point(worldX, worldY);
     }
 
-    public void handleTutorialProgression() {
-        if (tutorialManager.isActive()) {
-            tutorialManager.showNextStep();
-            SoundManager.getInstance().playPooledSound("click");
-        }
-    }
-
-    // public void checkTutorialProgression() {
-    //     if (!tutorialManager.isActive()) return;
-        
-    //     int currentStep = tutorialManager.getCurrentStepNumber();
-    //     Player userPlayer = clientMaster.getUserPlayer();
-        
-    //     // Auto-advance tutorial based on game state
-    //     switch (currentStep) {
-    //         case 0: // Movement tutorial
-    //             // Check if player has moved significantly
-    //             if (userPlayer.hasMovedSignificantly()) {
-    //                 handleTutorialProgression();
-    //             }
-    //             break;
-    //         case 1: // Attack tutorial
-    //             // Check if player has attacked
-    //             if (userPlayer.hasAttacked()) {
-    //                 handleTutorialProgression();
-    //             }
-    //             break;
-    //         case 2: // Kill enemies tutorial
-    //             // Check if all enemies in room are defeated
-    //             if (clientMaster.getCurrentRoom().areAllEnemiesDefeated()) {
-    //                 handleTutorialProgression();
-    //             }
-    //             break;
-    //         case 3: // Item pickup tutorial
-    //             // Check if player has picked up an item
-    //             if (userPlayer.hasPickedUpItem()) {
-    //                 handleTutorialProgression();
-    //             }
-    //             break;
-    //         case 4: // Inventory tutorial
-    //             // Check if player opened inventory
-    //             if (playerUI.isInventoryOpen()) {
-    //                 handleTutorialProgression();
-    //             }
-    //             break;
-    //         case 5: // Door tutorial
-    //             // Check if player has cleared a room
-    //             if (clientMaster.getCurrentRoom().isCleared()) {
-    //                 handleTutorialProgression();
-    //             }
-    //             break;
-    //         case 6: // Final message
-    //             // Auto-advance after a few seconds
-    //             Timer timer = new Timer(3000, e -> handleTutorialProgression());
-    //             timer.setRepeats(false);
-    //             timer.start();
-    //             break;
-    //     }
-    // }
-
     /**
      * Gets the tutorial manager instance.
      * @return the TutorialManager instance
      */
     public TutorialManager getTutorialManager() {
         return tutorialManager;
+    }
+
+    public ClientMaster getClientMaster() {
+        return clientMaster;
     }
 }

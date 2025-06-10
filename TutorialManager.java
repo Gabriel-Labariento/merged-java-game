@@ -17,13 +17,19 @@
         /** Flag indicating whether the tutorial is currently active */
         private boolean isActive;
         private GameCanvas parentCanvas;
-        
+        private ServerMaster gameServerMaster;
+
+        private boolean hasShownTutorialStep = false;
+        private static final int TUTORIAL_STEP_DURATION = 4000;
+        private long lastShowTutorialStepTime = 0;
+
         /**
          * Constructs a new TutorialManager and initializes the tutorial steps.
          * The tutorial starts in an inactive state and must be explicitly started.
          */
         public TutorialManager(GameCanvas gc){
             parentCanvas = gc;
+            gameServerMaster = ServerMaster.getInstance();
             steps = new LinkedList<>();
             initializeSteps();
             isActive = false;
@@ -126,6 +132,107 @@
             return currentStep;
         }
 
+        public void checkTutorialProgression() {
+            if (!isActive) return;
+            int cid = parentCanvas.getGameClient().getClientId();
+            Player serverPlayer = (Player) gameServerMaster.getPlayerFromClientId(cid);
+            Room startRoom = gameServerMaster.getDungeonMap().getStartRoom();
+
+            switch (currentStep.getStep()) {
+                    case 0:
+                        startRoom.closeDoors();
+                        if (serverPlayer.hasMovedSignificantly()) {
+                            handleTutorialProgression();
+                        }
+                        break;
+                    case 1:
+                        if (serverPlayer.hasReachedAttackThreshold()) {
+                            handleTutorialProgression();
+                            startRoom.openDoors();
+                        }
+                        break;
+                    case 2:
+                        if (serverPlayer.getCurrentRoom() != startRoom) {
+                            handleTutorialProgression();
+                        }
+                        lastShowTutorialStepTime = System.currentTimeMillis();
+                        break;
+                    case 3:
+                        long now = System.currentTimeMillis();
+                        if (now - lastShowTutorialStepTime > TUTORIAL_STEP_DURATION) {
+                            hideCurrentStep();
+                            lastShowTutorialStepTime = 0;
+                        }
+
+                        Room current = gameServerMaster.getCurrentRoom();
+
+                        // Lock doors for now until item is picked up
+                        current.closeDoors();
+
+                        if (current != startRoom && current.isCleared()) {
+                            handleTutorialProgression();
+                        }
+                        // Ensure that an item is always dropped
+                        ItemsHandler.updateItemDropChance("None", 0);
+
+                        // Don't allow item pickups yet
+                        gameServerMaster.setIsItemCollisionAllowed(false);
+                        break;
+                    case 4:
+                        now = System.currentTimeMillis();
+                        if (now - lastShowTutorialStepTime > TUTORIAL_STEP_DURATION) {
+                            handleTutorialProgression();
+                            lastShowTutorialStepTime = 0;
+                        } 
+                        break;
+                    case 5:
+                        parentCanvas.setRightClickAllowed(true);
+                        if (parentCanvas.getHasClickedOnItem()) handleTutorialProgression();
+                        break;
+                    case 6:
+                        current = gameServerMaster.getCurrentRoom();
+                        now = System.currentTimeMillis();
+                        if (now - lastShowTutorialStepTime > TUTORIAL_STEP_DURATION) {
+                            handleTutorialProgression();
+                            current.openDoors();
+                        }
+                default:
+                    break;
+            }
+        }
+    //         case 3: // Item pickup tutorial
+    //             // Check if player has picked up an item
+    //             if (userPlayer.hasPickedUpItem()) {
+    //                 handleTutorialProgression();
+    //             }
+    //             break;
+    //         case 4: // Inventory tutorial
+    //             // Check if player opened inventory
+    //             if (playerUI.isInventoryOpen()) {
+    //                 handleTutorialProgression();
+    //             }
+    //             break;
+    //         case 5: // Door tutorial
+    //             // Check if player has cleared a room
+    //             if (clientMaster.getCurrentRoom().isCleared()) {
+    //                 handleTutorialProgression();
+    //             }
+    //             break;
+    //         case 6: // Final message
+    //             // Auto-advance after a few seconds
+    //             Timer timer = new Timer(3000, e -> handleTutorialProgression());
+    //             timer.setRepeats(false);
+    //             timer.start();
+    //             break;
+    //     }
+    // }
+
+    public void handleTutorialProgression() {
+        if (isActive) {
+            showNextStep();
+            SoundManager.getInstance().playPooledSound("click");
+        }
+    }
         /**
          * Represents a single step in the tutorial sequence.
          * Each step displays a message in a semi-transparent box at the bottom of the screen.
@@ -138,10 +245,11 @@
             /** Array of all tutorial messages in sequence */
             public static final String[] messages = {
                 "Use the W, A, S, and D keys to move.",
-                "Press the left mouse button to activate an attack at the direction of the click.",
+                "Press the left mouse button to attack.",
+                "Move out the room to face some monsers.",
                 "Use attacks to kill the enemies in the room.",
                 "Enemies can drop items to boost your player's stats.",
-                "Click on the cat icon on the top left to view see the item's effect.",
+                "Click on the top left to view see the item's effect.",
                 "Doors will reappear only once after a room has been cleared.",
                 "Survive and defeat the boss. This is the first of 7. Good luck!"
             };
