@@ -2,7 +2,10 @@
     import java.io.IOException;
     import java.util.LinkedList;
     import java.util.Queue;
-    import javax.swing.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.swing.*;
 
     /**
      * Manages the game's tutorial system, handling the display and progression of tutorial steps.
@@ -23,6 +26,8 @@
         private static final int TUTORIAL_STEP_DURATION = 4000;
         private long lastShowTutorialStepTime = 0;
 
+        private Room roomBeforeBoss;
+
         /**
          * Constructs a new TutorialManager and initializes the tutorial steps.
          * The tutorial starts in an inactive state and must be explicitly started.
@@ -33,6 +38,7 @@
             steps = new LinkedList<>();
             initializeSteps();
             isActive = false;
+            roomBeforeBoss = null;
         }
 
         /**
@@ -137,27 +143,28 @@
             int cid = parentCanvas.getGameClient().getClientId();
             Player serverPlayer = (Player) gameServerMaster.getPlayerFromClientId(cid);
             Room startRoom = gameServerMaster.getDungeonMap().getStartRoom();
+            
 
             switch (currentStep.getStep()) {
-                    case 0:
+                    case 0:  // MOVEMENT
                         startRoom.closeDoors();
                         if (serverPlayer.hasMovedSignificantly()) {
                             handleTutorialProgression();
                         }
                         break;
-                    case 1:
+                    case 1: // ATTACK
                         if (serverPlayer.hasReachedAttackThreshold()) {
                             handleTutorialProgression();
                             startRoom.openDoors();
                         }
                         break;
-                    case 2:
+                    case 2: // MOVE OUT ROOM
                         if (serverPlayer.getCurrentRoom() != startRoom) {
                             handleTutorialProgression();
+                            lastShowTutorialStepTime = System.currentTimeMillis();
                         }
-                        lastShowTutorialStepTime = System.currentTimeMillis();
                         break;
-                    case 3:
+                    case 3: // KILL ENEMIES
                         long now = System.currentTimeMillis();
                         if (now - lastShowTutorialStepTime > TUTORIAL_STEP_DURATION) {
                             hideCurrentStep();
@@ -178,54 +185,47 @@
                         // Don't allow item pickups yet
                         gameServerMaster.setIsItemCollisionAllowed(false);
                         break;
-                    case 4:
+                    case 4: // ENEMIES CAN DROP ITEMS
                         now = System.currentTimeMillis();
                         if (now - lastShowTutorialStepTime > TUTORIAL_STEP_DURATION) {
                             handleTutorialProgression();
                             lastShowTutorialStepTime = 0;
+
                         } 
                         break;
-                    case 5:
+                    case 5: // DOORS WILL REAPPEAR ONLY AFTER CLEARING
                         parentCanvas.setRightClickAllowed(true);
-                        if (parentCanvas.getHasClickedOnItem()) handleTutorialProgression();
-                        break;
-                    case 6:
-                        current = gameServerMaster.getCurrentRoom();
-                        now = System.currentTimeMillis();
-                        if (now - lastShowTutorialStepTime > TUTORIAL_STEP_DURATION) {
+                        roomBeforeBoss = gameServerMaster.getCurrentRoom();
+                        if (parentCanvas.getHasClickedOnItem()) {
                             handleTutorialProgression();
-                            current.openDoors();
+                            roomBeforeBoss.openDoors();
+                            lastShowTutorialStepTime = System.currentTimeMillis();
+                            ItemsHandler.updateItemDropChance("None", 60);
+                            gameServerMaster.setIsItemCollisionAllowed(true);
                         }
+                        break;
+                    case 6: // BOSS ROOM
+                        current = gameServerMaster.getCurrentRoom();
+    
+                        if (current == gameServerMaster.getDungeonMap().getEndRoom() &&
+                            !hasShownTutorialStep) {
+                            // Only progress if we just entered the boss room
+                            lastShowTutorialStepTime = System.currentTimeMillis();
+                            handleTutorialProgression();
+                        } else if (hasShownTutorialStep){
+                            now = System.currentTimeMillis();
+                            if (now - lastShowTutorialStepTime > TUTORIAL_STEP_DURATION) {
+                                hideCurrentStep();
+                                isActive = false;
+                            }
+                        }
+
+
+                        break;
                 default:
                     break;
             }
         }
-    //         case 3: // Item pickup tutorial
-    //             // Check if player has picked up an item
-    //             if (userPlayer.hasPickedUpItem()) {
-    //                 handleTutorialProgression();
-    //             }
-    //             break;
-    //         case 4: // Inventory tutorial
-    //             // Check if player opened inventory
-    //             if (playerUI.isInventoryOpen()) {
-    //                 handleTutorialProgression();
-    //             }
-    //             break;
-    //         case 5: // Door tutorial
-    //             // Check if player has cleared a room
-    //             if (clientMaster.getCurrentRoom().isCleared()) {
-    //                 handleTutorialProgression();
-    //             }
-    //             break;
-    //         case 6: // Final message
-    //             // Auto-advance after a few seconds
-    //             Timer timer = new Timer(3000, e -> handleTutorialProgression());
-    //             timer.setRepeats(false);
-    //             timer.start();
-    //             break;
-    //     }
-    // }
 
     public void handleTutorialProgression() {
         if (isActive) {
@@ -246,12 +246,12 @@
             public static final String[] messages = {
                 "Use the W, A, S, and D keys to move.",
                 "Press the left mouse button to attack.",
-                "Move out the room to face some monsers.",
+                "Move out the room to face some monsters.",
                 "Use attacks to kill the enemies in the room.",
                 "Enemies can drop items to boost your player's stats.",
-                "Click on the top left to view see the item's effect.",
+                "Right click on an item to see its effects.",
                 "Doors will reappear only once after a room has been cleared.",
-                "Survive and defeat the boss. This is the first of 7. Good luck!"
+                "Survive and defeat the boss. Good luck!"
             };
         
             /** Custom font for tutorial text */

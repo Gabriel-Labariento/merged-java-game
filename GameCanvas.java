@@ -256,7 +256,6 @@ public class GameCanvas extends JComponent{
                 && !tutorialManager.isTutorialComplete())
                 {
                     tutorialManager.checkTutorialProgression();
-                    System.out.println("hereeee");
                 } 
 
             repaint();
