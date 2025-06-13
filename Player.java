@@ -50,7 +50,7 @@ public abstract class Player extends Entity implements Effectable{
     private static final int SIGNIFICANT_MOVEMENT = 50;
 
     protected int attackCount = 0;
-    private static final int ATTACK_THRESHOLD = 4;
+    private static final int ATTACK_THRESHOLD = 2;
 
     /**
      * Each Player instance starts at level 1, holds no item, and has 

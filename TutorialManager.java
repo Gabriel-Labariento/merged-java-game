@@ -1,7 +1,7 @@
-    import java.awt.*;
-    import java.io.IOException;
-    import java.util.LinkedList;
-    import java.util.Queue;
+import java.awt.*;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -171,7 +171,7 @@ import javax.swing.*;
                             lastShowTutorialStepTime = 0;
                         }
 
-                        Room current = gameServerMaster.getCurrentRoom();
+                        Room current = serverPlayer.getCurrentRoom();
 
                         // Lock doors for now until item is picked up
                         current.closeDoors();
@@ -190,12 +190,11 @@ import javax.swing.*;
                         if (now - lastShowTutorialStepTime > TUTORIAL_STEP_DURATION) {
                             handleTutorialProgression();
                             lastShowTutorialStepTime = 0;
-
                         } 
                         break;
                     case 5: // DOORS WILL REAPPEAR ONLY AFTER CLEARING
                         parentCanvas.setRightClickAllowed(true);
-                        roomBeforeBoss = gameServerMaster.getCurrentRoom();
+                        roomBeforeBoss = serverPlayer.getCurrentRoom();
                         if (parentCanvas.getHasClickedOnItem()) {
                             handleTutorialProgression();
                             roomBeforeBoss.openDoors();
@@ -205,23 +204,23 @@ import javax.swing.*;
                         }
                         break;
                     case 6: // BOSS ROOM
-                        current = gameServerMaster.getCurrentRoom();
-    
+                        current = serverPlayer.getCurrentRoom();
+                        
                         if (current == gameServerMaster.getDungeonMap().getEndRoom() &&
                             !hasShownTutorialStep) {
                             // Only progress if we just entered the boss room
                             lastShowTutorialStepTime = System.currentTimeMillis();
                             handleTutorialProgression();
-                        } else if (hasShownTutorialStep){
-                            now = System.currentTimeMillis();
-                            if (now - lastShowTutorialStepTime > TUTORIAL_STEP_DURATION) {
+                            hasShownTutorialStep = true;
+                        }
+                        break;
+                    case 7: 
+                        now = System.currentTimeMillis();
+                            if (now - lastShowTutorialStepTime > TUTORIAL_STEP_DURATION - 1500) {
                                 hideCurrentStep();
+                                parentCanvas.remove(currentStep);
                                 isActive = false;
                             }
-                        }
-
-
-                        break;
                 default:
                     break;
             }
@@ -230,7 +229,7 @@ import javax.swing.*;
     public void handleTutorialProgression() {
         if (isActive) {
             showNextStep();
-            SoundManager.getInstance().playPooledSound("click");
+            SoundManager.getInstance().playPooledSound("levelUp");
         }
     }
         /**
