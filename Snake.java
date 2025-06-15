@@ -29,6 +29,7 @@ public class Snake extends Enemy {
     private static final int BULLET_COOLDOWN = 5000;
     private static final int DASH_COOLDOWN = 1000;
     private final int SPAWN_COOLDOWN = 5000;
+    private static final int HISS_COOLDOWN = 3000;
 
     private static final int DASH_DISTANCE = GameCanvas.TILESIZE * 3;
     private static final int ATTACK_DISTANCE = GameCanvas.TILESIZE * 3;
@@ -39,6 +40,7 @@ public class Snake extends Enemy {
     private int burstCount = 0;
     private boolean inBurst;
     private long lastBurstSend = 0;
+    private long lastHissTime = 0;
 
     private long lastDashTime = 0;
     private long lastSpawnTime = 0;

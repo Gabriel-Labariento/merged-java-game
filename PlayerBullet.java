@@ -115,14 +115,4 @@ public class PlayerBullet extends Attack{
         }
         moveBullet(0.4);
     }
-
-    @Override
-    public void updateCarousel() {
-        if (!hasPlayedSound) {
-            SoundManager.getInstance().playPooledSound("playerBullet.wav");
-            hasPlayedSound = true;
-        }
-        moveBullet();
-    }
-
 }

@@ -31,6 +31,12 @@ public abstract class Enemy extends Entity {
     public long now;
     protected boolean isBuffed;
     public boolean isSummon;
+
+    //Shared sound configs
+    public static final int MOAN_DURATION = 3000;
+    public static final int NOISE_COOLDOWN = 3000;
+    public long lastMoanTime = 0;
+    public long lastNoiseTime = 0;
     
     /**
      * All Enemy instances have default values: an empty 

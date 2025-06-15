@@ -42,6 +42,11 @@ public abstract class Player extends Entity implements Effectable, Serializable{
     private final ArrayList<StatusEffect> statusEffects;
     public boolean isSpriteWhite;
     public long lastWhitingUpdate;
+    private static final long BASE_STEP_SOUND_COOLDOWN = 300; // Base cooldown of 300ms
+    private static final float MIN_SPEED_MULTIPLIER = 0.5f; // Slowest speed will double the cooldown
+    private static final float MAX_SPEED_MULTIPLIER = 2.0f; // Fastest speed will halve the cooldown
+    private long lastStepSoundTime = 0;
+    protected boolean hasPlayedLevelUpSound = false;
 
     //  TUTORIAL VARIABLES
     protected int movementCount = 0;

@@ -37,6 +37,7 @@ public class SpecialFrameHandler{
     private boolean isScenePlaying;
     private boolean isOnChoice;
     private boolean canReturnToMenu;
+    public int lastFinishedScene = -1;
     private Font waitingTextFont;
     
     /**
@@ -141,6 +142,7 @@ public class SpecialFrameHandler{
             currentFrame = 0;
             lastFrameUpdate = 0;
             isOnChoice = false;
+            lastFinishedScene = currentScene;
             return;
         }
 
@@ -165,6 +167,7 @@ public class SpecialFrameHandler{
                 isScenePlaying = false;
                 currentFrame = 0;
                 lastFrameUpdate = 0;
+                lastFinishedScene = currentScene;
                 return;
             }
             moveToNextFrame();
@@ -195,6 +198,7 @@ public class SpecialFrameHandler{
                     isScenePlaying = false;
                     currentFrame = 0;
                 }
+                lastFinishedScene = currentScene;
                 lastFrameUpdate = 0;
             }
         }   

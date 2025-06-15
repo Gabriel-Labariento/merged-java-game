@@ -31,6 +31,7 @@ public class AdultCat extends Enemy{
     private static final int CHARGE_DURATION = 2500;
     private static final int CHARGE_TELEGRAPH_DURATION = 500;
     private static final int JUMP_TELEGRAPH_DURATION = 3000;
+    private static final int GROWL_COOLDOWN = 4000;
     private boolean isAttackSet;
     private double chargeDirX;
     private double chargeDirY;
@@ -38,6 +39,7 @@ public class AdultCat extends Enemy{
     private long jumpStartTime;
     private int initialSpeed;
     public int currentPhase;
+    private long lastGrowlTime = 0;
     private static final int ATTACK_DISTANCE = (GameCanvas.TILESIZE * 3) * (GameCanvas.TILESIZE * 3);
     
     /**

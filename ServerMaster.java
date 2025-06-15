@@ -1,4 +1,5 @@
 import java.io.*;
+import java.io.File;
 import java.awt.Point;
 import java.util.*;
 import java.util.concurrent.*;
@@ -60,7 +61,9 @@ public class ServerMaster {
 
     private static ServerMaster singleInstance = null;
 
-    boolean hasPlayedGameOverSound = false;
+    private boolean hasPlayedGameOverSound = false;
+    private boolean hasPlayedRevivingSound = false;
+    private boolean hasPlayedReviveSuccessSound = false;
 
     /**
      * Private constructor used in the Singleton pattern. This 
@@ -73,6 +76,11 @@ public class ServerMaster {
         entities = new CopyOnWriteArrayList<>();
         availableRevives = new ConcurrentHashMap<>();
         
+        // MAP
+        dungeonMap = new DungeonMap(gameLevel);
+        dungeonMap.generateRooms();
+        currentRoom = dungeonMap.getStartRoom();
+
         // INPUTS
         keyInputQueue = new ConcurrentHashMap<>();
 
@@ -230,6 +238,7 @@ public class ServerMaster {
             if (downedPlayersNum == playerNum){
                 isGameOver = true;
                 sendMessageToClients(NetworkProtocol.GAME_OVER);
+                System.out.println("game over message sent");
                 if (!hasPlayedGameOverSound) {
                     SoundManager.getInstance().stopAllSounds();
                     SoundManager.getInstance().playSound("gameOver");
@@ -1146,6 +1155,15 @@ public class ServerMaster {
 
         // Use the data to set relevant fields
         Room newRoom = dungeonMap.getRoomFromId(newRoomId);
+        
+        // Handle case where new room is null or invalid
+        if (newRoom == null) {
+            // Keep player in current room if destination is invalid
+            newRoom = currentRoom;
+            newX = userPlayer.getWorldX();
+            newY = userPlayer.getWorldY();
+        }
+
         userPlayer.setPosition(newX, newY);
         userPlayer.setCurrentRoom(newRoom);
         userPlayer.setHitPoints(hp);
@@ -1203,7 +1221,10 @@ public class ServerMaster {
     } 
 
     public void handleSpawnersOnRoomChange(Room next){
-        if (next.getMobSpawner() != null && (!next.getMobSpawner().isSpawning())) next.getMobSpawner().spawn();
+        if (next.getMobSpawner() != null && (!next.getMobSpawner().isSpawning())){
+             
+            next.getMobSpawner().spawn();
+        }
     }
 
     /**

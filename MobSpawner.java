@@ -254,7 +254,7 @@ public class MobSpawner {
     private int[] getRandomTileCoordinates () {
         spawnX =  parentRoom.getWorldX() + ((LOWESTX + (int) (Math.random() * ((HIGHESTX - LOWESTX) + 1))) * GameCanvas.TILESIZE);
         spawnY = parentRoom.getWorldY() + ((LOWESTY + (int) (Math.random() * ((HIGHESTY - LOWESTY) + 1))) * GameCanvas.TILESIZE);
-        
+
         return new int[] {spawnX, spawnY};
     }
 

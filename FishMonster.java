@@ -33,6 +33,11 @@ public class FishMonster extends Enemy{
     private long lastLimpTime;
     private long lastSummonTime;
     private static final int LIMP_CD_DURATION = 50;
+    private static final int PHASE_ONE_NOISE_DURATION = 8000;
+    private static final int PHASE_TWO_NOISE_DURATION = 10000;
+    private long lastPhaseOneNoiseTime = 0;
+    private long lastPhaseTwoNoiseTime = 0;
+    private boolean hasPlayedPhaseThreeNoise = false;
 
     /**
      * Calls the static setSprites() method

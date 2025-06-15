@@ -24,6 +24,8 @@ import javax.imageio.ImageIO;
 **/
 
 public class ScreamerRat extends Enemy{
+    private static final int SCREAM_COOLDOWN = 3000;
+    private long lastScreamTime = 0;
     private static BufferedImage[] sprites;
     public static final int MAXSUMMONCOUNT = 4;
 

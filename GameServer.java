@@ -1,4 +1,5 @@
 import java.io.*;
+import java.io.File;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -6,7 +7,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javax.sound.midi.SysexMessage;
 
 /**     
         The GameServer class handles the server-side networking logic.
@@ -121,9 +121,15 @@ public class GameServer {
     }
 
     public void shutDownServer(){
+
         //Disconnect players
         if(!connectedPlayers.isEmpty()) {
-            for (ConnectedPlayer cp : connectedPlayers) cp.disconnectFromServer();
+            for (ConnectedPlayer cp : connectedPlayers){
+                //Shutdown auxiliary threads
+                // serverMaster.getPlayerFromClientId(cp.cid).getCurrentRoom().getMobSpawner().stopSpawn();
+                cp.disconnectFromServer();
+                
+            }
         }
         
         //Close socketss
@@ -387,10 +393,10 @@ public class GameServer {
                             if (part.isEmpty()) continue;
                             else if (part.startsWith(NetworkProtocol.CLICK)){
                                 String[] coors = part.split(NetworkProtocol.SUB_DELIMITER);
-                                int x = Integer.parseInt(coors[0].substring(NetworkProtocol.CLICK.length()));
-                                int y = Integer.parseInt(coors[1]);
-                                // System.out.println("CLick at " + x + "," + y);
-                                serverMaster.loadClickInput(x, y, cid);
+                                String mouseButton = coors[0].substring(NetworkProtocol.CLICK.length());
+                                int x = Integer.parseInt(coors[1]);
+                                int y = Integer.parseInt(coors[2]);
+                                serverMaster.loadClickInput(mouseButton, x, y, cid); 
                             } else if (part.startsWith(NetworkProtocol.NO_TO_CHOICE)){
                                 serverMaster.pollChoice(false);
                             } else if (part.startsWith(NetworkProtocol.YES_TO_CHOICE)){

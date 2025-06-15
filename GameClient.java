@@ -1,4 +1,5 @@
 import java.io.*;
+import java.io.File;
 import java.net.*;
 import java.nio.channels.NetworkChannel;
 import java.util.*;
@@ -553,11 +554,11 @@ public class GameClient {
             if(keyMap.get("D")) str.append("D");
 
             if(clickedX != 0 && clickedY != 0){
-                str.append(NetworkProtocol.DELIMITER);
-                str.append(NetworkProtocol.CLICK);
-                str.append(clickedX);
-                str.append(",");
-                str.append(clickedY);
+                str.append(NetworkProtocol.DELIMITER).append(NetworkProtocol.CLICK)
+                .append(mouseButton).append(NetworkProtocol.SUB_DELIMITER)
+                .append(clickedX).append(NetworkProtocol.SUB_DELIMITER)
+                .append(clickedY).append(NetworkProtocol.SUB_DELIMITER);
+
                 clickedX = 0;
                 clickedY = 0;
             }

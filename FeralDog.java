@@ -27,13 +27,16 @@ import javax.imageio.ImageIO;
 public class FeralDog extends Enemy {
     private int SPAWN_COOLDOWN = 5000;
     private int ATTACK_COOLDOWN = 4000;
+    private static final int SNARL_COOLDOWN = 4000;
     private static final int ATTACK_RANGE = GameCanvas.TILESIZE * 3;
     private long lastSpawnTime = 0;
+    private long lastSnarlTime = 0;
     private static BufferedImage[] sprites;
     private enum Phase {NORMAL, BUFFED}
     private enum State {IDLE, PURSUE, ATTACK};
     private Phase currentPhase;
     private State currentState;
+    private boolean hasPlayedBuffSound = false;
 
     /**
      * Call the static setSprites() method

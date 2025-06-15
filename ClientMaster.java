@@ -382,13 +382,14 @@ public class ClientMaster {
 
     public void setIsWaitingForChoice(boolean b){
         isWaitingForChoice = b;
+    }
     /**
      * Gets the HashMap of all rooms
      * @return the allRooms HashMap
      */
     public HashMap<Integer, Room> getAllRooms() {
         return allRooms;
-    }s
+    }
 
     /**
      * Gets the minimap instance

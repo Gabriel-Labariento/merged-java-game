@@ -310,4 +310,8 @@ import javax.swing.*;
                 // System.out.println("Painting tutorial step:" + message);
             }
         }
+
+        public void setIsActive(boolean b){
+            isActive = b;
+        }
     }

@@ -29,9 +29,11 @@ public class RatKing extends Enemy {
     private static final int SPAWN_COOLDOWN = 4000;
     private static final int ATTACK_COOLDOWN = 5000;
     private static final int SMASH_COOLDOWN = 3000;
+    private static final int GROWL_COOLDOWN = 7500;
     private static final int ATTACK_RANGE = GameCanvas.TILESIZE * 3;
     private long lastSpawnTime = 0;
     private long lastSmashTime = 0;
+    private long lastGrowlTime = 0;
     private static BufferedImage[] sprites;
     private enum Phase {MOVE_AWAY, CHASE}
     private Phase currentPhase;

@@ -134,6 +134,16 @@ public class SoundManager {
     }
   }
 
+  public void stopSound(String name){
+    Clip sound = soundClips.get(name);
+    if (sound == null) sound = musicClips.get(name);
+    if (sound == null) sound = soundPools.get(name).get(0);
+
+    if (sound == null) return;
+
+    if (sound.isRunning()) sound.stop();
+  }
+
   /**
    * Initializes a sound pool for the given sound effect.
    * Used when the sound effect is played multiple times in quick succession.

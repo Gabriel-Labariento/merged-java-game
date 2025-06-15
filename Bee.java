@@ -24,9 +24,11 @@ import javax.imageio.ImageIO;
 **/
 
 public class Bee extends Enemy{
+    private static final int BUZZ_COOLDOWN = 4000;
     private static final int DASH_COOLDOWN = 1000;
     private static final int DASH_DISTANCE = GameCanvas.TILESIZE * 4;
     private long lastDashTime = 0;
+    private long lastBuzzTime = 0;
     private static BufferedImage[] sprites;
     private enum State {IDLE, PURSUE, DASH};
     private State currentState;

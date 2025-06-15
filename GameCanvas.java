@@ -1,8 +1,11 @@
 import java.awt.*;
-
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.concurrent.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 /**     
@@ -216,6 +219,20 @@ public class GameCanvas extends JComponent{
 
             // Update and draw minimap
             minimap.paint(g2d);
+
+            //TUTORIAL HANDLING AND DRAWING
+            // Start tutorial after first scene is done
+            if (specialFrameHandler.lastFinishedScene != -1 && !tutorialManager.isActive() && !hasTutorialStarted) {
+                tutorialManager.startTutorial();
+                hasTutorialStarted = true;
+            }
+
+            if (specialFrameHandler.lastFinishedScene != -1 
+                && tutorialManager != null 
+                && tutorialManager.isActive()
+                && !tutorialManager.isTutorialComplete()){
+                tutorialManager.checkTutorialProgression();
+            } 
         }
     }
 
@@ -273,23 +290,7 @@ public class GameCanvas extends JComponent{
      * Calls repaint on this GameCanvas every REFRESHINTERVAL milliseconds
      */
     public void startRenderLoop(){
-        renderLoopScheduler.scheduleAtFixedRate(() -> {
-            // Start tutorial after first scene is done
-            if (sceneHandler.lastFinishedScene != -1 && !tutorialManager.isActive() && !hasTutorialStarted) {
-                tutorialManager.startTutorial();
-                hasTutorialStarted = true;
-            }
-
-            if (sceneHandler.lastFinishedScene != -1 
-                && tutorialManager != null 
-                && tutorialManager.isActive()
-                && !tutorialManager.isTutorialComplete())
-                {
-                    tutorialManager.checkTutorialProgression();
-                } 
-
-            repaint();
-        }, 0, REFRESHINTERVAL, TimeUnit.MILLISECONDS);
+        renderLoopScheduler.scheduleAtFixedRate(() -> {repaint();}, 0, REFRESHINTERVAL, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -316,10 +317,6 @@ public class GameCanvas extends JComponent{
      */
     public TutorialManager getTutorialManager() {
         return tutorialManager;
-    }
-
-    public ClientMaster getClientMaster() {
-        return clientMaster;
     }
 
     public PlayerUI getPlayerUI(){

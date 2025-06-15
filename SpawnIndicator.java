@@ -5,7 +5,7 @@ import javax.imageio.ImageIO;
 
 public class SpawnIndicator extends Entity {
     private static final int INDICATOR_DURATION = 2000; // 2 seconds
-    private static final int SPRITE_DURATION = 20;
+    private static final int SPRITE_DURATION = 100;
     
     private static BufferedImage sprites[];
     private static int entityCount = 0;
