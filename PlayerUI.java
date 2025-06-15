@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
@@ -63,11 +64,6 @@ public class PlayerUI extends GameObject{
 
     @Override
     public void matchHitBoxBounds() {}
-
-    public void drawStartWarningTab(Graphics2D g2d){
-        
-    }
-
 
     /**
      * Draws all of the UI elements
@@ -149,8 +145,13 @@ public class PlayerUI extends GameObject{
         }
         g2d.setColor(Color.WHITE);
         g2d.setFont(stageFont);
-        g2d.drawString(currentStageName, 627/sf, 34/sf);
-        //TODO: Map display
+
+        //Center text
+        FontMetrics metrics = g2d.getFontMetrics(stageFont);
+        int textWidth = metrics.stringWidth(currentStageName);
+        //653 is center point
+        int drawX = 653 - textWidth / 2;
+        g2d.drawString(currentStageName, (int) (drawX / sf), 35/sf);
 
         //Empty Health
         double xOffset = 143.7 / sf;

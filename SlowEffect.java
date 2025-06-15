@@ -19,7 +19,6 @@
 **/
 
 public class SlowEffect extends StatusEffect{
-
     /**
      * Creates a SlowEffect instance that lasts for 3 seconds
      */
@@ -30,8 +29,7 @@ public class SlowEffect extends StatusEffect{
 
     @Override
     public void applyStatusEffect(Player player) {
-        int slowedSpeed = player.getBaseSpeed() - 2;
-        player.setSpeed(slowedSpeed);        
+        player.setSpeed(1);        
     }
 
     @Override

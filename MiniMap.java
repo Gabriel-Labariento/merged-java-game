@@ -9,7 +9,7 @@ import javax.swing.*;
  */
 public class MiniMap extends JComponent {
     public static final int X = 586;
-    public static final int Y = 30;
+    public static final int Y = 40;
     public static final int WIDTH = 165;
     public static final int HEIGHT = 120;
     public static final int ROOM_SIZE = 15;

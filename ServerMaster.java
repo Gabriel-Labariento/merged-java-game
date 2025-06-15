@@ -1121,6 +1121,7 @@ public class ServerMaster {
                 .append(entity.getAssetData(false));  
             } 
         }
+        // System.out.println(sb.toString());
         return sb.toString();
     }
 

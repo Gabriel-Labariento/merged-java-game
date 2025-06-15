@@ -54,7 +54,7 @@ public class GunCat extends Player{
         worldY = y;
         maxHealth = 2;
         hitPoints = maxHealth;
-        damage = 5;
+        damage = 500;
         isDown = false;
         attackCDDuration = 800;
         attackFrameDuration = 75;

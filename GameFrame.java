@@ -835,6 +835,7 @@ public class GameFrame extends JFrame{
                 //Return to main menu 
                 gameCanvas.setIsOnMenu(true);
                 gameClient.setWantsDisconnect(true);
+                tutorialManager.resetTutorial();
                 SoundManager.getInstance().stopAllSounds();
                 isGamePaused = false;
 
