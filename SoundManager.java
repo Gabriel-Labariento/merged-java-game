@@ -139,6 +139,7 @@ public class SoundManager {
    * Used when the sound effect is played multiple times in quick succession.
    *
    * @param name the name of the sound effect
+   * @param path the path to the sound effect file
    * @param poolSize the size of the sound pool
    */
   private void initializeSoundPool(String name, String path, int poolSize) {
@@ -190,21 +191,60 @@ public class SoundManager {
     initializeSoundPool("enemyBite.wav", "enemyBite.wav", 10);
     initializeSoundPool("enemySlash.wav", "enemySlash.wav", 10);
     initializeSoundPool("laserBullet.wav", "laserBullet.wav", 30);
-
-    initializeSoundPool("click", "click.wav", 5);
+    initializeSoundPool("monsterSpawn.wav", "monsterSpawn.wav", 10);
 
 
     // GAME OVER
     loadSound("gameOver", "gameOver.wav");
+    initializeSoundPool("reviving", "reviving.wav", 3);
+    initializeSoundPool("reviveSuccess", "reviveSuccess.wav", 3);
+    initializeSoundPool("woodWalk", "woodWalk.wav", 5);
+    initializeSoundPool("waterWalk", "waterWalk.wav", 5);
+    initializeSoundPool("normalWalk", "normalWalk.wav", 5);
+    loadMusic("bossMusic", "bossMusic.wav");
+    initializeSoundPool("bossDefeat", "bossDefeat.wav", 3);
+    initializeSoundPool("levelUp", "levelUp.wav", 3);
+    initializeSoundPool("equipItem", "equipItem.wav", 3);
+    initializeSoundPool("click", "click.wav", 5);
 
-    // AMBIENT OR LEVEL-BASED
+    // LEVEL-BASED AMBIENT
     loadMusic("level0", "level0.wav");
     loadMusic("level1", "level1.wav");
-    loadMusic("level2", "level1.wav");
-    loadMusic("level3", "level1.wav");
-    loadMusic("level4", "level1.wav");
-    loadMusic("level5", "level1.wav");
-    loadMusic("level6", "level1.wav");
+    loadMusic("level2", "level2.wav");
+    loadMusic("level3", "level3.wav");
+    loadMusic("level4", "level4.wav");
+    loadMusic("level5", "level5.wav");
+    loadMusic("level6", "level6.wav");
+
+    // MUSIC BEATS
+    loadMusic("preGameMusic", "preGameMusic.wav");
+    loadMusic("mainGameBGMusic", "mainGameBGMusic.wav");
+
+
+    // MONSTER NOISES
+    initializeSoundPool("cockroach", "cockroach.wav", 5);
+    initializeSoundPool("rat", "rat.wav", 5);
+    initializeSoundPool("dogBark", "dogBark.wav", 5);
+    initializeSoundPool("rabbitNoise", "rabbitNoise.wav", 5);
+    initializeSoundPool("frogCroak", "frogCroak.wav", 5);
+    initializeSoundPool("beeBuzz", "beeBuzz.wav", 5);
+    initializeSoundPool("enemyDetected", "enemyDetected.wav", 5);
+    initializeSoundPool("feralRatNoise", "feralRatNoise.wav", 5);
+    initializeSoundPool("screamerRat", "screamerRat.wav", 5);
+    initializeSoundPool("mutatedAnchovy", "mutatedAnchovy.wav", 5);
+    initializeSoundPool("mutatedArcherfish", "mutatedArcherfish.wav", 5);
+    initializeSoundPool("mutatedPufferfish", "mutatedPufferfish.wav", 5);
+    initializeSoundPool("ratKingGrowl", "ratKingGrowl.wav", 5);
+    initializeSoundPool("buffHowl", "buffHowl.wav", 5);
+    initializeSoundPool("dogSnarl", "dogSnarl.wav", 5);
+    initializeSoundPool("waterSplash", "waterSplash.wav", 5);
+    initializeSoundPool("snakeHiss", "snakeHiss.wav", 5);
+    initializeSoundPool("angryCat", "angryCat.wav", 5);
+    initializeSoundPool("ratMonsterNoise", "ratMonsterNoise.wav", 5);
+    initializeSoundPool("phaseOneNoise", "phaseOneNoise.wav", 5);
+    initializeSoundPool("phaseTwoNoise", "phaseTwoNoise.wav", 5);
+    initializeSoundPool("phaseThreeNoise", "phaseThreeNoise.wav", 5);
+
   }
 
   /**

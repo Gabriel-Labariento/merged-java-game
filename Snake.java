@@ -152,6 +152,11 @@ public class Snake extends Enemy {
         }
 
         matchHitBoxBounds();
+
+        if (now - lastHissTime > HISS_COOLDOWN){
+            SoundManager.getInstance().playPooledSound("snakeHiss");
+            lastHissTime = now;
+        }
     }
 
     /**

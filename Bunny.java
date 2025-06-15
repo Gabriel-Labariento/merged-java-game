@@ -120,5 +120,13 @@ public class Bunny extends Enemy{
         }
 
         matchHitBoxBounds();
+
+        // Play noise on cooldown
+        if (now - lastNoiseTime > NOISE_COOLDOWN) {
+            SoundManager.getInstance().playPooledSound("rabbitNoise");
+            lastNoiseTime = now;
+        }
+
+        if (hitPoints <= 0) SoundManager.getInstance().stopSound("rabbitNoise");
     }
 }

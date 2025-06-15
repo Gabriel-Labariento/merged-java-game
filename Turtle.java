@@ -246,5 +246,6 @@ public class Turtle extends Enemy {
         EnemySmash enemySmash = new EnemySmash(this, attackX, attackY);
         enemySmash.setDamage(KILLER_DAMAGE);
         gsm.addEntity(enemySmash);
+        SoundManager.getInstance().playPooledSound("waterSplash");
     }
 }

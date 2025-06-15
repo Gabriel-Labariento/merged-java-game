@@ -269,8 +269,11 @@ public class GameServer {
                     //Set heavycat as default
                     Player chosenPlayer = serverMaster.createPlayer(playerType, cid);
                     Player player = (chosenPlayer != null) ? chosenPlayer : new HeavyCat(cid, serverMaster.getCurrentRoom().getCenterX(), serverMaster.getCurrentRoom().getCenterY());  
+                    // Add the new player to the minimap system
+                    
                     serverMaster.addEntity(player);
                 }
+                serverMaster.getMiniMapManager().addNewPlayer(cid, serverMaster.getCurrentRoom());
             } catch (IOException ex){
                 System.out.println("IOEception from receiveAssetsThread");
             }
@@ -350,7 +353,6 @@ public class GameServer {
             try {
                 String mapDataString = serverMaster.getMapData();
                 byte[] mapDataBytes = mapDataString.getBytes("UTF-8");
-                // System.out.println("Sending Map Data...");
                 dataOut.writeInt(mapDataString.length());
                 dataOut.write(mapDataBytes);
             } catch (IOException ex) {

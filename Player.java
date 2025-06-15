@@ -43,6 +43,13 @@ public abstract class Player extends Entity implements Effectable, Serializable{
     public boolean isSpriteWhite;
     public long lastWhitingUpdate;
 
+    //  TUTORIAL VARIABLES
+    protected int movementCount = 0;
+    private static final int SIGNIFICANT_MOVEMENT = 50;
+
+    protected int attackCount = 0;
+    private static final int ATTACK_THRESHOLD = 2;
+
     /**
      * Each Player instance starts at level 1, holds no item, and has 
      * an empty statusEffects ArrayList
@@ -64,9 +71,12 @@ public abstract class Player extends Entity implements Effectable, Serializable{
 
         while (currentXP >= currentXPCap) { 
             currentLvl++; 
-            // System.out.println("New level: " + currentLvl);
-
-
+            
+            if (!hasPlayedLevelUpSound) {
+                SoundManager.getInstance().playPooledSound("levelUp");
+                hasPlayedLevelUpSound = true;
+            }
+            
             //Increase stats and heal
             levelUpStats();
             hitPoints = maxHealth;
@@ -271,7 +281,47 @@ public abstract class Player extends Entity implements Effectable, Serializable{
 
         worldX += changeX;
         worldY += changeY;
+
+        if (changeX != 0 || changeY != 0){
+            playStepSound();
+            movementCount++;
+        }
+
         matchHitBoxBounds();
+    }
+
+    private void playStepSound(){
+        long currentTime = System.currentTimeMillis();
+        
+        // Calculate cooldown based on current speed relative to base speed
+        float speedMultiplier = (float) speed / baseSpeed;
+        // Clamp the multiplier between MIN and MAX values
+        speedMultiplier = Math.max(MIN_SPEED_MULTIPLIER, Math.min(MAX_SPEED_MULTIPLIER, speedMultiplier));
+        // Invert the multiplier since we want faster speed = shorter cooldown
+        float cooldownMultiplier = 1.0f / speedMultiplier;
+        
+        long currentCooldown = (long)(BASE_STEP_SOUND_COOLDOWN * cooldownMultiplier);
+        
+        if (currentTime - lastStepSoundTime < currentCooldown) {
+            return;
+        }
+
+        switch (ServerMaster.getInstance().getGameLevel()) {
+            case 2:
+            case 4:
+                // WOODEN STEP
+                SoundManager.getInstance().playPooledSound("woodWalk");
+                break;
+            case 6:
+                // WATER STEP
+                SoundManager.getInstance().playPooledSound("waterWalk");
+                break;
+            default:
+                // NORMAL STEP
+                SoundManager.getInstance().playPooledSound("normalWalk");
+                break;
+        }
+        lastStepSoundTime = currentTime;
     }
 
     /**
@@ -442,6 +492,7 @@ public abstract class Player extends Entity implements Effectable, Serializable{
      * Cycles through the attack sprites to simulate attack animation
      */
     public void runAttackFrames(){
+        attackCount++;
         int frameCount = 0;
         while(frameCount < 4){
             long now = System.currentTimeMillis();
@@ -510,4 +561,11 @@ public abstract class Player extends Entity implements Effectable, Serializable{
         return currentXP;
     }
 
+    public boolean hasMovedSignificantly(){
+        return movementCount > SIGNIFICANT_MOVEMENT;
+    }
+
+    public boolean hasReachedAttackThreshold() {
+        return attackCount > ATTACK_THRESHOLD;
+    }
 }

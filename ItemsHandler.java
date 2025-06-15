@@ -38,22 +38,18 @@ public class ItemsHandler{
         AVAILABLEITEMS.put(NetworkProtocol.LOUDBELL, 2);
         AVAILABLEITEMS.put(NetworkProtocol.PRINGLESCAN, 2);
 
-        // AVAILABLEITEMS.put("None", 0);
-        // AVAILABLEITEMS.put("Redfish", 0);
-        // AVAILABLEITEMS.put("Cat Treat", 0);
-        // AVAILABLEITEMS.put("Milk", 0);
-        // AVAILABLEITEMS.put("Premium Cat Food++", 0);
-        // AVAILABLEITEMS.put("Goldfish", 0);
-        // AVAILABLEITEMS.put("Light Scarf", 0);
-        // AVAILABLEITEMS.put("Thick Sweater", 100);
-        // AVAILABLEITEMS.put("Bag of Catnip", 0);
-        // AVAILABLEITEMS.put("Loud Bell",0);
-        // AVAILABLEITEMS.put("Pringles Can", 0);
         for (Integer dropChance: AVAILABLEITEMS.values()){
             dropChanceSum += dropChance;
         }
     }
     
+    public static void updateItemDropChance(String itemName, int newChance) {
+        Integer oldChance = AVAILABLEITEMS.get(itemName);
+        if (oldChance != null) {
+            AVAILABLEITEMS.put(itemName, newChance);
+            dropChanceSum += newChance - oldChance;
+        }
+    }
     /**
      * Generates a random item when an enemy is killed
      * @param enemy the enemy defeated that will cause the drop

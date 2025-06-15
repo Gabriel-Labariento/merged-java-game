@@ -105,6 +105,7 @@ public class SmallDog extends Enemy{
             }
         // If farther than biting distance but within barking distance, create bark attack
         } else if (distanceSquared <  BARK_DISTANCE * BARK_DISTANCE) {
+            SoundManager.getInstance().playPooledSound("dogBark");
             if (now - lastAttackTime > ATTACK_COOLDOWN) {
                 createSlashAttack(gsm, pursued, null);
                 lastAttackTime = now;

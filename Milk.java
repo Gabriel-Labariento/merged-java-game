@@ -47,6 +47,7 @@ public class Milk extends Item {
         isConsumable = true;
 
         matchHitBoxBounds();
+        initTooltip("Milk", "Increases max health and current health by 1", true);
     }
 
     @Override

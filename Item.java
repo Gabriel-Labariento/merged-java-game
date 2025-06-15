@@ -1,5 +1,6 @@
 
 import java.io.Serializable;
+import java.awt.Graphics2D;
 
 /**     
         The Item class is an abstract class that extends Entity.
@@ -36,15 +37,38 @@ public abstract class Item extends Entity implements Serializable{
     public int initialSpeed;
     public int initialDefense;
     public int initialAttackFrameDuration;
+    protected String itemName;
+    protected String itemDescription;
+    protected ItemTooltip tooltip;
+    protected int tooltipX, tooltipY;
+    protected static int itemId  = 0;
 
     /**
      * Upon item creation, triggerDespawnTimer is called immediately
      * to signal when the item should despawn.
      */
-    public Item(){
+    public Item() {
         triggerDespawnTimer();
         width = 16;
         height = 16;
+        id = itemId++;
+    }
+
+    /**
+     * Initializes the tooltip for this item
+     * @param name the name of the item
+     * @param description the description of the item
+     * @param isConsumable whether the item is consumable
+     */
+    protected void initTooltip(String name, String description, boolean isConsumable) {
+        this.itemName = name;
+        this.itemDescription = description;
+        this.isConsumable = isConsumable;
+        this.tooltip = new ItemTooltip(name, description, isConsumable);
+    }
+
+    public ItemTooltip getTooltip() {
+        return tooltip;
     }
 
     /**
@@ -137,5 +161,17 @@ public abstract class Item extends Entity implements Serializable{
 
     @Override
     public void updateEntity(ServerMaster gsm){
+        matchHitBoxBounds();
+    }
+
+    public void updateTooltip() {
+        tooltipX = worldX;
+        tooltipY = worldY;
+        tooltip.setPosition(tooltipX, tooltipY);
+        System.out.println("in updatetooltip");
+    }
+    
+    public void drawTooltip(Graphics2D g2d) {
+        tooltip.draw(g2d, tooltipX, tooltipY);
     }
 }

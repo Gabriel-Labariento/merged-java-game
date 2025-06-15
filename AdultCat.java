@@ -156,6 +156,12 @@ public class AdultCat extends Enemy{
                     }
                     
                     isAttacking = true;
+
+                    if (now - lastGrowlTime > GROWL_COOLDOWN) {
+                        SoundManager.getInstance().playPooledSound("angryCat");
+                        lastGrowlTime = now;
+                    }
+
                 } else currSprite = 6;    
                 break;
 

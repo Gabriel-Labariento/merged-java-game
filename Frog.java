@@ -149,5 +149,9 @@ public class Frog extends Enemy{
         }
 
         matchHitBoxBounds();
+        if (now - lastCroakTime > CROAK_COOLDOWN) {
+            SoundManager.getInstance().playPooledSound("frogCroak");
+            lastCroakTime = now;
+        }
     }    
 }

@@ -49,7 +49,6 @@ public class DungeonMap {
      * @param numRooms number of rooms to be made, minimum of 3.
      */
     public void generateRooms() {
-
         // Algorithm will not work for when rooms < 3. So ensure 3 is the minumum
         int numRooms = 3 + gameLevel;
 
@@ -91,8 +90,6 @@ public class DungeonMap {
                         randomRoom = chooseRandomRoom();
                         if (room.isConnectable(direction, randomRoom) && (randomRoom.canAddMoreDoors())) {
                             room.connectRooms(direction, randomRoom);
-                            // System.out.println("Successfully connected Room " + room.getRoomId() + " to Room "
-                            //         + randomRoom.getRoomId());
                             break;
                         } 
                     }
@@ -109,6 +106,7 @@ public class DungeonMap {
         }
     }
 
+    
     /**
      * Assigns a room's "difficulty" (in terms of the enemies) depending on the current gameLevel
      * and its "distance" (how many connections away) it is from the starting room.
@@ -230,6 +228,8 @@ public class DungeonMap {
         endRoom = c;
 
         startRoom.setIsStartRoom(true);
+        startRoom.setCleared(true);
+        startRoom.setVisited(true);
         endRoom.setIsEndRoom(true);
 
         // System.out.println("Start Room is Room " + startRoom.getRoomId());
@@ -415,7 +415,9 @@ public class DungeonMap {
         String doorDirection = doorData[3];
         int roomAID = Integer.parseInt(doorData[4]);
         int roomBID = Integer.parseInt(doorData[5]);
-        doorDataList.add(new DoorDataHolder(doorId, doorX, doorY, doorDirection, roomAID, roomBID));
+        boolean isOpen = doorData.length > 6 ? Boolean.parseBoolean(doorData[6]) : true; // Default to true for backward compatibility
+        if (roomBID == -1) return;
+        doorDataList.add(new DoorDataHolder(doorId, doorX, doorY, doorDirection, roomAID, roomBID, isOpen));
     }
 
     /**
@@ -472,6 +474,7 @@ public class DungeonMap {
     private class DoorDataHolder{
         private final int id, x, y, roomAId, roomBId;
         private final String direction;
+        private final boolean isOpen;
 
         /**
          * Creates a DoorDataHolder instance with fields set to the passed arguments
@@ -481,14 +484,16 @@ public class DungeonMap {
          * @param direction the direction in the room where the door appears
          * @param roomAId the id of RoomA
          * @param roomBId the id of RoomB
+         * @param isOpen whether the door is open
          */
-        public DoorDataHolder(int id, int x, int y, String direction, int roomAId, int roomBId) {
+        public DoorDataHolder(int id, int x, int y, String direction, int roomAId, int roomBId, boolean isOpen) {
             this.id = id;
             this.x = x;
             this.y = y;
             this.roomAId = roomAId;
             this.roomBId = roomBId;
             this.direction = direction;
+            this.isOpen = isOpen;
         }
 
         /**
@@ -499,6 +504,7 @@ public class DungeonMap {
         public Door createDoorFromDoorData(HashMap<Integer, Room> mapIdToRoom ) {
             Door d = new Door(x, y, direction, mapIdToRoom.get(roomAId), mapIdToRoom.get(roomBId));
             d.setId(this.id);
+            d.setIsOpen(this.isOpen);
             return d;
         }
     }

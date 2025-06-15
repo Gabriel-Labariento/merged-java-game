@@ -31,6 +31,9 @@ public class GameStarter {
         SoundManager soundManager = SoundManager.getInstance();
         soundManager.setUpAudio();
 
+        SoundManager.getInstance().playMusic("preGameMusic");
+
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             SoundManager.getInstance().shutdown();
         }));

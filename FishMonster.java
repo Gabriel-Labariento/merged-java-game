@@ -135,6 +135,11 @@ public class FishMonster extends Enemy{
                     lastSummonTime = now;
                 }
 
+                if (now - lastPhaseOneNoiseTime > PHASE_ONE_NOISE_DURATION){
+                    SoundManager.getInstance().playPooledSound("phaseOneNoise");
+                    lastPhaseOneNoiseTime = now;
+                }
+
                 //Set triger for phase 2
                 if(hitPoints <= (maxHealth*0.5)) currentForm = State.PHASE2;
                 break;
@@ -150,10 +155,19 @@ public class FishMonster extends Enemy{
                     summonMinion(gsm);
                     lastSummonTime = now;
                 }
+                if (now - lastPhaseTwoNoiseTime > PHASE_TWO_NOISE_DURATION){
+                    SoundManager.getInstance().playPooledSound("phaseTwoNoise");
+                    lastPhaseTwoNoiseTime = now;
+                }
+
                 break;
             
             // BULLETS
             case PHASE3:
+                if (!hasPlayedPhaseThreeNoise){
+                    SoundManager.getInstance().playPooledSound("phaseThreeNoise");
+                    hasPlayedPhaseThreeNoise = true;
+                }
                 attackCDDuration = 400;
                 actionDistance = (GameCanvas.TILESIZE*225) * (GameCanvas.TILESIZE*25);
                    

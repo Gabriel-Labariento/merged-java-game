@@ -121,6 +121,11 @@ public class SecurityBot extends Enemy{
             lastSpriteUpdate = now;
         }
         matchHitBoxBounds();
+
+        if (now - lastSoundTime > SOUND_COOLDOWN){
+            SoundManager.getInstance().playPooledSound("enemyDetected");
+            lastSoundTime = now;
+        }
     }
 
     /**

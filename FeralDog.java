@@ -131,6 +131,10 @@ public class FeralDog extends Enemy {
                 break;
 
             case BUFFED:
+                if (!hasPlayedBuffSound) {
+                    SoundManager.getInstance().playPooledSound("buffHowl");
+                    hasPlayedBuffSound = true;
+                }
                 if (pursued == null) return;    
                 
                 // Shorten cooldowns
@@ -159,6 +163,11 @@ public class FeralDog extends Enemy {
 
         updateWalkFrame(now, pursued);
         matchHitBoxBounds();
+
+        if (now - lastSnarlTime > SNARL_COOLDOWN){
+            SoundManager.getInstance().playPooledSound("dogSnarl");
+            lastSnarlTime = now;
+        }
     }
 
     /**
