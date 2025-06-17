@@ -44,9 +44,10 @@ public class Goldfish extends Item {
         worldX = x;
         worldY = y;
         currentRoom = null;
+        isConsumable = false;
 
         matchHitBoxBounds();
-        initTooltip("Goldfish", "Gives 10% of the player's current XP cap as XP", true);
+        initTooltip("Goldfish", "Gives 10% of the player's current XP cap as XP", false);
     }
 
     @Override

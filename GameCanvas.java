@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.concurrent.*;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -169,6 +168,7 @@ public class GameCanvas extends JComponent{
 
             // Check if any scene change condition is met
             if (hasStageProgressed || isFinalBossDefeated) {
+                //TODO: ADD CONTINUE STAGE SKIPPING
                 currentStage++;
                 specialFrameHandler.setIsScenePlaying(true);
                 return;
@@ -222,17 +222,19 @@ public class GameCanvas extends JComponent{
 
             //TUTORIAL HANDLING AND DRAWING
             // Start tutorial after first scene is done
-            if (specialFrameHandler.lastFinishedScene != -1 && !tutorialManager.isActive() && !hasTutorialStarted) {
-                tutorialManager.startTutorial();
-                hasTutorialStarted = true;
-            }
+            if (specialFrameHandler.lastFinishedScene == 0){
+                if (!tutorialManager.isActive() && !hasTutorialStarted) {
+                    tutorialManager.startTutorial();
+                    hasTutorialStarted = true;
+                }
 
-            if (specialFrameHandler.lastFinishedScene != -1 
-                && tutorialManager != null 
-                && tutorialManager.isActive()
-                && !tutorialManager.isTutorialComplete()){
-                tutorialManager.checkTutorialProgression();
-            } 
+                if (tutorialManager != null 
+                    && tutorialManager.isActive()
+                    && !tutorialManager.isTutorialComplete()){
+                    tutorialManager.checkTutorialProgression();
+                } 
+            }
+            
         }
     }
 

@@ -73,7 +73,8 @@ public abstract class Entity extends GameObject {
         .append(worldY).append(NetworkProtocol.SUB_DELIMITER)
         .append(currentRoom.getRoomId()).append(NetworkProtocol.SUB_DELIMITER)
         .append(currSprite).append(NetworkProtocol.SUB_DELIMITER)
-        .append(getZIndex()).append(NetworkProtocol.DELIMITER);
+        .append(getZIndex()).append(NetworkProtocol.SUB_DELIMITER)
+        .append(hitPoints).append(NetworkProtocol.DELIMITER);
         
         return sb.toString();
     };

@@ -46,6 +46,7 @@ public class PringlesCan extends Item {
         worldX = x;
         worldY = y;
         currentRoom = null;
+        isConsumable = false;
 
         matchHitBoxBounds();
         initTooltip("Pringles Can", "Increases defense by 50 but increases attack cooldown time by 25% and decreases damage by 25%", false);

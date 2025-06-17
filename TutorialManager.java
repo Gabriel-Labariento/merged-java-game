@@ -2,9 +2,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import javax.swing.*;
 
     /**
@@ -21,6 +18,7 @@ import javax.swing.*;
         private boolean isActive;
         private GameCanvas parentCanvas;
         private ServerMaster gameServerMaster;
+        private boolean lockedDoors;
 
         private boolean hasShownTutorialStep = false;
         private static final int TUTORIAL_STEP_DURATION = 4000;
@@ -80,8 +78,7 @@ import javax.swing.*;
                 parentCanvas.revalidate();
                 parentCanvas.repaint();
             } else {
-                currentStep = null; 
-                isActive = false;
+                closeCurrentTutorial();
             }
         }
 
@@ -107,10 +104,21 @@ import javax.swing.*;
          * Hides the current step and reinitializes all steps.
          */
         public void resetTutorial() {
+            closeCurrentTutorial();
+            initializeSteps();
+        }
+
+        public void closeCurrentTutorial(){
+            parentCanvas.setRightClickAllowed(true);
+            if(lockedDoors){
+                Player serverPlayer = getServerPlayer();
+                serverPlayer.getCurrentRoom().openDoors();
+                lockedDoors = false;
+            }
+            
             hideCurrentStep();
             currentStep = null;
             steps.clear();
-            initializeSteps();
             isActive = false;
         }
 
@@ -138,16 +146,21 @@ import javax.swing.*;
             return currentStep;
         }
 
+        public Player getServerPlayer(){
+            int cid = parentCanvas.getGameClient().getClientId();
+            return (Player) gameServerMaster.getPlayerFromClientId(cid);
+        }
+
         public void checkTutorialProgression() {
             if (!isActive) return;
-            int cid = parentCanvas.getGameClient().getClientId();
-            Player serverPlayer = (Player) gameServerMaster.getPlayerFromClientId(cid);
+            Player serverPlayer = getServerPlayer();
             Room startRoom = gameServerMaster.getDungeonMap().getStartRoom();
             
 
             switch (currentStep.getStep()) {
                     case 0:  // MOVEMENT
                         startRoom.closeDoors();
+                        lockedDoors = true;
                         if (serverPlayer.hasMovedSignificantly()) {
                             handleTutorialProgression();
                         }
@@ -156,6 +169,7 @@ import javax.swing.*;
                         if (serverPlayer.hasReachedAttackThreshold()) {
                             handleTutorialProgression();
                             startRoom.openDoors();
+                            lockedDoors = false;
                         }
                         break;
                     case 2: // MOVE OUT ROOM
@@ -175,6 +189,7 @@ import javax.swing.*;
 
                         // Lock doors for now until item is picked up
                         current.closeDoors();
+                        lockedDoors = true;
 
                         if (current != startRoom && current.isCleared()) {
                             handleTutorialProgression();
@@ -198,6 +213,7 @@ import javax.swing.*;
                         if (parentCanvas.getHasClickedOnItem()) {
                             handleTutorialProgression();
                             roomBeforeBoss.openDoors();
+                            lockedDoors = false;
                             lastShowTutorialStepTime = System.currentTimeMillis();
                             ItemsHandler.updateItemDropChance("None", 60);
                             gameServerMaster.setIsItemCollisionAllowed(true);

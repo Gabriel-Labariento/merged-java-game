@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicSliderUI;
 
 /**     
         The GameFrame class extends JFrame. It serves as the main game window.
@@ -48,6 +49,7 @@ public class GameFrame extends JFrame{
     private ClientMaster clientMaster;
     private SpecialFrameHandler specialFrameHandler;
     private TutorialManager tutorialManager;
+    private MiniMap miniMap;
     private final ArrayList<JButton> btns;
     private final ArrayList<JButton> blackWhiteBtns;
     private final JLabel gameTitle;
@@ -171,6 +173,7 @@ public class GameFrame extends JFrame{
         gameClient = gameCanvas.getGameClient();
         specialFrameHandler = gameCanvas.getSpecialFrameHandler();
         tutorialManager = gameCanvas.getTutorialManager();
+        miniMap = clientMaster.getMiniMap();
 
         //Configure new instance of gameCanvas
         gameCanvas.setBounds(0, 0, width, height);
@@ -574,7 +577,7 @@ public class GameFrame extends JFrame{
         JPanel pauseTabBG1 = new JPanel();
         pauseTabBG1.setBackground(Color.WHITE);
         pauseTabBG1.setOpaque(true);
-        pauseTabBG1.setBounds(161, 163, 477, 316);
+        pauseTabBG1.setBounds(150, 153, 498, 337);
         lp.add(pauseTabBG1, Integer.valueOf(2));
     }
 
@@ -582,10 +585,24 @@ public class GameFrame extends JFrame{
         // setup listeners
         addSliderListeners();
 
-        // setup ui appearance
-        sfxVolumeSlider.setBounds(418, 261, 178, 12);
-        sfxVolumeSlider.setBackground(Color.black);
-        sfxVolumeSlider.setUI(new javax.swing.plaf.basic.BasicSliderUI(sfxVolumeSlider) {
+        setupSlider(sfxVolumeSlider, 418, 261);
+        setupSlider(musicVolumeSlider, 418, 291);
+        setupSlider(masterVolumeSlider, 418, 330);
+    }
+
+    private void setupSlider(JSlider slider, int x, int y) {
+        slider.setBounds(x, y, 178, 12);
+        slider.setBackground(Color.black);
+        slider.setUI(createCustomSliderUI(slider));
+    }
+
+    private BasicSliderUI createCustomSliderUI(JSlider slider) {
+        return new BasicSliderUI(slider) {
+            @Override
+            public void installUI(JComponent c) {
+                super.installUI(c);
+            }
+
             @Override
             public void paintThumb(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
@@ -603,9 +620,10 @@ public class GameFrame extends JFrame{
                 return new Dimension(sliderThumb.getWidth(null), sliderThumb.getHeight(null));
             }
 
-            //Delete slider focus border
             @Override
-            public void paintFocus(Graphics g){}
+            public void paintFocus(Graphics g) {
+                // Delete slider focus border - empty implementation
+            }
 
             @Override
             public void paintTrack(Graphics g) {
@@ -632,110 +650,7 @@ public class GameFrame extends JFrame{
 
                 g2.dispose();
             }
-        });
-
-        musicVolumeSlider.setBounds(418, 291, 178, 12);
-        musicVolumeSlider.setBackground(Color.black);
-        musicVolumeSlider.setUI(new javax.swing.plaf.basic.BasicSliderUI(musicVolumeSlider) {
-            @Override
-            public void paintThumb(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                int x = thumbRect.x + (thumbRect.width - sliderThumb.getWidth(null)) / 2;
-                int y = thumbRect.y + (thumbRect.height - sliderThumb.getHeight(null)) / 2;
-
-                g2d.drawImage(sliderThumb, x, y, null);
-                g2d.dispose();
-            }
-
-            @Override
-            protected Dimension getThumbSize() {
-                return new Dimension(sliderThumb.getWidth(null), sliderThumb.getHeight(null));
-            }
-
-            //Delete slider focus border
-            @Override
-            public void paintFocus(Graphics g){}
-
-            @Override
-            public void paintTrack(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                int x = trackRect.x;
-                int y = trackRect.y + trackRect.height / 2 - 3; 
-                int w = trackRect.width;
-                int h = 5; 
-
-                // Outer border
-                g2.setColor(Color.WHITE);
-                g2.fillRoundRect(x, y, w, h, 5, 5);
-
-                // Slider Background
-                g2.setColor(Color.BLACK);
-                g2.fillRoundRect(x + 1, y + 1, w - 2, h - 2, 3, 3);
-
-                // Dynamic filling
-                int fillWidth = thumbRect.x + thumbRect.width / 2 - x;
-                g2.setColor(Color.WHITE);
-                g2.fillRoundRect(x + 1, y + 1, fillWidth, h - 2, 3, 3);
-
-                g2.dispose();
-            }
-        });
-
-
-        masterVolumeSlider.setBounds(418, 330, 178, 12);
-        masterVolumeSlider.setBackground(Color.black);
-        masterVolumeSlider.setUI(new javax.swing.plaf.basic.BasicSliderUI(masterVolumeSlider) {
-            @Override
-            public void paintThumb(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                int x = thumbRect.x + (thumbRect.width - sliderThumb.getWidth(null)) / 2;
-                int y = thumbRect.y + (thumbRect.height - sliderThumb.getHeight(null)) / 2;
-
-                g2d.drawImage(sliderThumb, x, y, null);
-                g2d.dispose();
-            }
-
-            @Override
-            protected Dimension getThumbSize(){
-                return new Dimension(sliderThumb.getWidth(null), sliderThumb.getHeight(null));
-            }
-
-            //Delete slider focus border
-            @Override
-            public void paintFocus(Graphics g){}
-
-            @Override
-            public void paintTrack(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                int x = trackRect.x;
-                int y = trackRect.y + trackRect.height / 2 - 3; 
-                int w = trackRect.width;
-                int h = 5; 
-
-                // Outer border
-                g2.setColor(Color.WHITE);
-                g2.fillRoundRect(x, y, w, h, 5, 5);
-
-                // Slider Background
-                g2.setColor(Color.BLACK);
-                g2.fillRoundRect(x + 1, y + 1, w - 2, h - 2, 3, 3);
-
-                // Dynamic filling
-                int fillWidth = thumbRect.x + thumbRect.width / 2 - x;
-                g2.setColor(Color.WHITE);
-                g2.fillRoundRect(x + 1, y + 1, fillWidth, h - 2, 3, 3);
-
-                g2.dispose();
-            }
-        });
+        };
     }
 
 
@@ -835,7 +750,7 @@ public class GameFrame extends JFrame{
                 //Return to main menu 
                 gameCanvas.setIsOnMenu(true);
                 gameClient.setWantsDisconnect(true);
-                tutorialManager.resetTutorial();
+                tutorialManager.closeCurrentTutorial();
                 SoundManager.getInstance().stopAllSounds();
                 isGamePaused = false;
 
@@ -990,7 +905,7 @@ public class GameFrame extends JFrame{
 
         //Force reload
         cp.requestFocusInWindow();
-        catCarousel.stopCarouselRenderLoop();
+        if (catCarousel != null) catCarousel.stopCarouselRenderLoop();
         
 
         // Start the level music after the scene is done playing
@@ -1031,7 +946,10 @@ public class GameFrame extends JFrame{
                 else if (!(isGamePaused || gameCanvas.getIsOnMenu())) {
                     if (e.getButton() == MouseEvent.BUTTON1) {
                         // Disable game attack clicks until the movement tutorial step is finished
-                        if (tutorialManager.getCurrentStep().getStep() < 1) return;
+                        if(tutorialManager.getCurrentStep() != null){
+                            if (tutorialManager.getCurrentStep().getStep() < 1) return;
+                        }
+                        
 
                         // Left click - send to server
                         gameClient.clickInput("L", e.getX(), e.getY());
@@ -1136,9 +1054,13 @@ public class GameFrame extends JFrame{
         AbstractAction keyInputSPACE = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae){
+                if(tutorialManager.isActive()){
+                    tutorialManager.closeCurrentTutorial();
+                }
+
                 if (specialFrameHandler.getCanReturnToMenu()){
                     loadStartUI();
-                    tutorialManager.resetTutorial();
+                    tutorialManager.closeCurrentTutorial();
                     gameClient.disconnectFromServer();
                     gameCanvas.setIsOnMenu(true);
                     SoundManager.getInstance().stopAllSounds();

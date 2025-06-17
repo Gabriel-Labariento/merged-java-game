@@ -42,6 +42,7 @@ public class LightScarf extends Item {
         worldX = x;
         worldY = y;
         currentRoom = null;
+        isConsumable = false;
 
         matchHitBoxBounds();
         initTooltip("Light Scarf", "Reduces attack cooldown by 50% but decreases health by 75%", false);

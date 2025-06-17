@@ -57,6 +57,7 @@ public class ThickSweater extends Item {
         initialAttackFrameDuration = 0;
         isFirstTimeUse = true;
         regenTime = 0;
+        isConsumable = false;
 
         initTooltip("Thick Sweater", 
                    "A cozy sweater that provides defense and health regeneration. Reduces movement speed but grants passive healing.", 

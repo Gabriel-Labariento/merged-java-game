@@ -25,7 +25,7 @@ import javax.imageio.ImageIO;
 **/
 
 public class SmallDog extends Enemy{
-    private static final int ATTACK_COOLDOWN = 3000;
+    private static final int ATTACK_COOLDOWN = 6000;
     private static BufferedImage[] sprites;
 
     // Call the static setSprites() method

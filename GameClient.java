@@ -407,7 +407,7 @@ public class GameClient {
                 // System.out.println("Whole entity string: " + part);
                 String[] entityData = part.substring(NetworkProtocol.ENTITY.length()).split(NetworkProtocol.SUB_DELIMITER);
                 
-                if (entityData.length >= 7) {
+                if (entityData.length >= 8) {
                     int roomId = Integer.parseInt(entityData[4]);
                     if (!(roomId == clientMaster.getCurrentRoom().getRoomId())) continue;
                     
@@ -417,7 +417,8 @@ public class GameClient {
                     int y = Integer.parseInt(entityData[3]);
                     int sprite = Integer.parseInt(entityData[5]);
                     int zIndex = Integer.parseInt(entityData[6]);
-                    clientMaster.loadEntity(identifier, id, x, y, roomId, sprite, zIndex);
+                    int hitPoints = Integer.parseInt(entityData[7]);
+                    clientMaster.loadEntity(identifier, id, x, y, roomId, sprite, zIndex, hitPoints);
                 } else { 
                     // SPRITELESS OBJECTS
                     // Don't load if not in the same room as the client.
@@ -428,7 +429,7 @@ public class GameClient {
                     int id = Integer.parseInt(entityData[1]);
                     int x = Integer.parseInt(entityData[2]);
                     int y = Integer.parseInt(entityData[3]);
-                    clientMaster.loadEntity(identifier, id, x, y, roomId, 0, 0);
+                    clientMaster.loadEntity(identifier, id, x, y, roomId, 0, 0, 0);
                 }
             } else if (part.startsWith(NetworkProtocol.MINIMAP_UPDATE)) {
                 // System.out.println("Recieved in parseEntitiesData:" + part);

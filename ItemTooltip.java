@@ -14,7 +14,7 @@ public class ItemTooltip{
     private final String description;
     private final boolean isConsumable;
     private int x, y;
-    private final float alpha = 0.7f;
+    private final float alpha = 0.9f;
     private boolean showTooltips;
     private long showStartTime;
     private boolean isVisible;

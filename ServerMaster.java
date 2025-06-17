@@ -1,6 +1,6 @@
+import java.awt.Point;
 import java.io.*;
 import java.io.File;
-import java.awt.Point;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -720,7 +720,7 @@ public class ServerMaster {
      */
     private void damagePlayer(Player player, Entity entity){
         //Debouncing condition
-        if(!player.getIsInvincible() && !player.getIsDown()){ // TODO: ADD NOT
+        if(!player.getIsInvincible() && !player.getIsDown()){
             //Calculate damage taken: new health = current health - (damage*(1-(defense/100)))
             double dmgMitigationFactor = (1-(player.getDefense()/100.0));
             if(dmgMitigationFactor < 0) dmgMitigationFactor = 0;
@@ -759,9 +759,21 @@ public class ServerMaster {
         int id = attack.getId();
         //Debouncing condition
         if(enemy.validateAttack(id)){
-            enemy.setHitPoints(enemy.getHitPoints()-attack.getDamage());
+            //damage enemy
+            int damageDealt = attack.getDamage();
+            enemy.setHitPoints(enemy.getHitPoints()-damageDealt);
+
+            //do knockback
             if (!enemy.isBoss) applyKnockBack(enemy, attack);
+
+            //register attack
             enemy.loadAttack(id);
+
+            //indicate damage dealt
+            DamageIndicator damageIndicator = new DamageIndicator(enemy.getCenterX(), enemy.getCenterY());
+            damageIndicator.setHitPoints(damageDealt);
+            // System.out.println(damageIndicator.getHitPoints() + " - " + damageDealt);
+            addEntity(damageIndicator);
         }
     }
 

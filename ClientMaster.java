@@ -159,9 +159,13 @@ public class ClientMaster {
         else if (identifier.equals( NetworkProtocol.LOUDBELL)) return new LoudBell(x, y);
         else if (identifier.equals( NetworkProtocol.PRINGLESCAN)) return new PringlesCan(x,y);
 
-        //Enemy entities
+        //Indicators
         else if (identifier.equals(NetworkProtocol.SPAWN_INDICATOR))
              return new SpawnIndicator(x, y);
+        else if (identifier.equals(NetworkProtocol.DAMAGE_INDICATOR))
+            return new DamageIndicator(x, y);
+        //Enemy entities
+        
              
         //Normal 
         else if (identifier.equals( NetworkProtocol.SPIDER)) return new Spider(x, y);
@@ -221,7 +225,7 @@ public class ClientMaster {
      * @param sprite the current sprite of the entity to render
      * @param zIndex a number that corresponds to which layer should the entity be rendered relative to other entities and gameObjects
      */
-    public void loadEntity(String identifier, int id, int x, int y, int roomId, int sprite, int zIndex) {
+    public void loadEntity(String identifier, int id, int x, int y, int roomId, int sprite, int zIndex, int hP) {
         // First check if we already have this entity
         for (Entity e : entities) {
             if (e.getId() == id && e.getIdentifier().equals(identifier)) {
@@ -240,6 +244,7 @@ public class ClientMaster {
         Entity entity = getEntity(identifier, id, x, y);
         entity.setCurrSprite(sprite);
         entity.setzIndex(zIndex);
+        entity.setHitPoints(hP);
         entity.setCurrentRoom(getRoomById(roomId));
         addEntity(entity);
     }

@@ -150,7 +150,7 @@ public class PlayerUI extends GameObject{
         FontMetrics metrics = g2d.getFontMetrics(stageFont);
         int textWidth = metrics.stringWidth(currentStageName);
         //653 is center point
-        int drawX = 653 - textWidth / 2;
+        int drawX = (int) (653 - textWidth / 2.0);
         g2d.drawString(currentStageName, (int) (drawX / sf), 35/sf);
 
         //Empty Health
